@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[latin1]{inputenc}
 
 \begin{document}
 
@@ -6,8 +7,7 @@
 
 \author{Mihir Mehta\\
 Department of Computer Science and Engineering,\\
-Indian Institute of Technology, Delhi,\\
-New Delhi, India.\\
+Indian Institute of Technology, Delhi.\\
 \texttt{cs1090197@cse.iitd.ac.in}
 }
 
@@ -48,7 +48,28 @@ Project for the academic year 2012-2013.
 
 \section{CCS processes}
 
-CCS expression: Defined by the following grammar:
+\begin{itemize}
+\item A CCS process is an automaton with state and interfaces for
+interaction. 
+\item The interaction is in the form of \emph{actions} over
+communication ports known as \emph{channels}. 
+\item Given a port name $a$ we refer to $a$ as the label for input on the port
+  and $\overline{a}$ as the label for the output on the port.
+\item \emph{Inaction}: This is the simplest CCS process, denoted by
+  $0$. No state transitions or communcation can occur, in other words,
+  this represents a deadlock.
+\item \emph{Prefixing}: This is the simplest constructor; if $P$ is a
+  process and $a$ is a label (input or output) then $a.P$ is also a
+  process which can perform the action $a$ in order to become the
+  process P.
+
+\item \emph{Naming}: We can give names to processes using syntax such as \\
+$N \overset{def}{=} a_1.a_2.....0$ \\
+This gives us the ability to define CCS processes recursively, such as
+this one:\\
+Parrot \overset{def}{=} $a.\overline{a}$.Parrot
+
+\item CCS expression: Defined by the following grammar:
 \begin{itemize}
 \item $P::=K$
 \item $P::=\alpha . P$
@@ -58,25 +79,117 @@ CCS expression: Defined by the following grammar:
 \item $P::=P\L$
 \end{itemize}
 
-\section{Equivalences on LTS}
+\end{itemize}
+
+\section{Equivalences on CCS}
+
+\subsection{Trace equivalence}
+  \begin{itemize}
+  \item Trace equivalence: $Traces(P) = Traces(Q)$
+  \item Unsatisfactory (differences in deadlock
+    behaviour.)
+  \end{itemize}
 
 \subsection{Strong bismilarity}
+  \begin{itemize}
+  \item Strong bisimulation: A binary relation $R$ is a \texttt{strong
+    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) )$
+  \item It can be shown that the union of all strong bisimulations
+    over the set of states is a strong bismulation. This binary
+    relation is called \texttt{strong bisimilarity}, denoted by $\sim$.
+  \item Better notion of equivalence than trace
+    equivalence: picks up differences in the deadlock
+    behaviour of processes under study.
+  \item Failing: does not account for the
+    invisible nature of $\tau$ transitions in CCS processes.
+
+  \end{itemize}
 
 \subsection{Weak bismilarity}
 
+  \begin{itemize}
+  \item Weak bisimulation: A binary relation $R$ is a \texttt{weak
+    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \overset{a}{\Rightarrow} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \overset{a}{\Rightarrow} s_1' \wedge (s_1', s_2') \epsilon R ) )$
+  \item It can be shown that the union of all weak bisimulations
+    over the set of states is a weak bismulation. This binary
+    relation is called \texttt{weak bisimilarity}, denoted by $\approx$.
+  \item Better suited to CCS processes,
+    as it ignores $\tau$ transitions, thus disregarding hidden
+    behaviour within a process.
+  \end{itemize}
+
 \subsection{Kanellakis and Smolka's algorithm}
+
+  \begin{itemize}
+  \item This is a naive algorithm for determining the bisimilarity
+    relation for the set of processes in a labelled transition system.
+  \item This relies on the notion of a splitter.
+  \item Let $\pi = \{ B_0, ..., B_k \}, k \ge 0$ be a partition of the
+    set of states $Pr$ in a labeled transition system.
+  \item A splitter for a block $B_i$ $\epsilon$ $\pi$ is a block $B_j$
+    $\epsilon$ $\pi$ such that for some action $a$ $\epsilon$ $Act$, some
+    states in $B_i$ have $a$-labelled transitions whose targets lie in
+    $B_j$ while other states in $B_i$ do not.
+  \item This suggests a refinement of $\pi$: replace block $B_i$ with
+    \\
+    $B_i^1 = B_i \cap T_a^{-1}[B_j] $ \\
+    $B_i^2 = B_i - B_i^1 $ 
+  \item Refinements of this kind constitute the steps of this
+    algorithm.
+  \item The time complexity of this algorithm is $O(mn)$, since there
+    can be at most n iterations, and all m edges are scanned in each iteration.
+  \end{itemize}
 
 \subsection{Fernandez' algorithm}
 
+  \begin{itemize}
+  \item More efficient algorithm (O(m log n)).
+  \item Relies on Paige and Tarjan's technique of three-way splitting.
+  \item Splitters can now be 'simple' or 'compound'.
+  \item Stability: A partition $\pi$ is said to be stable with respect to a
+    compound block S if S is not a splitter for any block in $\pi$ for
+    any action.
+  \item For a compound block S, having a constituent simple block B
+    satisfying $n(B) \le 0.5*n(S)$, and with respect to which $\pi$ is
+    stable, we can split a block $B_i$ on an action $a$ as follows:\\
+    $B_i^1 = (B_i \cap T_a^{-1}[B]) - T_a^{-1}[S-B]$ \\
+    $B_i^2 = (B_i \cap T_a^{-1}[S-B]) - T_a^{-1}[B]$ \\
+    $B_i^3 = B_i \cap T_a^{-1}[B] \cap T_a^{-1}[S-B]$ \\
+  \end{itemize}
+
 \section{Timed automata}
+
+  \begin{itemize}
+  \item Formally, a timed automaton over a finite set of clocks $C$
+    and a finite set of actions $Act$ is a 4-tuple $(L, l_{0}, E, I)$.
+  \item $L$ is a finite set of locations.
+  \item $l_{0}$ is the initial location.
+  \item $E \subseteq L \times B(C) \times Act \times 2^{C} \times L$
+    is a finite set of edges.
+  \item $I: L \rightarrow B(C)$ assigns invariants to each edge
+    location.
+  \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
+    can be an equality, a slack inequality, a strict inequality, or
+    an AND combination of such constraints.
+  \end{itemize}
 
 \section{Equivalences on Timed Automata}
 
 \subsection{Timed bismilarity}
 
-\subsection{Time abstracted bisimilarity}
 
-\subsection{Weak timed bisimilarity}
+
+\subsection{Time abstracted bisimilarity}
 
 \subsection{Regions and region graphs}
 
