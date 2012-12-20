@@ -67,46 +67,77 @@ communication ports known as \emph{channels}.
 $N \overset{def}{=} a_1.a_2.....0$ \\
 This gives us the ability to define CCS processes recursively, such as
 this one:\\
-Parrot \overset{def}{=} $a.\overline{a}$.Parrot
+Parrot \overset{def}{\rightarrow} $a$.$\overline{a}$.Parrot
 
-\item CCS expression: Defined by the following grammar:
-\begin{itemize}
-\item $P::=K$
-\item $P::=\alpha . P$
-\item $P::=_{i \epsilon I} P_i$
-\item $P::=P|Q$
-\item $P::=P[f]$
-\item $P::=P\L$
+\item \emph{Choice}: If $P$ and $Q$ are processes, then $P+Q$ is a
+  process as well which has the initial capabilities of both P and
+  Q. The deadlock process $0$ is the identity element for this, that is,
+  $P+0=P$ is an identity.
+
+\item \emph{Parallel Composition}: If $P$ and $Q$ are
+  processes, then $P|Q$ is a process as well in which P and Q may
+  proceed independently or communicate via complementary ports.
+
+
+\item \emph{Restriction}: If $P$ is a process and $L$ is a set of
+  channel names, then $P/L$ is a process in which the component processes of $P$
+  are the only processes which can communicate over channels from the
+  set $L$.
+
+\item \emph{Relabeling}: If $P$ is a process and $f$ is a function
+  from labels to labels, then $P[f]$ is a process where each label
+  from the domain of $f$ is replaced by its image under $f$. One
+  application of relabelling is the idea of \emph{generic} processes:
+  By relabelling the generic ports of such a process with specific
+  port names, one can generate specific processes.
+
 \end{itemize}
 
-\end{itemize}
+It is evident that each CCS process can be replaced by a labeled
+transition system (LTS) with equivalent behaviour, therefore we will,
+in the rest of this discussion, freely use the properties of LTS when
+describing those of CCS.
 
 \section{Equivalences on CCS}
 
 \subsection{Trace equivalence}
   \begin{itemize}
-  \item Trace equivalence: $Traces(P) = Traces(Q)$
-  \item Unsatisfactory (differences in deadlock
-    behaviour.)
+
+  \item A \emph{trace} of an LTS is a sequence of actions
+    that the LTS can perform.
+
+  \item For an LTS $P$, the set $Traces(P)$ represents the set of all
+    possible traces of $P$.
+  \item Trace equivalence is said to exist between two LTS $P$ and $Q$
+    when $Traces(P) = Traces(Q)$.
+  \item However, this notion proves to have a significant limitation
+    in the case of CCS processes: Two CCS processes can have trace equivalence
+    between their corresponding LTS and yet behave differently in
+    terms of when they deadlock while interacting with a third CCS process.
   \end{itemize}
 
 \subsection{Strong bismilarity}
   \begin{itemize}
-  \item Strong bisimulation: A binary relation $R$ is a \texttt{strong
-    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
+  \item \emph{Strong bisimulation}: A binary relation $R$ is a strong
+    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
     . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
     . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) )$
   \item It can be shown that the union of all strong bisimulations
-    over the set of states is a strong bismulation. This binary
+    over the set of states is a strong bisimulation. This binary
     relation is called \texttt{strong bisimilarity}, denoted by $\sim$.
-  \item Better notion of equivalence than trace
-    equivalence: picks up differences in the deadlock
-    behaviour of processes under study.
-  \item Failing: does not account for the
-    invisible nature of $\tau$ transitions in CCS processes.
+  \item This mitigates one of the failings of trace equivalence as an
+    equivalence relation: strong bisimilarity between two CCS
+    processes ensures identical deadlock behaviour while interacting
+    with a third CCS process.
+  \item However, another limitation soon becomes apparent: if two CCS
+    processes are to be strongly bisimilar, they must coincide even on
+    the number and position of $\tau$ transitions in their
+    traces. This is contrary to the semantics of CCS processes, as
+    a $\tau$ transition is supposed to be private to a process and
+    invisible to all other processes in its environment.
 
   \end{itemize}
 
@@ -153,8 +184,9 @@ Parrot \overset{def}{=} $a.\overline{a}$.Parrot
 \subsection{Fernandez' algorithm}
 
   \begin{itemize}
-  \item More efficient algorithm (O(m log n)).
-  \item Relies on Paige and Tarjan's technique of three-way splitting.
+  \item This is a more efficient algorithm for determining bisimilarity (O(m log n)).
+  \item This relies on the technique of three-way splitting introduced
+    by Paige and Tarjan.
   \item Splitters can now be 'simple' or 'compound'.
   \item Stability: A partition $\pi$ is said to be stable with respect to a
     compound block S if S is not a splitter for any block in $\pi$ for
