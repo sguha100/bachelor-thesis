@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[latin1]{inputenc}
+\usepackage{amsmath}
 
 \begin{document}
 
@@ -64,10 +65,10 @@ communication ports known as \emph{channels}.
   process P.
 
 \item \emph{Naming}: We can give names to processes using syntax such as \\
-$N \overset{def}{=} a_1.a_2.....0$ \\
+$ N \overset{def}{=} a_1.a_2.....0$ \\
 This gives us the ability to define CCS processes recursively, such as
 this one:\\
-Parrot \overset{def}{\rightarrow} $a$.$\overline{a}$.Parrot
+Parrot \overset{def}{=} $a.\overline{a}$.Parrot
 
 \item \emph{Choice}: If $P$ and $Q$ are processes, then $P+Q$ is a
   process as well which has the initial capabilities of both P and
@@ -116,7 +117,7 @@ describing those of CCS.
     terms of when they deadlock while interacting with a third CCS process.
   \end{itemize}
 
-\subsection{Strong bismilarity}
+\subsection{Strong bisimilarity}
   \begin{itemize}
   \item \emph{Strong bisimulation}: A binary relation $R$ is a strong
     bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
@@ -125,9 +126,10 @@ describing those of CCS.
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
     . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) )$
-  \item It can be shown that the union of all strong bisimulations
+  \item \emph{Strong bisimilarity}: It can be shown that the union of
+    all strong bisimulations
     over the set of states is a strong bisimulation. This binary
-    relation is called \texttt{strong bisimilarity}, denoted by $\sim$.
+    relation is called strong bisimilarity, denoted by $\sim$.
   \item This mitigates one of the failings of trace equivalence as an
     equivalence relation: strong bisimilarity between two CCS
     processes ensures identical deadlock behaviour while interacting
@@ -141,11 +143,12 @@ describing those of CCS.
 
   \end{itemize}
 
-\subsection{Weak bismilarity}
+\subsection{Weak bisimilarity}
 
   \begin{itemize}
-  \item Weak bisimulation: A binary relation $R$ is a \texttt{weak
-    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
+  \item \emph{Weak bisimulation}: A binary relation $R$ is a \texttt{weak
+    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and
+    $a \epsilon Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
     . (s_2 \overset{a}{\Rightarrow} s_2' \wedge (s_1', s_2') \epsilon R ) )
     \wedge $ \\
@@ -217,14 +220,124 @@ describing those of CCS.
 
 \section{Equivalences on Timed Automata}
 
-\subsection{Timed bismilarity}
+\subsection{Timed bisimilarity}
 
-
+\begin{itemize}
+  \item \emph{Timed bisimulation}: A binary relation $R$ is a timed
+    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    
+  \item It can be shown that the union of all timed bisimulations
+    over the set of states is a timed bisimulation. This binary
+    relation is called \texttt{timed bisimilarity}, denoted by $\sim$.
+\end{itemize}
 
 \subsection{Time abstracted bisimilarity}
 
+\begin{itemize}
+
+  \item \emph{Time abstracted bisimulation}: A binary relation $R$ is
+    a time abstracted
+    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
+    d')
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    
+  \item It can be shown that the union of all time abstracted bisimulations
+    over the set of states is a time abstracted bisimulation. This binary
+    relation is called \texttt{time abstracted bisimilarity}, denoted by $\sim_u$.
+
+
+\end{itemize}
+
 \subsection{Regions and region graphs}
 
-\subsection{Zones and zone graphs}
+\begin{itemize}
+
+\item \emph{Equivalence of valuations}: Two valuations $v$ and $v'$ of
+  a timed automaton are said to be equivalent ($v \equiv v'$) if and
+  only if:
+  \begin{itemize}
+    \item For each $x \epsilon C$, either both $v(x)$ and $v'(x)$ are
+      greater than $c_x$ or $\lfloor v(x) \rfloor = \lfloor v'(x)
+      \rfloor$
+    \item For each $x \epsilon C$ such that $v(x) \le c_x$,
+      $frac(v(x))=0$ if and only if $frac(v'(x))=0$.
+    \item For all $x,y \epsilon C$ such that $v(x) \le c_x$ and $v(y)
+      \le c_y$, we have $frac(v(x)) \le frac(v(y))$ if and only if
+      $frac(v'(x)) \le frac(v'(y))$.
+  \end{itemize}
+
+\item Under this notion of equivalence, an equivalence class is known
+  as a \emph{region}. The equivalence class containing a valuation $v$
+  is denoted by $[v]_{\equiv}$.
+
+\item \emph{Region graph}: With these definitions, we can define the
+  region graph of a timed automaton as a LTS representation of the
+  automaton where the action transitions are labelled with the same
+  actions and the delay self-transitions are labelled with
+  $\varepsilon$.
+  Formally, the region graph of a timed automaton $A$ with clock set $C$
+  and action set $Act$ is an LTS\\
+  $T_r(A) = (Proc,Act \cup \{\varepsilon\}, \{\xrightarrow{a}|a \epsilon
+    Act \cup \{\varepsilon\}\})$\\
+    where $Proc = \{(l, [v]_{\equiv}) | l \epsilon L, v: C \rightarrow
+    R_{\ge 0}\}$ (these states are called symbolic states)\\
+    The transitions are defined as follows:
+    \begin{itemize}
+      \item For each $a \epsilon A$, $(l, [v]_{\equiv})
+        \overset{a}{\Rightarrow} (l', [v']_{\equiv})$ iff $(l,v)
+        \overset{a}{\rightarrow} (l', v')$
+      \item $(l, [v]_{\equiv}) \xrightarrow{a} (l, [v']_{\equiv})$ if
+        for some $d \epsilon R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
+        v')$
+    \end{itemize}
+
+\end{itemize}
+
+\subsection{Zones and reachability graphs}
+\begin{itemize}
+\item \emph{Extended clock constraints}: these are described by the
+  grammar\\
+  $g :: = x \bowtie n | x - y \bowtie n | g_1 \wedge g_2$\\
+  The set of extended clock constraints is denoted by $B^+(C)$
+\item \emph{Zones}: A zone is a set of valuations represented by an
+  extended clock constraint.\\
+  $Z = {v|v \epsilon g_Z}$
+\item \emph{Symbolic state}: For a timed automaton $A$, a symbolic
+  state is an ordered pair of a location and a zone, that is, $(l,
+  Z)$.
+\item \emph{Reachablility graph}: The reachability graph of a timed
+  automaton is a directed graph in which the nodes are symbolic states
+  and the edges are given by the \emph{reachability relation}: 
+  \begin{itemize}
+    \item $(l,Z')$ is reachable from $(l,Z)$ if there exists a
+      valuation belonging $Z'$ which can be obtained
+      from Z by applying a time delay which does not violate the
+      invariant at $l$.
+
+    \item $(l', Z')$ is reachable from $(l, Z)$ if $l$ has an action
+      transition to $l'$ and there exists a valuation in $Z'$ which
+      violates neither the guard of the
+      transition nor the invariant at $l'$.
+  \end{itemize}
+\end{itemize}
 
 \end{document}
