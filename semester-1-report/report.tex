@@ -1,6 +1,9 @@
 \documentclass{article}
 \usepackage[latin1]{inputenc}
 \usepackage{amsmath}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
 
 \begin{document}
 
@@ -49,7 +52,7 @@ Project for the academic year 2012-2013.
 
 \section{CCS processes}
 
-\begin{itemize}
+ \begin{itemize}
 \item A CCS process is an automaton with state and interfaces for
 interaction.
 \item The interaction is in the form of \emph{actions} over
@@ -62,27 +65,40 @@ communication ports known as \emph{channels}.
 \item \emph{Prefixing}: This is the simplest constructor; if $P$ is a
   process and $a$ is a label (input or output) then $a.P$ is also a
   process which can perform the action $a$ in order to become the
-  process P.
+  process P. Thus, $dot.dash.0$ is a CCS process capable of
+  transmitting the Morse code letter $A$, and
+  $\overline{dot}.\overline{dash}.0$ is a process capable of receiving
+  it.
 
 \item \emph{Naming}: We can give names to processes using syntax such as \\
-$ N \overset{def}{=} a_1.a_2.....0$ \\
+$ M \overset{def}{=} dot.dash.0$ \\
+$ N \overset{def}{=} \overline{dot}.\overline{dash}.0$ \\
 This gives us the ability to define CCS processes recursively, such as
 this one:\\
-Parrot \overset{def}{=} $a.\overline{a}$.Parrot
+$ Repeater \overset{def} dot.dash.Repeater$\\
+which is a process that continuously repeats the Morse code letter $A$.
 
 \item \emph{Choice}: If $P$ and $Q$ are processes, then $P+Q$ is a
   process as well which has the initial capabilities of both P and
   Q. The deadlock process $0$ is the identity element for this, that is,
-  $P+0=P$ is an identity.
+  $P+0=P$ is an identity.\\
+  Thus, the process $M+N$ could either
+  transmit or receive the letter $A$.
 
 \item \emph{Parallel Composition}: If $P$ and $Q$ are
   processes, then $P|Q$ is a process as well in which P and Q may
-  proceed independently or communicate via complementary ports.
+  proceed independently or communicate via complementary ports.\\
+  Thus, the process $M|N$ could proceed with $M$ transmitting the
+  letter $A$ to be received by $N$, or they could communicate with
+  other processes using the $dot$ and $dash$ ports.
 
 \item \emph{Restriction}: If $P$ is a process and $L$ is a set of
-  channel names, then $P/L$ is a process in which the component processes of $P$
+  channel names, then $P/L$ is a process in which the component
+  processes of $P$
   are the only processes which can communicate over channels from the
-  set $L$.
+  set $L$.\\
+  Thus, $(M|N)/\{dot,dash\}$ would be a process in which $M$ and $N$
+  can only communicate with each other.
 
 \item \emph{Relabeling}: If $P$ is a process and $f$ is a function
   from labels to labels, then $P[f]$ is a process where each label
@@ -201,7 +217,25 @@ describing those of CCS.
     $B_i^3 = B_i \cap T_a^{-1}[B] \cap T_a^{-1}[S-B]$ \\
   \end{itemize}
 
-\section{Timed automata}
+  \section{Timed automata}
+
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
+      distance=2.8cm,
+      semithick]
+    \tikzstyle{every state}=[fill=red,draw=none,text=white]
+
+    \node[initial,state] (A)                    {$q_a$};
+    \node[state]         (B) [below of=A] {$q_b$};
+    \node[state]         (C) [below of=B] {$q_c$};
+    
+    \path (A) edge              node {press, $x:=0$}    (B)
+    (B) edge [bend left] node {press, $x > 1.4$}        (A)
+    edge              node {press, $x \le 1.4$}         (C)
+    (C) edge [bend right] node {press}                  (A);
+  \end{tikzpicture}
+  
+  Timed automaton representing a light bulb with two
+  brightness settings
 
   \begin{itemize}
   \item Formally, a timed automaton over a finite set of clocks $C$
@@ -221,37 +255,37 @@ describing those of CCS.
     a value to each clock. 
   \item A transition is either a delay transition where the automaton
     stays at the same location while advancing each clock by the same
-    amount, or an action transaction where the automaton performs a
+    time delay, or an action transaction where the automaton performs a
     state change while resetting some of its clocks.
   \end{itemize}
-
-\section{Equivalences on Timed Automata}
-
-\subsection{Timed bisimilarity}
-
-\begin{itemize}
-\item \emph{Timed bisimulation}: A binary relation $R$ is a timed
-  bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
-  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-  . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
-  \wedge $ \\
-  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-  . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
-  $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists s_2'
-  . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
-  \wedge $ \\
-  $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
-  . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
   
-\item It can be shown that the union of all timed bisimulations
-  over the set of (location, valuation) pairs is a timed bisimulation. This binary
-  relation is called \texttt{timed bisimilarity}, denoted by $\sim$.
-\end{itemize}
+  \section{Equivalences on Timed Automata}
 
-\subsection{Time abstracted bisimilarity}
-
-\begin{itemize}
-
+  \subsection{Timed bisimilarity}
+  
+  \begin{itemize}
+  \item \emph{Timed bisimulation}: A binary relation $R$ is a timed
+    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    
+  \item It can be shown that the union of all timed bisimulations
+    over the set of (location, valuation) pairs is a timed bisimulation. This binary
+    relation is called \texttt{timed bisimilarity}, denoted by $\sim$.
+  \end{itemize}
+  
+  \subsection{Time abstracted bisimilarity}
+  
+  \begin{itemize}
+    
   \item \emph{Time abstracted bisimulation}: A binary relation $R$ is
     a time abstracted
     bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
@@ -270,7 +304,7 @@ describing those of CCS.
   \item It can be shown that the union of all time abstracted bisimulations
     over the set of (location, valuation) pairs is a time abstracted bisimulation. This binary
     relation is called \texttt{time abstracted bisimilarity}, denoted by $\sim_u$.
-
+    
 
 \end{itemize}
 
@@ -376,6 +410,8 @@ Using a grammar very similar to that employed by the research tool Minim (Stavro
 Tripakis et al), we implemented an Ocaml program to parse a timed
 automaton from an input file.
 
-
+The grammar specification we used generates a representation of the
+timed automaton which is similar to an adjacency list representation
+of a labelled graph.
 
 \end{document}
