@@ -1,8 +1,10 @@
 \documentclass{article}
 \usepackage[latin1]{inputenc}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{pgf}
 \usepackage{tikz}
+\usepackage{verbatim}
 \usetikzlibrary{arrows,automata}
 
 \begin{document}
@@ -29,8 +31,7 @@ Project for the academic year 2012-2013.
 \begin{itemize}
 
 \item To develop a software toolkit that would enable users to verify
-  various timed relations specifications and implementations expressed
-  as timed automata.
+  various timed behavioural equivalences between systems expressed as timed automata.
 
   \begin{itemize}
 
@@ -38,13 +39,13 @@ Project for the academic year 2012-2013.
     transition systems, CCS processes and timed automata by surveying
     relevant literature.
 
-  \item To study tools already built by researchers for similar purposes.
+  \item To study existing tools for deciding timed relations.
+
+  \item To implement algorithms for determining timed relations.
 
   \item To develop the software in a modular way with modules for
     language specification and modules for implementations of utility
     algorithms.
-
-  \item To implement algorithms for determining timed relations.
 
   \end{itemize}
 
@@ -52,7 +53,7 @@ Project for the academic year 2012-2013.
 
 \section{CCS processes}
 
- \begin{itemize}
+\begin{itemize}
 \item A CCS process is an automaton with state and interfaces for
 interaction.
 \item The interaction is in the form of \emph{actions} over
@@ -65,9 +66,9 @@ communication ports known as \emph{channels}.
 \item \emph{Prefixing}: This is the simplest constructor; if $P$ is a
   process and $a$ is a label (input or output) then $a.P$ is also a
   process which can perform the action $a$ in order to become the
-  process P. Thus, $dot.dash.0$ is a CCS process capable of
+  process P. Thus, $\overline{dot}.\overline{dash}.0$ is a CCS process capable of
   transmitting the Morse code letter $A$, and
-  $\overline{dot}.\overline{dash}.0$ is a process capable of receiving
+  $dot.dash.0$ is a process capable of receiving
   it.
 
 \item \emph{Naming}: We can give names to processes using syntax such as \\
@@ -75,7 +76,7 @@ $ M \overset{def}{=} dot.dash.0$ \\
 $ N \overset{def}{=} \overline{dot}.\overline{dash}.0$ \\
 This gives us the ability to define CCS processes recursively, such as
 this one:\\
-$ Repeater \overset{def} dot.dash.Repeater$\\
+$ Repeater \overset{def}{=} \overline{dot}.\overline{dash}.Repeater$\\
 which is a process that continuously repeats the Morse code letter $A$.
 
 \item \emph{Choice}: If $P$ and $Q$ are processes, then $P+Q$ is a
@@ -88,8 +89,8 @@ which is a process that continuously repeats the Morse code letter $A$.
 \item \emph{Parallel Composition}: If $P$ and $Q$ are
   processes, then $P|Q$ is a process as well in which P and Q may
   proceed independently or communicate via complementary ports.\\
-  Thus, the process $M|N$ could proceed with $M$ transmitting the
-  letter $A$ to be received by $N$, or they could communicate with
+  Thus, the process $M|N$ could proceed with $N$ transmitting the
+  letter $A$ to be received by $M$, or they could communicate with
   other processes using the $dot$ and $dash$ ports.
 
 \item \emph{Restriction}: If $P$ is a process and $L$ is a set of
@@ -122,29 +123,41 @@ describing those of CCS.
   \item A \emph{trace} of an LTS is a sequence of actions
     that the LTS can perform.
 
-  \item For an LTS $P$, the set $Traces(P)$ represents the set of all
+nn  \item For an LTS $P$, the set $Traces(P)$ represents the set of all
     possible traces of $P$.
   \item Trace equivalence is said to exist between two LTS $P$ and $Q$
     when $Traces(P) = Traces(Q)$.
   \item However, this notion proves to have a significant limitation
     in the case of CCS processes: Two CCS processes can have trace equivalence
     between their corresponding LTS and yet behave differently in
-    terms of when they deadlock while interacting with a third CCS process.
+    terms of when they deadlock while interacting with a third CCS
+    process.
+  \item Consider, for instance, the machines \\
+    $(dot.dash.(\overline{dot}+\overline{dot}.\overline{dot})).0$\\
+    and\\
+    $(dot.dash.\overline{dot})+(dot.dash.\overline{dot}.\overline{dot})$\\
+    Both of these have the same trace set, which consists of accepting
+    the Morse letter $A$ and transmitting either $E$ or $I$. However, when
+    interacting with a third process that transmits $A$ and accepts
+    $E$, \\
+    $\overline{dot}.\overline{dash}.dot$\\
+    it is evident that the second process may have a deadlock while
+    the first cannot.
   \end{itemize}
 
 \subsection{Strong bisimilarity}
   \begin{itemize}
-  \item \emph{Strong bisimulation}: A binary relation $R$ is a strong
-    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
+  \item \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
+    bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) )$
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
   \item \emph{Strong bisimilarity}: It can be shown that the union of
     all strong bisimulations
     over the set of states is a strong bisimulation. This binary
-    relation is called strong bisimilarity, denoted by $\sim$.
+    relation is called \textit{strong bisimilarity}, denoted by $\sim$.
   \item This mitigates one of the failings of trace equivalence as an
     equivalence relation: strong bisimilarity between two CCS
     processes ensures identical deadlock behaviour while interacting
@@ -161,17 +174,17 @@ describing those of CCS.
 \subsection{Weak bisimilarity}
 
   \begin{itemize}
-  \item \emph{Weak bisimulation}: A binary relation $R$ is a \texttt{weak
-    bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and
-    $a \epsilon Act .$\\
+  \item \emph{Weak bisimulation}: A binary relation $R$ is a \textit{weak
+    bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and
+    $a$ $\epsilon$ $Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \overset{a}{\Rightarrow} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \overset{a}{\Rightarrow} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \overset{a}{\Rightarrow} s_1' \wedge (s_1', s_2') \epsilon R ) )$
+    . (s_1 \overset{a}{\Rightarrow} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
   \item It can be shown that the union of all weak bisimulations
     over the set of states is a weak bisimulation. This binary
-    relation is called \texttt{weak bisimilarity}, denoted by $\approx$.
+    relation is called \textit{weak bisimilarity}, denoted by $\approx$.
   \item Better suited to CCS processes,
     as it ignores $\tau$ transitions, thus disregarding hidden
     behaviour within a process.
@@ -235,7 +248,7 @@ describing those of CCS.
   \end{tikzpicture}
   
   Timed automaton representing a light bulb with two
-  brightness settings
+  brightness settings, example taken from \textit{Reactive Systems}.
 
   \begin{itemize}
   \item Formally, a timed automaton over a finite set of clocks $C$
@@ -248,14 +261,14 @@ describing those of CCS.
     location.
   \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
     can be an equality, a slack inequality, or a strict inequality on
-    $v(x)$ for some $x \epsilon C$, or
+    $v(x)$ for some $x$ $\epsilon$ $C$, or
     an AND combination of such constraints.
   \item The state of the automaton at any particular instant is given
     by the ordered pair $(l, v)$ which gives the location and assigns
     a value to each clock. 
   \item A transition is either a delay transition where the automaton
     stays at the same location while advancing each clock by the same
-    time delay, or an action transaction where the automaton performs a
+    time delay, or an action transition where the automaton performs a
     state change while resetting some of its clocks.
   \end{itemize}
   
@@ -265,21 +278,21 @@ describing those of CCS.
   
   \begin{itemize}
   \item \emph{Timed bisimulation}: A binary relation $R$ is a timed
-    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    bisimulation if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
     $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
     
   \item It can be shown that the union of all timed bisimulations
     over the set of (location, valuation) pairs is a timed bisimulation. This binary
-    relation is called \texttt{timed bisimilarity}, denoted by $\sim$.
+    relation is called \textit{timed bisimilarity}, denoted by $\sim$.
   \end{itemize}
   
   \subsection{Time abstracted bisimilarity}
@@ -290,29 +303,29 @@ describing those of CCS.
     a time abstracted
     bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
     $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
     d')
-    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
-    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 
   \item It can be shown that the union of all time abstracted bisimulations
     over the set of (location, valuation) pairs is a time abstracted bisimulation. This binary
-    relation is called \texttt{time abstracted bisimilarity}, denoted by $\sim_u$.
+    relation is called \textit{time abstracted bisimilarity}, denoted by $\sim_u$.
     
 
 \end{itemize}
 
 \subsection{Regions and region graphs}
 
-One problem with the notion of valuations is that since they map clock
-names to real values, it can be difficult to come up with finite-complexity
-terminating algorithms for determining properties such as
+One problem with the notion of valuations is that since they map
+clocks to real values, it can be difficult to design algorithms for
+determining properties such as
 reachability. However, by introducing the notion of equivalence
 between two valuations in the context of a timed automaton, we can
 divide the uncountably infinite set of valuations into a finite number
@@ -324,12 +337,12 @@ Two valuations $v$ and $v'$ of
 a timed automaton are said to be equivalent ($v \equiv v'$) if and
 only if:
 \begin{itemize}
-\item For each $x \epsilon C$, either both $v(x)$ and $v'(x)$ are
+\item For each $x$ $\epsilon$ $C$, either both $v(x)$ and $v'(x)$ are
   greater than $c_x$ or $\lfloor v(x) \rfloor = \lfloor v'(x)
   \rfloor$
-\item For each $x \epsilon C$ such that $v(x) \le c_x$,
+\item For each $x$ $\epsilon$ $C$ such that $v(x) \le c_x$,
   $frac(v(x))=0$ if and only if $frac(v'(x))=0$.
-\item For all $x,y \epsilon C$ such that $v(x) \le c_x$ and $v(y)
+\item For all $x$,$y$ $\epsilon$ $C$ such that $v(x) \le c_x$ and $v(y)
   \le c_y$, we have $frac(v(x)) \le frac(v(y))$ if and only if
   $frac(v'(x)) \le frac(v'(y))$.
 \end{itemize}
@@ -348,7 +361,7 @@ Formally, the region graph of a timed automaton $A$ with clock set $C$
 and action set $Act$ is an LTS\\
 $T_r(A) = (Proc,Act \cup \{\varepsilon\}, \{\xrightarrow{a}|a \epsilon
 Act \cup \{\varepsilon\}\})$\\
-where $Proc = \{(l, [v]_{\equiv}) | l \epsilon L, v: C \rightarrow
+where $Proc = \{(l, [v]_{\equiv}) | l$ $\epsilon$ $L, v: C \rightarrow
 R_{\ge 0}\}$ (these states are called symbolic states)\\
 The transitions are defined as follows:
 \begin{itemize}
@@ -356,27 +369,34 @@ The transitions are defined as follows:
   \overset{a}{\Rightarrow} (l', [v']_{\equiv})$ iff $(l,v)
   \overset{a}{\rightarrow} (l', v')$
 \item $(l, [v]_{\equiv}) \xrightarrow{a} (l, [v']_{\equiv})$ if
-  for some $d \epsilon R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
+  for some $d$ $\epsilon$ $R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
   v')$
 \end{itemize}
 
 \subsection{Zones and reachability graphs}
 
-Though the region graph provides some useful results about time
-abstracted bisimilarity, its state space can grow very fast as a
+Though the region graph provides some useful results about properties
+such as reachablility, time
+abstracted bisimilarity and so on, its state space can grow very fast as a
 function of the number of clocks (the upper bound on the number of
 states happens to be exponential in the number of clocks). Using
 zones, we can represent the state space of a timed automaton in a more
-compact way and get some useful results about reachability.
+compact way.
 
 \subsubsection{Extended clock constraints}
 These are described by the  grammar\\
 $g :: = x \bowtie n | x - y \bowtie n | g_1 \wedge g_2$\\
+where\\
+$n$ $\epsilon$ $\mathbb{N}$\\
+and\\
+$\bowtie$ represents any one of the equality, slack inequality and
+strict inequality symbols.\\
 The set of extended clock constraints is denoted by $B^+(C)$
 \subsubsection{Zones}
 A zone is a set of valuations represented by an
 extended clock constraint.\\
-$Z = {v|v \epsilon g_Z}$
+$Z = \{v|v$ $\epsilon$ $g_Z\}$\\
+where $g_Z$ represents the defining constraint of $Z$.
 \subsubsection{Symbolic state}
 For a timed automaton $A$, a symbolic
 state is an ordered pair of a location and a zone, that is, $(l,
@@ -413,6 +433,44 @@ automaton from an input file.
 The grammar specification we used generates a representation of the
 timed automaton which is similar to an adjacency list representation
 of a labelled graph.
+
+Here is an example to illustrate the grammar for timed automata that
+we are using:
+
+\begin{verbatim}
+
+#states 5
+#trans 6
+#clocks 2
+X3 X5
+
+state: 0
+invar: X3 < 5
+trans:
+X5 >= 7 => RESET { X3 }; goto 1
+
+state: 1
+invar: X7 >= 9 and X8 <= 10
+trans:
+X5 >= 7 => RESET { X3 }; goto 2
+
+state: 2
+invar: TRUE
+trans:
+X5 >= 7 => RESET { X3 }; goto 3
+
+state: 3
+invar: TRUE
+trans:
+X5 >= 7 => RESET { X3 }; goto 4
+
+state: 4
+invar: TRUE
+trans:
+X5 >= 7 => RESET { X3 }; goto 0
+
+
+\end{verbatim}
 
 \section{References}
 
