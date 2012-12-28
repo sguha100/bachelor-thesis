@@ -64,7 +64,7 @@
   \item Trace equivalence: $Traces(P) = Traces(Q)$
   \item Unsatisfactory (differences in deadlock
     behaviour.)
-  \item Strong bisimulation: A binary relation $R$ is a \texttt{strong
+  \item Strong bisimulation: A binary relation $R$ is a \textit{strong
     bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
     . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
@@ -72,8 +72,8 @@
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
     . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) )$
   \item It can be shown that the union of all strong bisimulations
-    over the set of states is a strong bismulation. This binary
-    relation is called \texttt{strong bisimilarity}, denoted by $\sim$.
+    over the set of states is a strong bisimulation. This binary
+    relation is called \textit{strong bisimilarity}, denoted by $\sim$.
   \end{itemize}
 \end{frame}
 
@@ -84,7 +84,7 @@
     behaviour of processes under study.
   \item Failing: does not account for the
     invisible nature of $\tau$ transitions in CCS processes.
-  \item Weak bisimulation: A binary relation $R$ is a \texttt{weak
+  \item Weak bisimulation: A binary relation $R$ is a \textit{weak
     bisimulation} if and only if, for all $(s_1, s_2) \epsilon R$ and $a \epsilon Act .$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
     . (s_2 \overset{a}{\Rightarrow} s_2' \wedge (s_1', s_2') \epsilon R ) )
@@ -92,8 +92,8 @@
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
     . (s_1 \overset{a}{\Rightarrow} s_1' \wedge (s_1', s_2') \epsilon R ) )$
   \item It can be shown that the union of all weak bisimulations
-    over the set of states is a weak bismulation. This binary
-    relation is called \texttt{weak bisimilarity}, denoted by $\approx$.
+    over the set of states is a weak bisimulation. This binary
+    relation is called \textit{weak bisimilarity}, denoted by $\approx$.
   \item Better suited to CCS processes,
     as it ignores $\tau$ transitions, thus disregarding hidden
     behaviour within a process.
@@ -304,13 +304,14 @@
     
   \item It can be shown that the union of all timed bisimulations
     over the set of (location, valuation) pairs is a timed bisimulation. This binary
-    relation is called \texttt{timed bisimilarity}, denoted by $\sim$.
+    relation is called \textit{timed bisimilarity}, denoted by $\sim$.
   \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Equivalences on Timed Automata}
 
+  \begin{itemize}
   \item \emph{Time abstracted bisimulation}: A binary relation $R$ is
     a time abstracted
     bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
@@ -327,8 +328,11 @@
     . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
 
   \item It can be shown that the union of all time abstracted bisimulations
-    over the set of (location, valuation) pairs is a time abstracted bisimulation. This binary
-    relation is called \texttt{time abstracted bisimilarity}, denoted by $\sim_u$.
+    over the set of (location, valuation) pairs is a time abstracted
+    bisimulation. This binary
+    relation is called \textit{time abstracted bisimilarity}, denoted
+    by $\sim_u$.
+  \end{itemize}
 
 \end{frame}
 
@@ -453,4 +457,3 @@
 \end{frame}
 
 \end{document}
-
