@@ -114,7 +114,7 @@
   \item This suggests a refinement of $\pi$: replace block $B_i$ with
     \\
     $B_i^1 = B_i \cap T_a^{-1}[B_j] $ \\
-    $B_i^2 = B_i - B_i^1 $ 
+    $B_i^2 = B_i - B_i^1 $
   \item Refinements of this kind constitute the steps of this
     algorithm.
   \end{itemize}
@@ -130,7 +130,7 @@
       Pick a splitter $B$\;
       \ForEach {$B_j$ $\epsilon$ $\pi$} {
         \ForEach{$a$ $\epsilon$ $Act$}{
-          Split $B_j$ with respect to $B$ for 
+          Split $B_j$ with respect to $B$ for
           action $a$\;
         }
       }
@@ -150,14 +150,14 @@
 %%       distance=2.8cm,
 %%       semithick]
 %%     \tikzstyle{every state}=[fill=red,draw=none,text=white]
-    
+
 %%     \node[initial,state] (A)                    {$q_0$};
 %%     \node[state]         (B) [below right of=A] {$q_1$};
 %%     \node[state]         (C) [below of=B] {$q_2$};
 %%     \node[state]         (D) [below left of=C] {$q_3$};
 %%     \node[state]         (E) [above left of=D]       {$q_4$};
 %%     \node[state]         (F) [above of=E]       {$q_5$};
-    
+
 %%     \path (A) edge              node{a} (B)
 %%     edge              node{b} (D)
 %%     (B) edge node{a} (C)
@@ -175,16 +175,16 @@
 %%       distance=2.8cm,
 %%       semithick]
 %%     \tikzstyle{every state}=[fill=blue,draw=none,text=white]
-    
+
 %%     \node[initial,state] (A)                    {$q_0$};
 %%     \node[state]         (B) [below right of=A] {$q_1$};
 %%     \node[state]         (C) [below of=B] {$q_2$};
 %%     \tikzstyle{every state}=[fill=red,draw=none,text=white]
-    
+
 %%     \node[state]         (D) [below left of=C] {$q_3$};
 %%     \node[state]         (E) [above left of=D]       {$q_4$};
 %%     \node[state]         (F) [above of=E]       {$q_5$};
-    
+
 %%     \path (A) edge              node{a} (B)
 %%     edge              node{b} (D)
 %%     (B) edge node{a} (C)
@@ -202,18 +202,18 @@
 %%       distance=2.8cm,
 %%       semithick]
 %%     \tikzstyle{every state}=[fill=blue,draw=none,text=white]
-    
+
 %%     \node[initial,state] (A)                    {$q_0$};
 %%     \node[state]         (B) [below right of=A] {$q_1$};
 %%     \node[state]         (C) [below of=B] {$q_2$};
 %%     \tikzstyle{every state}=[fill=yellow,draw=none,text=white]
-    
+
 %%     \node[state]         (D) [below left of=C] {$q_3$};
 %%     \node[state]         (E) [above left of=D]       {$q_4$};
 %%     \tikzstyle{every state}=[fill=red,draw=none,text=white]
-    
+
 %%     \node[state]         (F) [above of=E]       {$q_5$};
-    
+
 %%     \path (A) edge              node{a} (B)
 %%     edge              node{b} (D)
 %%     (B) edge node{a} (C)
@@ -301,7 +301,7 @@
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
     . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
-    
+
   \item It can be shown that the union of all timed bisimulations
     over the set of (location, valuation) pairs is a timed bisimulation. This binary
     relation is called \textit{timed bisimilarity}, denoted by $\sim$.
@@ -344,12 +344,12 @@
     a timed automaton are said to be equivalent ($v \equiv v'$) if and
     only if:
     \begin{itemize}
-    \item For each $x \epsilon C$, either both $v(x)$ and $v'(x)$ are
+    \item For each $x$ $\epsilon$ $C$, either both $v(x)$ and $v'(x)$ are
       greater than $c_x$ or $\lfloor v(x) \rfloor = \lfloor v'(x)
       \rfloor$
-    \item For each $x \epsilon C$ such that $v(x) \le c_x$,
+    \item For each $x$ $\epsilon$ $C$ such that $v(x) \le c_x$,
       $frac(v(x))=0$ if and only if $frac(v'(x))=0$.
-    \item For all $x,y \epsilon C$ such that $v(x) \le c_x$ and $v(y)
+    \item For all $x,y$ $\epsilon$ $C$ such that $v(x) \le c_x$ and $v(y)
       \le c_y$, we have $frac(v(x)) \le frac(v(y))$ if and only if
       $frac(v'(x)) \le frac(v'(y))$.
     \end{itemize}
@@ -381,7 +381,7 @@
       for some $d \epsilon R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
       v')$
     \end{itemize}
-    
+
   \end{itemize}
 
 \end{frame}
@@ -419,13 +419,13 @@
         valuation belonging $Z'$ which can be obtained
         from Z by applying a time delay which does not violate the
         invariant at $l$.
-        
+
       \item $(l', Z')$ is reachable from $(l, Z)$ if $l$ has an action
         transition to $l'$ and there exists a valuation in $Z'$ which
         violates neither the guard of the
         transition nor the invariant at $l'$ after performing the
         clock resets required by the transition.
-        
+
       \end{itemize}
 
   \end{itemize}
