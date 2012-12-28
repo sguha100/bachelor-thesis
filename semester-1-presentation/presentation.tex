@@ -322,10 +322,10 @@
     . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
     $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
     d')
-    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2') \epsilon R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
-    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
 
   \item It can be shown that the union of all time abstracted bisimulations
     over the set of (location, valuation) pairs is a time abstracted
@@ -423,7 +423,8 @@
       \item $(l', Z')$ is reachable from $(l, Z)$ if $l$ has an action
         transition to $l'$ and there exists a valuation in $Z'$ which
         violates neither the guard of the
-        transition nor the invariant at $l'$.
+        transition nor the invariant at $l'$ after performing the
+        clock resets required by the transition.
         
       \end{itemize}
 
