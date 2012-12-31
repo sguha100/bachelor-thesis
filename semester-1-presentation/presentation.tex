@@ -4,6 +4,7 @@
 \usepackage[algo2e]{algorithm2e}
 \usepackage{pgf}
 \usepackage{tikz}
+\usepackage{verbatim}
 \usetikzlibrary{arrows,automata}
 \usepackage[latin1]{inputenc}
 
@@ -362,6 +363,24 @@
 
 \end{frame}
 
+\begin{frame}{Timed equivalences example}
+
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
+      distance=2.8cm,
+      semithick]
+    \tikzstyle{every state}=[fill=red,draw=none,text=white]
+    
+    \node[initial,state] (A)              {$A$};
+    \node[state]         (B) [below of=A] {$B$};
+    \node[initial,state] (C) [right of=A] {$A'$};
+    \node[state]         (B) [below of=C] {$B'$};
+    
+    \path (A) edge              node {$x \le 1$\\$a$\\$x:=0$}    (B)
+    (C) edge              node {$x \le 2$\\$a$\\$x:=0$}    (D);
+  \end{tikzpicture}
+
+\end{frame}
+
 \begin{frame}{Equivalences on Timed Automata}
 
   \begin{itemize}
@@ -446,6 +465,54 @@
 
   \end{itemize}
 
+\end{frame}
+
+\begin{frame}{Timed automaton example}
+
+\begin{verbatim}
+
+#states 3
+#trans 6
+#clocks 1
+X
+
+state: 0
+invar: TRUE
+trans:
+TRUE => RESET { X }; goto 1
+
+state: 1
+invar: TRUE
+trans:
+X <= 2 => RESET {  }; goto 0
+X > 2 => RESET {  }; goto 2
+
+state: 2
+invar: TRUE
+trans:
+TRUE => RESET {  }; goto 0
+
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{Timed automaton example}
+
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
+      distance=2.8cm,
+      semithick]
+    \tikzstyle{every state}=[fill=red,draw=none,text=white]
+    
+    \node[initial,state] (A)                    {$q_a$};
+    \node[state]         (B) [below of=A] {$q_b$};
+    \node[state]         (C) [below of=B] {$q_c$};
+    
+    \path (A) edge              node {press, $x:=0$}    (B)
+    (B) edge [bend left] node {press, $x > 2$}        (A)
+    edge              node {press, $x \le 2$}         (C)
+    (C) edge [bend right] node {press}                  (A);
+  \end{tikzpicture}
+  
 \end{frame}
 
 \begin{frame}{References}
