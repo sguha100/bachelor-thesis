@@ -494,6 +494,8 @@ TRUE => RESET {  }; goto 0
 
 \end{verbatim}
 
+\textit{Example taken from Reactive Systems}
+
 \end{frame}
 
 \begin{frame}{Timed automaton example}
@@ -513,6 +515,27 @@ TRUE => RESET {  }; goto 0
     (C) edge [bend right] node {press}                  (A);
   \end{tikzpicture}
   
+\end{frame}
+
+\begin{frame}{Timed automaton example}
+
+  \begin{tikzpicture}[font=\Large]
+    \draw (0,0) -- (4,0);
+    \foreach \x  in {0,1,2}
+    \node[fill=black,draw=black,circle,inner
+      sep=2pt,label=above:{$\x$}] at (\x,0) {};
+    \draw[ultra thick] (0,0) -- (4,0);
+  \end{tikzpicture}
+  
+  Regions in this graph:
+  \begin{itemize}
+    \item $[x$ $=$ $0]_{\equiv}$, $[x$ $=$ $1]_{\equiv}$, $[x$ $=$
+      $2]_{\equiv}$
+    \item $[0$ $<$ $x$ $<$ $1]_{\equiv}$, $[1$ $<$ $x$ $<$
+      $2]_{\equiv}$
+    \item $[2$ $<$ $x]_{\equiv}$
+  \end{itemize}
+
 \end{frame}
 
 \begin{frame}{References}
