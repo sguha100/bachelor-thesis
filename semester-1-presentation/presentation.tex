@@ -283,7 +283,10 @@
     location.
   \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
     can be an equality, a slack inequality, a strict inequality, or
-    an AND combination of such constraints.
+    an AND combination of such constraints which involve clock names
+    and natural numbers. \\
+    Example: $x<5$ $\wedge$ $y \ge\ 7$ $\wedge$ $z=3$,
+    where $C=\{x, y, z\}$
   \end{itemize}
 \end{frame}
 
@@ -291,17 +294,17 @@
 
   \begin{itemize}
   \item \emph{Timed bisimulation}: A binary relation $R$ is a timed
-    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    bisimulation if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d \epsilon R_{\ge 0}$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
     $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{d} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    . (s_1 \xrightarrow{d} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 
   \item It can be shown that the union of all timed bisimulations
     over the set of (location, valuation) pairs is a timed bisimulation. This binary
@@ -315,18 +318,18 @@
   \begin{itemize}
   \item \emph{Time abstracted bisimulation}: A binary relation $R$ is
     a time abstracted
-    bisimulation if and only if, for all $(s_1, s_2) \epsilon R$ , $a \epsilon Act $, $d \epsilon R_{\ge 0}$\\
+    bisimulation if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
     $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2') \epsilon R ) ) \wedge $ \\
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
     $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
     d')
-    . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2') \epsilon R ) )
+    . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
     \wedge $ \\
     $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
-    . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2') \epsilon R ) ) $ \\
+    . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 
   \item It can be shown that the union of all time abstracted bisimulations
     over the set of (location, valuation) pairs is a time abstracted
@@ -334,6 +337,24 @@
     relation is called \textit{time abstracted bisimilarity}, denoted
     by $\sim_u$.
   \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Equivalences on Timed Automata}
+
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
+      distance=4.8cm,
+      semithick]
+    \tikzstyle{every state}=[fill=red,draw=none,text=white]
+    
+    \node[initial,state] (A)              {$A$};
+    \node[state]         (B) [right of=A] {$B$};
+    \node[initial,state] (C) [below of=A] {$A'$};
+    \node[state]         (D) [right of=C] {$B'$};
+    
+    \path (A) edge node   {$x \le 1$, $a$, $x:=0$}  (B)
+    (C) edge              node {$x \le 2$, $a$, $x:=0$}    (D);
+  \end{tikzpicture}
 
 \end{frame}
 
@@ -365,39 +386,23 @@
 
 \begin{frame}{Equivalences on Timed Automata}
 
-  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
-      distance=2.8cm,
-      semithick]
-    \tikzstyle{every state}=[fill=red,draw=none,text=white]
-    
-    \node[initial,state] (A)              {$A$};
-    \node[state]         (B) [below of=A] {$B$};
-    \node[initial,state] (C) [right of=A] {$A'$};
-    \node[state]         (B) [below of=C] {$B'$};
-    
-    \path (A) edge              node {$x \le 1$\\$a$\\$x:=0$}    (B)
-    (C) edge              node {$x \le 2$\\$a$\\$x:=0$}    (D);
-  \end{tikzpicture}
-
-\end{frame}
-
-\begin{frame}{Equivalences on Timed Automata}
-
   \begin{itemize}
 
   \item \emph{Region graph}: the region graph of a timed automaton $A$ with clock set $C$
     and action set $Act$ is an LTS\\
-    $T_r(A) = (Proc,Act \cup \{\varepsilon\}, \{\xrightarrow{a}|a \epsilon
+    $T_r(A) = (Proc,Act \cup \{\varepsilon\}, \{\xrightarrow{a}|a$
+    $\epsilon$ $
     Act \cup \{\varepsilon\}\})$\\
-    where $Proc = \{(l, [v]_{\equiv}) | l \epsilon L, v: C \rightarrow
+    where $Proc = \{(l, [v]_{\equiv}) | l$ $\epsilon$ $L, v: C \rightarrow
     R_{\ge 0}\}$ (these states are called symbolic states)\\
     The transitions are defined as follows:
     \begin{itemize}
-    \item For each $a \epsilon A$, $(l, [v]_{\equiv})
+    \item For each $a$ $\epsilon$ $A$, $(l, [v]_{\equiv})
       \overset{a}{\Rightarrow} (l', [v']_{\equiv})$ iff $(l,v)
       \overset{a}{\rightarrow} (l', v')$
-    \item $(l, [v]_{\equiv}) \xrightarrow{a} (l, [v']_{\equiv})$ if
-      for some $d \epsilon R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
+    \item $(l, [v]_{\equiv}) \overset{\varepsilon}{\Rightarrow} (l,
+      [v']_{\equiv})$ iff
+      for some $d$ $\epsilon$ $R_{\ge 0}$, $(l, v) \xrightarrow{d} (l,
       v')$
     \end{itemize}
 
@@ -411,12 +416,12 @@
 
     \item \emph{Extended Clock Constraints}: These are described by the  grammar\\
     $g :: = x \bowtie n | x - y \bowtie n | g_1 \wedge g_2$\\
-
+      where $\bowtie$ $\epsilon$ $\{<, \le , =, \ge , >\}$
     \item The set of extended clock constraints is denoted by $B^+(C)$
 
     \item \emph{Zones}: A zone is a set of valuations represented by an
       extended clock constraint.\\
-      $Z = {v|v \epsilon g_Z}$
+      $Z = \{v|v$ $\epsilon$ $g_Z\}$
 
     \item \emph{Symbolic state}: For a timed automaton $A$, a symbolic
       state is an ordered pair of a location and a zone, that is, $(l,
@@ -435,7 +440,7 @@
       and the edges are given by the \emph{reachability relation}:
       \begin{itemize}
       \item $(l,Z')$ is reachable from $(l,Z)$ if there exists a
-        valuation belonging $Z'$ which can be obtained
+        valuation belonging to $Z'$ which can be obtained
         from Z by applying a time delay which does not violate the
         invariant at $l$.
 
@@ -469,30 +474,36 @@
 
 \begin{frame}{Timed automaton example}
 
+\scriptsize
+
 \begin{verbatim}
 
-#states 3
-#trans 6
-#clocks 1
-X
+\scriptsize
 
-state: 0
-invar: TRUE
-trans:
-TRUE => RESET { X }; goto 1
-
-state: 1
-invar: TRUE
-trans:
-X <= 2 => RESET {  }; goto 0
-X > 2 => RESET {  }; goto 2
-
-state: 2
-invar: TRUE
-trans:
-TRUE => RESET {  }; goto 0
+\#states 3\\
+\#trans 4\\
+\#clocks 1\\
+X\\
+\\
+state: 0\\
+invar: TRUE\\
+trans:\\
+TRUE => RESET \{ X \}; goto 1\\
+\\
+state: 1\\
+invar: TRUE\\
+trans:\\
+X <= 2 => RESET \{  \}; goto 0\\
+X > 2 => RESET \{  \}; goto 2\\
+\\
+state: 2\\
+invar: TRUE\\
+trans:\\
+TRUE => RESET \{  \}; goto 0
 
 \end{verbatim}
+
+\normalsize
 
 \textit{Example taken from Reactive Systems}
 
