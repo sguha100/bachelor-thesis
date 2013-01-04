@@ -25,9 +25,10 @@ type ltsindex = int;;
 type node = {mutable in_adjacency: (action * (ltsindex list)) list};;
 @ 
 \item An LTS is represented as an array of nodes, each containing its
-  adjacecnt list sorted by actions.
+  adjacecnt list sorted by actions, and the total number of different
+  actions in it.
 <<fernandez.ml>>=
-type lts = node array;;
+type lts = {nodes: node array; actions: action};;
 @ 
 \item A block is represented by a list of states from $Proc$.
 <<fernandez.ml>>=
@@ -79,7 +80,7 @@ let rec twowayupdatequeue w x x1 x2 =
 \item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
 <<fernandez.ml>>=
  let simplesplitblockonaction l x b a =
-   List.partition (function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.(belem).in_adjacency) b) x
+   List.partition (function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.nodes.(belem).in_adjacency) b) x
  ;;
 
 @ 
@@ -92,7 +93,7 @@ let rec twowayupdatequeue w x x1 x2 =
   $x - T_{a}^{-1}[b2] - T_{a}^{-1}[b1]$.
 <<fernandez.ml>>=
 let compoundsplitblockonaction l x b b1 b2 a = let
-  f = function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.(belem).in_adjacency)
+  f = function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.nodes.(belem).in_adjacency)
   in match
   (List.partition (function xelem -> f xelem b1) x)
   with
@@ -163,21 +164,24 @@ let rec splitpartitiononactions l (w, pi) b a =
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
-  split, $a$ is the LAST action to split $pi$ on.
+  split.
 <<fernandez.ml>>=
-let dequeue l (w, pi) a = match w with
+let dequeue l (w, pi) = match w with
   [] -> ([], pi)
-| (Simple b)::wtail -> splitpartitiononactions l (wtail, pi) (Simple b) a
-| (Compound (b, b1, b2))::wtail -> splitpartitiononactions l (wtail@[b1; b2], pi) (Compound (b, b1, b2)) a
+| (Simple b)::wtail -> splitpartitiononactions l (wtail, pi) (Simple
+								b)
+  (l.actions - 1)
+| (Compound (b, b1, b2))::wtail -> splitpartitiononactions l
+  (wtail@[b1; b2], pi) (Compound (b, b1, b2)) (l.actions - 1)
 ;;
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
-  split, $a$ is the LAST action to split $pi$ on.
+  split.
 <<fernandez.ml>>=
-let rec emptyqueue l (w, pi) a = match w with
+let rec emptyqueue l (w, pi) = match w with
   [] -> ([], pi)
-| whead::wtail -> emptyqueue l (dequeue l (w, pi) a) a
+| whead::wtail -> emptyqueue l (dequeue l (w, pi))
 ;;
 
 @ 
@@ -190,23 +194,23 @@ let rec getblock n = match n with
 ;;
       
 @ 
-\item $l$ is the LTS, $a$ is the LAST action.
+\item $l$ is the LTS.
 <<fernandez.ml>>=
-let fernandez l a = let llist = getblock (Array.length l) in emptyqueue l ([Simple llist], [llist]) a
+let fernandez l = let llist = getblock (Array.length l.nodes) in emptyqueue l ([Simple llist], [llist])
 ;;
 
 @ 
 \end{itemize}
 
 <<fernandez.ml>>=
-let lts1 = [|{in_adjacency = [(2, [6])]}; 
+let lts1 = {nodes=[|{in_adjacency = [(2, [6])]}; 
 	     {in_adjacency = [(0, [1])]}; 
 	     {in_adjacency = [(0, [0]); (1, [7])]};
 	     {in_adjacency = [(1, [2])]};
 	     {in_adjacency = [(1, [2])]};
 	     {in_adjacency = [(0, [4; 5]); (2, [6])]};
 	     {in_adjacency = [(1, [3]); (2, [2])]};
-	     {in_adjacency = [(0, [1])]}|]
+	     {in_adjacency = [(0, [1])]}|]; actions=3}
 ;;
 
 let x1 = [0; 1; 2; 3; 4; 5; 6; 7];;
@@ -225,23 +229,23 @@ let b4 = [2; 3; 6; 7];;
 let pi2 = [[0; 1; 4; 5; 2; 3; 6; 7]];;
 let w2 = [Simple [0; 1; 2; 3; 4; 5; 6; 7]];;
 let a2 = 2;;
-let lts1 = [|{in_adjacency = [(2, [6])]}; 
+let lts1 = {nodes=[|{in_adjacency = [(2, [6])]}; 
 	     {in_adjacency = [(0, [1])]}; 
 	     {in_adjacency = [(0, [0]); (1, [7])]};
 	     {in_adjacency = [(1, [2])]};
 	     {in_adjacency = [(1, [2])]};
 	     {in_adjacency = [(0, [4; 5]); (2, [6])]};
 	     {in_adjacency = [(1, [3]); (2, [2])]};
-	     {in_adjacency = [(0, [1])]}|]
+	     {in_adjacency = [(0, [1])]}|]; actions=3}
 ;;
-let (w2, pi2) = fernandez lts1 2;;
-let lts2 = [|{in_adjacency = [(0, [5])]}; 
+let (w2, pi2) = fernandez lts1;;
+let lts2 = {nodes=[|{in_adjacency = [(0, [5])]}; 
 	     {in_adjacency = [(0, [0; 1])]}; 
 	     {in_adjacency = [(1, [4])]};
 	     {in_adjacency = [(0, [6]); (1, [2])]};
 	     {in_adjacency = [(1, [3])]};
 	     {in_adjacency = []};
 	     {in_adjacency = [(1, [5])]}
-	   |]
+	   |]; actions=2}
 ;;
-let (w3, pi3) = fernandez lts2 1;;
+let (w3, pi3) = fernandez lts2;;
