@@ -121,8 +121,8 @@ let rec simplesplitblocksonaction l (w, xl) b a =
   match xl with
     [] -> (w, [])
   | x::xs -> (let (ww, xxs) = (simplesplitblocksonaction l (w, xs) b a) in (match (simplesplitblockonaction l x b a) with
-      ([], x2) -> (ww, x2::xxs)
-    | (x1, []) -> (ww, x1::xxs)
+      ([], _) -> (ww, x::xxs)
+    | (_, []) -> (ww, x::xxs)
     | (x1, x2) -> (let www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
 									   ))
 ;;
