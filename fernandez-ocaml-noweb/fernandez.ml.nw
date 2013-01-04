@@ -1,19 +1,53 @@
-<<fernandez>>=
+\section{Fernandez' algorithm in Ocaml}
+
+This section documents the current implementation of Fernandez'
+algorithm in Ocaml.
+
+<<fernandez.ml>>=
 #use "topfind";;
 #require "inspect";;
 open Inspect;;
-type action = int;;
-type ltsindex = int;;
-type node = {mutable in_adjacency: (action * (ltsindex list)) list};;
-type lts = node array;;
-type block = ltsindex list;;
-type partition = block list;;
-type splitter = Simple of block | Compound of (block * splitter * splitter);;
 
-(*
-  t is the tree
-  x is the formerly simple block that was split into the new simple blocks x1 and x2
- *)
+@ 
+\subsection{Data Types}
+\begin{itemize}
+\item Actions are denoted by integers from $0$ to $|Act|-1$
+<<fernandez.ml>>=
+type action = int;;
+@ 
+\item Each state in the LTS is denoted by a number from $0$ to $|Proc|
+  - 1$
+<<fernandez.ml>>=
+type ltsindex = int;;
+@ 
+\item Each node stores its own adjacency list, sorted by the actions on the respective transitions.
+<<fernandez.ml>>=
+type node = {mutable in_adjacency: (action * (ltsindex list)) list};;
+@ 
+\item An LTS is represented as an array of nodes, each containing its
+  adjacecnt list sorted by actions.
+<<fernandez.ml>>=
+type lts = node array;;
+@ 
+\item A block is represented by a list of states from $Proc$.
+<<fernandez.ml>>=
+type block = ltsindex list;;
+@ 
+\item A partition is a set of blocks.
+<<fernandez.ml>>=
+type partition = block list;;
+@ 
+\item Splitters can be of two kinds, simple and compound.
+<<fernandez.ml>>=
+type splitter = Simple of block | Compound of (block * splitter * splitter);;
+@ 
+\end{itemize}
+
+\subsection{Functions}
+\begin{itemize}
+\item $t$ is the tree, $x$ is the formerly simple block that was
+  split into the new simple blocks $x1$ and $x2$.
+<<fernandez.ml>>=
 let rec twowayupdatetree t x x1 x2 =
   match t with
     Simple t0 -> if (t0 = x) then (Compound (x, Simple x1, Simple x2), true) else (t, false)
@@ -28,6 +62,10 @@ let rec twowayupdatetree t x x1 x2 =
      )
 ;;
 
+@ 
+\item $w$ is the queue, $x$ is the formerly simple block that was
+  split into the new simple blocks $x1$ and $x2$.
+<<fernandez.ml>>=
 let rec twowayupdatequeue w x x1 x2 =
   match w with
     [] -> [Compound (x, Simple x1, Simple x2)]
@@ -37,23 +75,22 @@ let rec twowayupdatequeue w x x1 x2 =
      )
 ;;
 
- (*
-   l is the lts
-   x is the block being split
-   b is the simple splitter
-   a is the action
-   return type: pair of blocks, one of which may be empty
-  *)
+@ 
+\item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
+<<fernandez.ml>>=
  let simplesplitblockonaction l x b a =
    List.partition (function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.(belem).in_adjacency) b) x
  ;;
 
-(*
-  l is the lts
-  x is the block being split
-  b is the compound splitter consisting of b1 and b2
-  a is the action
- *)
+@ 
+\item $l$ is the lts, $x$ is the block being split, $b$ is the
+  compound splitter consisting of the blocks $b1$ and $b2$, $a$ is the
+  action. This returns an ordered pair of ordered pairs, the four
+  elements of which contain $x \cap T_{a}^{-1}[b1] \cap T_{a}^{-1}[b2]$, $x
+  \cap T_{a}^{-1}[b1] - T_{a}^{-1}[b2]$, $x \cap T_{a}^{-1}[b2] -
+  T_{a}^{-1}[b1]$, and
+  $x - T_{a}^{-1}[b2] - T_{a}^{-1}[b1]$.
+<<fernandez.ml>>=
 let compoundsplitblockonaction l x b b1 b2 a = let
   f = function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.exists (function nlelem -> nlelem = xelem) nl) l.(belem).in_adjacency)
   in match
@@ -62,13 +99,10 @@ let compoundsplitblockonaction l x b b1 b2 a = let
   (y1, y2) -> (List.partition (function xelem -> f xelem b2) y1, List.partition (function xelem -> f xelem b2) y2)
 ;;
 
-(*
-  l is the lts
-  w is the queue
-  xl is the list of blocks being split
-  b is the simple splitter
-  a is the action
- *)
+@ 
+  \item $l$ is the LTS,  $w$ is the queue,  $xl$ is the list of blocks
+  being split,  $b$ is the simple splitter,  $a$ is the action.
+<<fernandez.ml>>=
 let rec simplesplitblocksonaction l (w, xl) b a =
   match xl with
     [] -> (w, [])
@@ -79,6 +113,11 @@ let rec simplesplitblocksonaction l (w, xl) b a =
 									   ))
 ;;
 
+@ 
+  \item $l$ is the LTS, $w$ is the queue, $xl$ is the list of blocks
+      being split, $b$ is the compound  splitter which consists of
+	  blocks $b1$ and $b2$, $a$ is the action.
+<<fernandez.ml>>=
 let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
   match xl with
     [] -> (w, [])
@@ -94,6 +133,10 @@ let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
      ))
 ;;
 
+@ 
+\item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
+  split, $sp$ is the splitter (simple or compound), $a$ is the action.
+<<fernandez.ml>>=
 (*
   alias for sanity
  *)
@@ -105,12 +148,12 @@ let splitpartitiononaction l (w, pi) sp a = match sp with
 | Compound (b, Compound (b1, _, _), Compound (b2, _, _)) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
 ;;
 
+@ 
+  \item $l$ is the LTS, $pi$ is the partition being split, $w$ is the
+  queue, $b$ is the splitter, $a$ is the LAST action to split
+  $pi$ on.
+<<fernandez.ml>>=
 (*
-  l is the lts
-  pi is the partition being split
-  w is the queue
-  b is the simple splitter
-  a is the LAST action
  *)
 let rec splitpartitiononactions l (w, pi) b a =
   match a with
@@ -118,25 +161,44 @@ let rec splitpartitiononactions l (w, pi) b a =
   | a -> splitpartitiononaction l (splitpartitiononactions l (w, pi) b (a-1)) b a
 ;;
 
+@ 
+\item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
+  split, $a$ is the LAST action to split $pi$ on.
+<<fernandez.ml>>=
 let dequeue l (w, pi) a = match w with
   [] -> ([], pi)
 | (Simple b)::wtail -> splitpartitiononactions l (wtail, pi) (Simple b) a
 | (Compound (b, b1, b2))::wtail -> splitpartitiononactions l (wtail@[b1; b2], pi) (Compound (b, b1, b2)) a
 ;;
 
+@ 
+\item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
+  split, $a$ is the LAST action to split $pi$ on.
+<<fernandez.ml>>=
 let rec emptyqueue l (w, pi) a = match w with
   [] -> ([], pi)
 | whead::wtail -> emptyqueue l (dequeue l (w, pi) a) a
 ;;
 
+@ 
+\item This function, given $n$, returns a list with the elements $n-1,
+  ..., 0$
+<<fernandez.ml>>=
 let rec getblock n = match n with
   0 -> []
 | n -> (n-1)::(getblock (n-1))
 ;;
       
+@ 
+\item $l$ is the LTS, $a$ is the LAST action.
+<<fernandez.ml>>=
 let fernandez l a = let llist = getblock (Array.length l) in emptyqueue l ([Simple llist], [llist]) a
 ;;
 
+@ 
+\end{itemize}
+
+<<fernandez.ml>>=
 let lts1 = [|{in_adjacency = [(2, [6])]}; 
 	     {in_adjacency = [(0, [1])]}; 
 	     {in_adjacency = [(0, [0]); (1, [7])]};
