@@ -32,7 +32,7 @@ type lts = {nodes: node array; actions: action};;
 @ 
 \item A block is represented by a list of states from $Proc$.
 <<fernandez.ml>>=
-type block = ltsindex list;;
+type block = {indices: ltsindex list; info: (action * (int array)) list};;
 @ 
 \item A partition is a set of blocks.
 <<fernandez.ml>>=
@@ -61,7 +61,7 @@ let rec getblock n = match n with
 <<fernandez.ml>>=
 let rec twowayupdatetree t x x1 x2 =
   match t with
-    Simple t0 -> if (t0 = x) then (Compound (x, Simple x1, Simple x2), true) else (t, false)
+    Simple t0 -> if (t0.indices = x.indices) then (Compound (x, Simple x1, Simple x2), true) else (t, false)
   | Compound (t0, t1, t2) -> (
       match (twowayupdatetree t1 x x1 x2) with
 	(_, false) -> (
@@ -90,11 +90,16 @@ let rec twowayupdatequeue w x x1 x2 =
 \item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
 <<fernandez.ml>>=
  let simplesplitblockonaction l x b a =
-   List.partition (function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.mem xelem nl) l.nodes.(belem).in_adjacency) b) x
+   match
+     List.partition (function xelem -> List.exists (function belem ->
+       List.exists (function (aa, nl) -> a=aa && List.mem xelem nl)
+	 l.nodes.(belem).in_adjacency) b.indices) x.indices
+   with
+     (x1indices, x2indices) -> ({indices= x1indices; info= []}, {indices= x2indices; info= []})
  ;;
 
  let flif l b a = Array.init (Array.length l.nodes) (function index
- -> List.length (List.filter (function belem -> List.exists (function (aa, nl) -> a=aa && List.mem index nl) l.nodes.(belem).in_adjacency) b))
+ -> List.length (List.filter (function belem -> List.exists (function (aa, nl) -> a=aa && List.mem index nl) l.nodes.(belem).in_adjacency) b.indices))
 
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the
@@ -108,9 +113,21 @@ let rec twowayupdatequeue w x x1 x2 =
 let compoundsplitblockonaction l x b b1 b2 a = let
   f = function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.mem xelem nl) l.nodes.(belem).in_adjacency)
   in match
-  (List.partition (function xelem -> f xelem b1) x)
+  (List.partition (function xelem -> f xelem b1.indices) x.indices)
   with
-  (y1, y2) -> (List.partition (function xelem -> f xelem b2) y1, List.partition (function xelem -> f xelem b2) y2)
+  (y1, y2) -> (match
+      (List.partition (function xelem -> f xelem b2.indices) y1, List.partition
+	(function xelem -> f xelem b2.indices) y2)
+    with
+      ((x1indices, x2indices), (x3indices, x4indices)) -> (({indices= x1indices;
+						     info= []},
+						    {indices= x2indices;
+						     info= []}),
+						   ({indices= x3indices;
+						     info= []},
+						    {indices= x4indices;
+						     info= []}))
+   )
 ;;
 
 @ 
@@ -121,8 +138,8 @@ let rec simplesplitblocksonaction l (w, xl) b a =
   match xl with
     [] -> (w, [])
   | x::xs -> (let (ww, xxs) = (simplesplitblocksonaction l (w, xs) b a) in (match (simplesplitblockonaction l x b a) with
-      ([], x2) -> (ww, x2::xxs)
-    | (x1, []) -> (ww, x1::xxs)
+    ({indices= []; info= _}, x2) -> (ww, x2::xxs)
+    | (x1, {indices=[]; info= _}) -> (ww, x1::xxs)
     | (x1, x2) -> (let www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
 									   ))
 ;;
@@ -135,15 +152,26 @@ let rec simplesplitblocksonaction l (w, xl) b a =
 let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
   match xl with
     [] -> (w, [])
-  | x::xs -> (let (ww, xxs) = (compoundsplitblocksonaction l (w, xs) b b1 b2 a) in (match (compoundsplitblockonaction l x b b1 b2 a) with
-      (([], []), ([], x4)) -> (ww, x4::xxs)
-    | (([], x1), ([], [])) -> (ww, x1::xxs)
-    | (([], []), (x2, [])) -> (ww, x2::xxs)
-    | ((x3, []), ([], [])) -> (ww, x3::xxs)
-    | ((x3, x1), ([], [])) -> (let www = (twowayupdatequeue ww x x3 x1) in (www, x3::x1::xxs))
-    | ((x3, []), (x2, [])) -> (let www = (twowayupdatequeue ww x x3 x2) in (www, x3::x2::xxs))
-    | (([], x1), (x2, [])) -> (let www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
-    | ((x3, x1), (x2, [])) -> (let www = (twowayupdatequeue (twowayupdatequeue ww x x1 (x2@x3)) (x2@x3) x2 x3) in (www, x1::x2::x3::xxs))
+  | x::xs -> (let (ww, xxs) = (compoundsplitblocksonaction l (w, xs) b
+  b1 b2 a) in (match (compoundsplitblockonaction l x b b1 b2 a) with
+      (({indices=[]; info=_}, {indices=[]; info=_}), ({indices=[];
+  info=_}, x4)) -> (ww, x4::xxs)
+    | (({indices=[]; info=_}, x1), ({indices=[]; info=_}, {indices=[];
+  info=_})) -> (ww, x1::xxs)
+    | (({indices=[]; info=_}, {indices=[]; info=_}), (x2, {indices=[];
+  info=_})) -> (ww, x2::xxs)
+    | ((x3, {indices=[]; info=_}), ({indices=[]; info=_}, {indices=[];
+  info=_})) -> (ww, x3::xxs)
+    | ((x3, x1), ({indices=[]; info=_}, {indices=[]; info=_})) -> (let
+  www = (twowayupdatequeue ww x x3 x1) in (www, x3::x1::xxs))
+    | ((x3, {indices=[]; info=_}), (x2, {indices=[]; info=_})) -> (let
+  www = (twowayupdatequeue ww x x3 x2) in (www, x3::x2::xxs))
+    | (({indices=[]; info=_}, x1), (x2, {indices=[]; info=_})) -> (let
+  www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
+    | ((x3, x1), (x2, {indices=[]; info=_})) -> (let www = (let x23 =
+  {indices = x2.indices@x3.indices; info = []} in (twowayupdatequeue
+  (twowayupdatequeue ww x x1 x23) x23 x2 x3)) in (www,
+  x1::x2::x3::xxs))
      ))
 ;;
 
@@ -200,7 +228,11 @@ let rec emptyqueue l (w, pi) = match w with
 @ 
 \item $l$ is the LTS.
 <<fernandez.ml>>=
-let fernandez l = let llist = getblock (Array.length l.nodes) in emptyqueue l ([Simple llist], [llist])
+let fernandez l = let llistblock = {indices = getblock (Array.length
+							  l.nodes); info
+				    = []}in emptyqueue l ([Simple
+							      llistblock],
+							  [llistblock])
 ;;
 
 @ 
@@ -218,8 +250,8 @@ let lts1 = {nodes=[|{in_adjacency = [(2, [6])]};
 ;;
 
 let x1 = [0; 1; 2; 3; 4; 5; 6; 7];;
-let b1 = [0; 1; 2; 3; 4; 5; 6; 7];;
-let pi1 = [[0; 1; 2; 3; 4; 5; 6; 7]];;
+let b1 = {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []};;
+let pi1 = [{indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}];;
 let a1 = 0;;
 let w1 = [];;
 let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
@@ -228,11 +260,11 @@ let a1 = 1;;
 let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
 let a1 = 2;;
 let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
-let b2 = [0; 1; 2; 3; 4; 5; 6; 7];;
-let b3 = [0; 1; 4; 5];;
-let b4 = [2; 3; 6; 7];;
-let pi2 = [[0; 1; 4; 5; 2; 3; 6; 7]];;
-let w2 = [Simple [0; 1; 2; 3; 4; 5; 6; 7]];;
+let b2 = {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []};;
+let b3 = {indices = [0; 1; 4; 5]; info = []};;
+let b4 = {indices = [2; 3; 6; 7]; info = []};;
+let pi2 = [{indices = [0; 1; 4; 5; 2; 3; 6; 7]; info = []}];;
+let w2 = [Simple {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}];;
 let a2 = 2;;
 let lts1 = {nodes=[|{in_adjacency = [(2, [6])]}; 
 	     {in_adjacency = [(0, [1])]}; 
