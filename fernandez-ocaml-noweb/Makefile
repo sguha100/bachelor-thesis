@@ -1,4 +1,10 @@
-all:fernandez.ml fernandez.html
+all:fernandez.ml fernandez_app.native fernandez.html
+
+fernandez_app.native: fernandez_app.ml
+	ocamlbuild fernandez_app.native
+
+fernandez_app.ml: fernandez.ml.nw
+	notangle -Rfernandez_app.ml fernandez.ml.nw > fernandez_app.ml
 
 fernandez.ml:fernandez.ml.nw
 	notangle -Rfernandez.ml fernandez.ml.nw > fernandez.ml
