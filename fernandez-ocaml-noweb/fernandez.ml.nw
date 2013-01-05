@@ -3,46 +3,40 @@
 This section documents the current implementation of Fernandez'
 algorithm in Ocaml.
 
-<<fernandez.ml>>=
-#use "topfind";;
-#require "inspect";;
-open Inspect;;
-
-@ 
 \subsection{Data Types}
 \begin{itemize}
 \item Actions are denoted by integers from $0$ to $|Act|-1$
 <<fernandez.ml>>=
-type action = int;;
+type action = int
 @ 
 \item Each state in the LTS is denoted by a number from $0$ to $|Proc|
   - 1$
 <<fernandez.ml>>=
-type ltsindex = int;;
+type ltsindex = int
 @ 
 \item Each node stores its own adjacency list, sorted by the actions on the respective transitions.
 <<fernandez.ml>>=
-type node = {mutable in_adjacency: (action * (ltsindex list)) list};;
+type node = {mutable in_adjacency: (action * (ltsindex list)) list}
 @ 
 \item An LTS is represented as an array of nodes, each containing its
   adjacecnt list sorted by actions, and the total number of different
   actions in it.
 <<fernandez.ml>>=
-type lts = {nodes: node array; actions: action};;
+type lts = {nodes: node array; actions: action}
 @ 
 \item A block is represented by a list of states from $Proc$ and its
   $info$ structure.
 <<fernandez.ml>>=
-type block = {indices: ltsindex list; info: (action * (int array)) list};;
+type block = {indices: ltsindex list; info: (action * (int array)) list}
 @ 
 \item A partition is a set of blocks.
 <<fernandez.ml>>=
-type partition = block list;;
+type partition = block list
 @ 
 \item Splitters can be of two kinds, simple and compound.
 <<fernandez.ml>>=
 type splitter = Simple of block | Compound of (block * splitter *
-						 splitter);;
+						 splitter)
 @ 
 \end{itemize}
 
@@ -52,8 +46,7 @@ type splitter = Simple of block | Compound of (block * splitter *
   ..., 0$
 <<fernandez.ml>>=
 let getblock n = Array.to_list (Array.init n (function index -> index))
-;;
-      
+
 @ 
 \item $t$ is the tree, $x$ is the formerly simple block that was
   split into the new simple blocks $x1$ and $x2$.
@@ -70,7 +63,6 @@ let rec twowayupdatetree t x x1 x2 =
 	 )
       | (tt1, true) -> (Compound (t0, tt1, t2), true)
      )
-;;
 
 @ 
 \item $w$ is the queue, $x$ is the formerly simple block that was
@@ -83,17 +75,14 @@ let rec twowayupdatequeue w x x1 x2 =
       (_, false) -> t::(twowayupdatequeue ts x x1 x2)
     | (tt, true) -> tt::ts
      )
-;;
 
  let flif l bindices a = Array.init (Array.length l.nodes) (function index
  -> List.length (List.filter (function belem -> List.exists (function
 (aa, nl) -> a=aa && List.mem index nl) l.nodes.(belem).in_adjacency)
 		   bindices))
- ;;
 
  let fpim l bindices = {indices = bindices; info = (Array.to_list (Array.init (l.actions) (function a ->
  (a, flif l bindices a))))}
- ;;
 
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
@@ -105,7 +94,6 @@ let rec twowayupdatequeue w x x1 x2 =
 	 l.nodes.(belem).in_adjacency) b.indices) x.indices
    with
      (x1indices, x2indices) -> (fpim l x1indices, fpim l x2indices)
- ;;
 
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the
@@ -128,7 +116,6 @@ let compoundsplitblockonaction l x b b1 b2 a = let
        -> (function (aa, nl) -> a = aa1 && aa1 = aa && nl1.(xelem) <
 	   nl.(xelem))) b1.info
 	b.info) y1, List.partition
-
 	(function xelem -> List.exists (function (aa, nl) -> a=aa &&
 	    nl.(xelem) > 0) b.info) y2)
     with
@@ -137,7 +124,6 @@ let compoundsplitblockonaction l x b b1 b2 a = let
 						   (fpim l x2indices,
 						    fpim l x4indices))
    )
-;;
 
 @ 
   \item $l$ is the LTS,  $w$ is the queue,  $xl$ is the list of blocks
@@ -152,7 +138,6 @@ let rec simplesplitblocksonaction l (w, xl) b a =
     | (x1, {indices=[]; info= _}) -> (ww, x1::xxs)
     | (x1, x2) -> (let www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
 									   ))
-;;
 
 @ 
   \item $l$ is the LTS, $w$ is the queue, $xl$ is the list of blocks
@@ -187,7 +172,6 @@ let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
   (twowayupdatequeue ww x x1 x23) x23 x2 x3)) in (www,
   x1::x2::x3::xxs))
      ))
-;;
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
@@ -202,7 +186,6 @@ let splitpartitiononaction l (w, pi) sp a = match sp with
 | Compound (b, Compound (b1, _, _), Simple b2) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
 | Compound (b, Simple b1, Compound (b2, _, _)) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
 | Compound (b, Compound (b1, _, _), Compound (b2, _, _)) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
-;;
 
 @ 
   \item $l$ is the LTS, $pi$ is the partition being split, $w$ is the
@@ -215,7 +198,6 @@ let rec splitpartitiononactions l (w, pi) b a =
   match a with
     0 -> splitpartitiononaction l (w, pi) b 0
   | a -> splitpartitiononaction l (splitpartitiononactions l (w, pi) b (a-1)) b a
-;;
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
@@ -228,7 +210,6 @@ let dequeue l (w, pi) = match w with
   (l.actions - 1)
 | (Compound (b, b1, b2))::wtail -> splitpartitiononactions l
   (wtail@[b1; b2], pi) (Compound (b, b1, b2)) (l.actions - 1)
-;;
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
@@ -237,7 +218,6 @@ let dequeue l (w, pi) = match w with
 let rec emptyqueue l (w, pi) = match w with
   [] -> ([], pi)
 | whead::wtail -> emptyqueue l (dequeue l (w, pi))
-;;
 
 @ 
 \item $l$ is the LTS.
@@ -247,7 +227,6 @@ let rec emptyqueue l (w, pi) = match w with
 		    emptyqueue l ([Simple
 				      llistblock],
 				  [llistblock])
- ;;
 
 @ 
 \end{itemize}
@@ -261,26 +240,25 @@ let lts1 = {nodes=[|{in_adjacency = [(2, [6])]};
 	     {in_adjacency = [(0, [4; 5]); (2, [6])]};
 	     {in_adjacency = [(1, [3]); (2, [2])]};
 	     {in_adjacency = [(0, [1])]}|]; actions=3}
-;;
 
-let x1 = [0; 1; 2; 3; 4; 5; 6; 7];;
-let b1 = fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7];;
-let pi1 = [fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7]];;
-let a1 = 0;;
-let w1 = [];;
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
-let array1 = flif lts1 b1.indices a1;;
-let list1 = fpim lts1 b1.indices;;
-let a1 = 1;;
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
-let a1 = 2;;
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1;;
-let b2 = {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []};;
-let b3 = {indices = [0; 1; 4; 5]; info = []};;
-let b4 = {indices = [2; 3; 6; 7]; info = []};;
-let pi2 = [{indices = [0; 1; 4; 5; 2; 3; 6; 7]; info = []}];;
-let w2 = [Simple {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}];;
-let a2 = 2;;
+let x1 = [0; 1; 2; 3; 4; 5; 6; 7]
+let b1 = fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7]
+let pi1 = [fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7]]
+let a1 = 0
+let w1 = []
+let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let array1 = flif lts1 b1.indices a1
+let list1 = fpim lts1 b1.indices
+let a1 = 1
+let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let a1 = 2
+let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let b2 = {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}
+let b3 = {indices = [0; 1; 4; 5]; info = []}
+let b4 = {indices = [2; 3; 6; 7]; info = []}
+let pi2 = [{indices = [0; 1; 4; 5; 2; 3; 6; 7]; info = []}]
+let w2 = [Simple {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}]
+let a2 = 2
 let lts1 = {nodes=[|{in_adjacency = [(2, [6])]}; 
 	     {in_adjacency = [(0, [1])]}; 
 	     {in_adjacency = [(0, [0]); (1, [7])]};
@@ -289,8 +267,7 @@ let lts1 = {nodes=[|{in_adjacency = [(2, [6])]};
 	     {in_adjacency = [(0, [4; 5]); (2, [6])]};
 	     {in_adjacency = [(1, [3]); (2, [2])]};
 	     {in_adjacency = [(0, [1])]}|]; actions=3}
-;;
-let (w2, pi2) = fernandez lts1;;
+let (w2, pi2) = fernandez lts1
 let lts2 = {nodes=[|{in_adjacency = [(0, [5])]}; 
 	     {in_adjacency = [(0, [0; 1])]}; 
 	     {in_adjacency = [(1, [4])]};
@@ -299,9 +276,20 @@ let lts2 = {nodes=[|{in_adjacency = [(0, [5])]};
 	     {in_adjacency = []};
 	     {in_adjacency = [(1, [5])]}
 	   |]; actions=2}
-;;
-let (w3, pi3) = fernandez lts2;;
+let (w3, pi3) = fernandez lts2
 
 @ 
+<<fernandez.mli>>=
+type action
+type ltsindex
+type node
+type lts
+type block
+type partition
+type splitter
+val fernandez: lts -> ((splitter list) * partition)
+val lts1: lts
+val lts2: lts
+@ 
 <<fernandez_app.ml>>=
-let _ = (let a1 = 0 in exit 0)
+let _ = (let (w3, pi3) = Fernandez.fernandez Fernandez.lts2 in exit 0)
