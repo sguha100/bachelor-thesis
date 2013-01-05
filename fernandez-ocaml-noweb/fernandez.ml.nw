@@ -118,9 +118,7 @@ let rec twowayupdatequeue w x x1 x2 =
   T_{a}^{-1}[b1]$, and
   $x - T_{a}^{-1}[b2] - T_{a}^{-1}[b1]$.
 <<fernandez.ml>>=
-let compoundsplitblockonaction l x b b1 b2 a = let
-  f = function xelem -> List.exists (function belem -> List.exists (function (aa, nl) -> a=aa && List.mem xelem nl) l.nodes.(belem).in_adjacency)
-  in match
+let compoundsplitblockonaction l x b b1 b2 a = match
   (List.partition (function xelem -> List.exists (function (aa, nl) ->
    a=aa && nl.(xelem) > 0) b1.info) x.indices)
   with
