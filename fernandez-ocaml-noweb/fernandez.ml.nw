@@ -51,9 +51,7 @@ type splitter = Simple of block | Compound of (block * splitter *
 \item This function, given $n$, returns a list with the elements $n-1,
   ..., 0$
 <<fernandez.ml>>=
-let rec getblock n = match n with
-  0 -> []
-| n -> (n-1)::(getblock (n-1))
+let getblock n = Array.to_list (Array.init n (function index -> index))
 ;;
       
 @ 
