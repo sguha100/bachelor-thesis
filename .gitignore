@@ -1,0 +1,12 @@
+# Ignore all bin directories
+_build
+# Ignore all files ending with ~
+*~
+# Ignore byproducts of pdflatex
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
