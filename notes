@@ -15,3 +15,17 @@ CAV paper by Guha and Arun-Kumar
 Paper on prebisimilarity
 
 strategy for performance based timed prebisimulation
+
+--Meeting with Shibashis
+
+Implement the algorithm on page 12 of the CAV paper.
+
+Check for time abstracted bisimulation.
+-Refresh timed behavioural equivalences.
+-Try out Minim.
+-Read CAV paper and Tripakis paper again.
+-Parse two timed automata.
+-Create the zone-valuation graph (from page 12 CAV) and then check for strong bisimulation between the zone-valuation graph.
+--Create one LTS by combining the node sets of both these zone valuation graphs by adding an artificial parent node and adding edges with two different new labels.
+--Then check for strong bisimilarity. (modularise this later.)
+
