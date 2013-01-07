@@ -14,7 +14,8 @@ type action = int
 <<fernandez.ml>>=
 type ltsindex = int
 @ 
-\item Each node stores its own adjacency list, sorted by the actions on the respective transitions.
+\item Each node stores its own adjacency list, sorted by the actions
+  on the respective transitions.
 <<fernandez.ml>>=
 type node = {mutable in_adjacency: (action * (ltsindex list)) list}
 @ 
@@ -76,13 +77,21 @@ let rec twowayupdatequeue w x x1 x2 =
     | (tt, true) -> tt::ts
      )
 
- let flif l bindices a = Array.init (Array.length l.nodes) (function index
+@ 
+\item This function produces the $info$ structure for the action $a$
+  for the block having the index set $indices$ on the LTS $l$.
+<<fernandez.ml>>=
+ let getinfobyaction l indices a = Array.init (Array.length l.nodes) (function index
  -> List.length (List.filter (function belem -> List.exists (function
 (aa, nl) -> a=aa && List.mem index nl) l.nodes.(belem).in_adjacency)
-		   bindices))
+		   indices))
 
- let fpim l bindices = {indices = bindices; info = (Array.to_list (Array.init (l.actions) (function a ->
- (a, flif l bindices a))))}
+@ 
+\item This function generates a new block with the index set $indices$
+  on the LTS $l$.
+<<fernandez.ml>>=
+ let getblockfromindices l indices = {indices = indices; info = (Array.to_list (Array.init (l.actions) (function a ->
+ (a, getinfobyaction l indices a))))}
 
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
@@ -93,7 +102,7 @@ let rec twowayupdatequeue w x x1 x2 =
        List.exists (function (aa, nl) -> a=aa && List.mem xelem nl)
 	 l.nodes.(belem).in_adjacency) b.indices) x.indices
    with
-     (x1indices, x2indices) -> (fpim l x1indices, fpim l x2indices)
+     (x1indices, x2indices) -> (getblockfromindices l x1indices, getblockfromindices l x2indices)
 
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the
@@ -119,10 +128,10 @@ let compoundsplitblockonaction l x b b1 b2 a = let
 	(function xelem -> List.exists (function (aa, nl) -> a=aa &&
 	    nl.(xelem) > 0) b.info) y2)
     with
-      ((x3indices, x1indices), (x2indices, x4indices)) -> ((fpim l x3indices,
-						    fpim l x1indices),
-						   (fpim l x2indices,
-						    fpim l x4indices))
+      ((x3indices, x1indices), (x2indices, x4indices)) -> ((getblockfromindices l x3indices,
+						    getblockfromindices l x1indices),
+						   (getblockfromindices l x2indices,
+						    getblockfromindices l x4indices))
    )
 
 @ 
@@ -222,7 +231,7 @@ let rec emptyqueue l (w, pi) = match w with
 @ 
 \item $l$ is the LTS.
 <<fernandez.ml>>=
-  let fernandez l = let llistblock =  (fpim l (getblock (Array.length
+  let fernandez l = let llistblock =  (getblockfromindices l (getblock (Array.length
 							   l.nodes))) in
 		    emptyqueue l ([Simple
 				      llistblock],
@@ -242,13 +251,13 @@ let lts1 = {nodes=[|{in_adjacency = [(2, [6])]};
 	     {in_adjacency = [(0, [1])]}|]; actions=3}
 
 let x1 = [0; 1; 2; 3; 4; 5; 6; 7]
-let b1 = fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7]
-let pi1 = [fpim lts1 [0; 1; 2; 3; 4; 5; 6; 7]]
+let b1 = getblockfromindices lts1 [0; 1; 2; 3; 4; 5; 6; 7]
+let pi1 = [getblockfromindices lts1 [0; 1; 2; 3; 4; 5; 6; 7]]
 let a1 = 0
 let w1 = []
 let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
-let array1 = flif lts1 b1.indices a1
-let list1 = fpim lts1 b1.indices
+let array1 = getinfobyaction lts1 b1.indices a1
+let list1 = getblockfromindices lts1 b1.indices
 let a1 = 1
 let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
 let a1 = 2
