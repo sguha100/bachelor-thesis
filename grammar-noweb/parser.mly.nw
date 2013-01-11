@@ -8,6 +8,7 @@
 	%token NUMSTATES
 	%token NUMTRANS
 	%token NUMCLOCKS
+	%token NUMINIT
 	%token STATE
 	%token PROP
 	%token INVAR
@@ -41,12 +42,14 @@
       %type <Types.transition list> transitionlist
         %%
       main:
-	NUMSTATES INT EOL NUMTRANS INT EOL NUMCLOCKS INT EOL clocklist EOL EOL statelist
-	{ {Types.numstates=$2;
-	   Types.numtrans=$5;
-	   Types.numclocks=$8;
-	   Types.clocks = Array.of_list($10);
-	  Types.states = Array.of_list($13)} }
+        NUMSTATES INT EOL NUMTRANS INT EOL NUMCLOCKS INT EOL NUMINIT
+  INT EOL clocklist EOL EOL statelist
+        { {Types.numstates=$2;
+           Types.numtrans=$5;
+           Types.numclocks=$8;
+	   Types.numinit=$11;
+           Types.clocks = Array.of_list($13);
+           Types.states = Array.of_list($16)} }
         ;
       clocklist:
 	                                                              { [] }

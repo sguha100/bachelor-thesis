@@ -1,4 +1,4 @@
-all: calc.ml lexer.mll parser.mly types.ml types.mli
+all: calc.native
 calc.ml:calc.ml.nw
 	notangle -Rcalc.ml calc.ml.nw > calc.ml
 lexer.mll:lexer.mll.nw
@@ -9,3 +9,5 @@ types.ml:types.ml.nw
 	notangle -Rtypes.ml types.ml.nw > types.ml
 types.mli:types.mli.nw
 	notangle -Rtypes.mli types.mli.nw > types.mli
+calc.native:calc.ml lexer.mll parser.mly types.ml types.mli
+	ocamlbuild calc.native
