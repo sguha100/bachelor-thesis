@@ -1,4 +1,4 @@
-<<types.mli>>=
+<<grammar_types.ml>>=
 type clock = {clockname:string}
 type comparator = Lt | Le | Eq | Ge | Gt
 type proposition = True | False | Comparison of string*comparator*int | And of proposition list

@@ -5,9 +5,9 @@ lexer.mll:lexer.mll.nw
 	notangle -Rlexer.mll lexer.mll.nw > lexer.mll
 parser.mly:parser.mly.nw
 	notangle -Rparser.mly parser.mly.nw > parser.mly
-types.ml:types.ml.nw
-	notangle -Rtypes.ml types.ml.nw > types.ml
-types.mli:types.mli.nw
-	notangle -Rtypes.mli types.mli.nw > types.mli
-calc.native:calc.ml lexer.mll parser.mly types.ml types.mli
+grammar_types.ml:grammar_types.ml.nw
+	notangle -Rgrammar_types.ml grammar_types.ml.nw > grammar_types.ml
+grammar_types.mli:grammar_types.mli.nw
+	notangle -Rgrammar_types.mli grammar_types.mli.nw > grammar_types.mli
+calc.native:calc.ml lexer.mll parser.mly grammar_types.ml grammar_types.mli
 	ocamlbuild calc.native

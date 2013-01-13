@@ -8,7 +8,7 @@ exception Eof
   let identexp = ['A'-'Z'](['A'-'Z']|['0'-'9'])*
   rule token = parse
   [' ' '\t']       { token lexbuf }     (* skip blanks *)
-| ['\n' ]          { EOL }
+| ['\n' ]          { token lexbuf }
 | intexp as lxm    { INT(int_of_string lxm) }
 | "TRUE"           { TRUE }
 | "FALSE"          { FALSE }
@@ -34,4 +34,4 @@ exception Eof
 | '>'              { GT }
 | '='              { EQ }
 | "and"            { AND}
-| eof              { raise Eof }
+| eof              { EOF }

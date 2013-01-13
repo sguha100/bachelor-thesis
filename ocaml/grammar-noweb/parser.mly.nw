@@ -1,10 +1,9 @@
 <<parser.mly>>=
   /* File parser.mly */
-      %token <int> INT
+        %token <int> INT
 	%token <string> IDENT
         %token PLUS MINUS TIMES DIV
         %token LPAREN RPAREN
-        %token EOL
 	%token NUMSTATES
 	%token NUMTRANS
 	%token NUMCLOCKS
@@ -28,59 +27,60 @@
 	%token FALSE
 	%token AND
 	%token RESET
+        %token EOF
         %left PLUS MINUS        /* lowest precedence */
-      %left TIMES DIV         /* medium precedence */
-      %nonassoc UMINUS        /* highest precedence */
-      %left AND
-      %start main             /* the entry point */
-      %type <Types.timedautomaton> main
-      %type <Types.clock list> clocklist
-      %type <Types.state> state
-      %type <Types.state list> statelist
-      %type <Types.proposition> proposition
-      %type <Types.transition> transition
-      %type <Types.transition list> transitionlist
+        %left TIMES DIV         /* medium precedence */
+        %nonassoc UMINUS        /* highest precedence */
+        %left AND
+        %start main             /* the entry point */
+        %type <Grammar_types.timedautomaton> main
+        %type <Grammar_types.clock list> clocklist
+        %type <Grammar_types.state> state
+        %type <Grammar_types.state list> statelist
+        %type <Grammar_types.proposition> proposition
+        %type <Grammar_types.transition> transition
+        %type <Grammar_types.transition list> transitionlist
         %%
       main:
-        NUMSTATES INT EOL NUMTRANS INT EOL NUMCLOCKS INT EOL NUMINIT
-  INT EOL clocklist EOL EOL statelist
-        { {Types.numstates=$2;
-           Types.numtrans=$5;
-           Types.numclocks=$8;
-	   Types.numinit=$11;
-           Types.clocks = Array.of_list($13);
-           Types.states = Array.of_list($16)} }
+        NUMSTATES INT NUMTRANS INT NUMCLOCKS INT NUMINIT
+  INT clocklist statelist EOF
+        { {Grammar_types.numstates=$2;
+           Grammar_types.numtrans=$4;
+           Grammar_types.numclocks=$6;
+	   Grammar_types.numinit=$8;
+           Grammar_types.clocks = Array.of_list($9);
+           Grammar_types.states = Array.of_list($10)} }
         ;
       clocklist:
 	                                                              { [] }
-    | IDENT clocklist                                                 { {Types.clockname=$1}::$2}
+    | IDENT clocklist                                                 { {Grammar_types.clockname=$1}::$2}
 	;
       state:
-	STATE COLON INT EOL INVAR COLON proposition EOL TRANS COLON EOL transitionlist
-	{ {Types.stateindex=$3; Types.invariant=$7; Types.departures=Array.of_list($12)} }
+	STATE COLON INT INVAR COLON proposition TRANS COLON transitionlist
+	{ {Grammar_types.stateindex=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
 	;
       statelist:
 	                                                              { [] }
-    | state EOL statelist                                             { $1::$3 }
+    | state statelist                                             { $1::$2 }
 	;
       proposition:
-	TRUE                                                          { Types.True }
-    |	FALSE                                                         { Types.False }
-    |	IDENT LT INT                                                  { Types.Comparison($1, Types.Lt, $3) }
-    |	IDENT LE INT                                                  { Types.Comparison($1, Types.Le, $3) }
-    |	IDENT EQ INT                                                  { Types.Comparison($1, Types.Eq, $3) }
-    |	IDENT GE INT                                                  { Types.Comparison($1, Types.Ge, $3) }
-    |	IDENT GT INT                                                  { Types.Comparison($1, Types.Gt, $3) }
+	TRUE                                                          { Grammar_types.True }
+    |	FALSE                                                         { Grammar_types.False }
+    |	IDENT LT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Lt, $3) }
+    |	IDENT LE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Le, $3) }
+    |	IDENT EQ INT                                                  { Grammar_types.Comparison($1, Grammar_types.Eq, $3) }
+    |	IDENT GE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Ge, $3) }
+    |	IDENT GT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Gt, $3) }
     |   proposition AND proposition
 	{match ($1,$3) with
-	  (Types.And l1, Types.And l3) -> Types.And (l1@l3)
-	| (Types.And l1, _) -> Types.And ($3::l1)
-	| (_, Types.And l3) -> Types.And ($1::l3)
-	| (_, _) -> Types.And ([$1; $3])}
+	  (Grammar_types.And l1, Grammar_types.And l3) -> Grammar_types.And (l1@l3)
+	| (Grammar_types.And l1, _) -> Grammar_types.And ($3::l1)
+	| (_, Grammar_types.And l3) -> Grammar_types.And ($1::l3)
+	| (_, _) -> Grammar_types.And ([$1; $3])}
 	;
       transition:
-	proposition RARROW RESET LBRACE clocklist RBRACE SEMI GOTO INT EOL
-	{ {Types.condition=$1;Types.clockresets=Array.of_list($5); Types.nextstate=$9} }
+	proposition RARROW RESET LBRACE clocklist RBRACE SEMI GOTO INT
+	{ {Grammar_types.condition=$1;Grammar_types.clockresets=Array.of_list($5); Grammar_types.nextstate=$9} }
 	;
       transitionlist:
 	                                                               {[]}
