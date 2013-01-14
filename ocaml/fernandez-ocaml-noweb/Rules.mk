@@ -1,16 +1,34 @@
-all:fernandez.ml fernandez.mli fernandez_app.native fernandez.html
+sp := $(sp).x
+dirstack_$(sp) := $(d)
+d := $(dir)
 
-fernandez_app.native: fernandez_app.ml
-	ocamlbuild fernandez_app.native
+TGT_$(d) := fernandez_app.native $(d)/fernandez_app.ml \
+ $(d)/fernandez.ml $(d)/fernandez.mli $(d)/fernandez.html
 
-fernandez_app.ml: fernandez.nw
-	notangle -Rfernandez_app.ml fernandez.nw > fernandez_app.ml
+# all:fernandez.ml fernandez.mli fernandez_app.native fernandez.html
 
-fernandez.ml:fernandez.nw
-	notangle -Rfernandez.ml fernandez.nw > fernandez.ml
+$(TGT_$(d)): d := $(d)
+#This is a target-specific variable, meant to
+#prevent the current value of d from getting lost when a target from
+#here is actually rebuilt.
 
-fernandez.mli:fernandez.nw
-	notangle -Rfernandez.mli fernandez.nw > fernandez.mli
+fernandez_app.native: $(d)/fernandez_app.ml $(d)/fernandez.ml \
+$(d)/fernandez.mli
+	ocamlbuild $(d)/fernandez_app.native
 
-fernandez.html:fernandez.nw
-	noweave -filter l2h -index -html fernandez.nw | htmltoc > fernandez.html
+$(d)/fernandez_app.ml: $(d)/fernandez.nw
+	notangle -Rfernandez_app.ml $(d)/fernandez.nw \
+	>$(d)/fernandez_app.ml
+
+$(d)/fernandez.ml:$(d)/fernandez.nw;echo $(d)
+	notangle -Rfernandez.ml $(d)/fernandez.nw >$(d)/fernandez.ml
+
+$(d)/fernandez.mli:$(d)/fernandez.nw
+	notangle -Rfernandez.mli $(d)/fernandez.nw > $(d)/fernandez.mli
+
+$(d)/fernandez.html:$(d)/fernandez.nw
+	noweave -filter l2h -index -html $(d)/fernandez.nw | htmltoc \
+	>$(d)/fernandez.html
+
+d := $(dirstack_$(sp))
+sp := $(basename $(sp))
