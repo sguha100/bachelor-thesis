@@ -4,11 +4,11 @@
 	%token <string> IDENT
         %token PLUS MINUS TIMES DIV
         %token LPAREN RPAREN
-	%token NUMSTATES
+	%token NUMLOCATIONS
 	%token NUMTRANS
 	%token NUMCLOCKS
 	%token NUMINIT
-	%token STATE
+	%token LOCATION
 	%token PROP
 	%token INVAR
 	%token TRANS
@@ -35,33 +35,33 @@
         %start main             /* the entry point */
         %type <Grammar_types.timedautomaton> main
         %type <Grammar_types.clock list> clocklist
-        %type <Grammar_types.state> state
-        %type <Grammar_types.state list> statelist
+        %type <Grammar_types.location> location
+        %type <Grammar_types.location list> locationlist
         %type <Grammar_types.proposition> proposition
         %type <Grammar_types.transition> transition
         %type <Grammar_types.transition list> transitionlist
         %%
       main:
-        NUMSTATES INT NUMTRANS INT NUMCLOCKS INT NUMINIT
-  INT clocklist statelist EOF
-        { {Grammar_types.numstates=$2;
+        NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMINIT
+  INT clocklist locationlist EOF
+        { {Grammar_types.numlocations=$2;
            Grammar_types.numtrans=$4;
            Grammar_types.numclocks=$6;
 	   Grammar_types.numinit=$8;
            Grammar_types.clocks = Array.of_list($9);
-           Grammar_types.states = Array.of_list($10)} }
+           Grammar_types.locations = Array.of_list($10)} }
         ;
       clocklist:
 	                                                              { [] }
     | IDENT clocklist                                                 { {Grammar_types.clockname=$1}::$2}
 	;
-      state:
-	STATE COLON INT INVAR COLON proposition TRANS COLON transitionlist
-	{ {Grammar_types.stateindex=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
+      location:
+	LOCATION COLON INT INVAR COLON proposition TRANS COLON transitionlist
+	{ {Grammar_types.locationindex=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
 	;
-      statelist:
+      locationlist:
 	                                                              { [] }
-    | state statelist                                             { $1::$2 }
+    | location locationlist                                             { $1::$2 }
 	;
       proposition:
 	TRUE                                                          { Grammar_types.True }
@@ -80,7 +80,7 @@
 	;
       transition:
 	proposition RARROW RESET LBRACE clocklist RBRACE SEMI GOTO INT
-	{ {Grammar_types.condition=$1;Grammar_types.clockresets=Array.of_list($5); Grammar_types.nextstate=$9} }
+	{ {Grammar_types.condition=$1;Grammar_types.clockresets=Array.of_list($5); Grammar_types.nextlocation=$9} }
 	;
       transitionlist:
 	                                                               {[]}

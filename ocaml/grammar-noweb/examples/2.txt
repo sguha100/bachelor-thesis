@@ -1,21 +1,21 @@
-#states 3
+#locations 3
 #trans 4
 #clocks 1
 #init 0
 X
 
-state: 0
+location: 0
 invar: TRUE
 trans:
 TRUE => RESET { X }; goto 1
 
-state: 1
+location: 1
 invar: TRUE
 trans:
 X <= 2 => RESET {  }; goto 0
 X > 2 => RESET {  }; goto 2
 
-state: 2
+location: 2
 invar: TRUE
 trans:
 TRUE => RESET {  }; goto 0

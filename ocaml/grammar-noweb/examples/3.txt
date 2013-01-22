@@ -1,4 +1,4 @@
-#states 5
+#locations 5
 #trans 6
 #clocks 2
 #init 0

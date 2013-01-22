@@ -19,11 +19,11 @@ exception Eof
 | ';'              { SEMI }
 | '{'              { LBRACE }
 | '}'              { RBRACE }
-| "#states"        { NUMSTATES }
+| "#locations"        { NUMLOCATIONS }
 | "#trans"         { NUMTRANS }
 | "#clocks"        { NUMCLOCKS }
 | "#init"          { NUMINIT }
-| "state"          { STATE }
+| "location"          { LOCATION }
 | "prop"           { PROP }
 | "invar"          { INVAR }
 | "trans"          { TRANS }
