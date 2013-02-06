@@ -4,6 +4,8 @@ dir	:= fernandez-ocaml-noweb
 include		$(dir)/Rules.mk
 dir	:= grammar-noweb
 include		$(dir)/Rules.mk
+dir	:= next_step
+include		$(dir)/Rules.mk
 
 .PHONY: targets
 targets: calc.native next_step.native
@@ -20,7 +22,7 @@ Rules.mk \
 _tags
 
 next_step.native: \
-zone-valuation-graph/calc.ml \
+next_step/next_step.ml \
 grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml \
 grammar-noweb/lexer.mll \

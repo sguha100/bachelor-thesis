@@ -1,0 +1,48 @@
+<<next_step.ml>>=
+(* File next-step.ml *)
+
+module Valuation = Map.Make (String)
+
+let f3 ta = List.fold_right (function clock -> (function valuation
+-> Valuation.add clock.Grammar_types.clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
+
+let rec f2 ta valuation proposition = match proposition with
+    Grammar_types.True -> true
+  | Grammar_types.False -> false
+  | Grammar_types.Comparison (cn, cmpr, n) -> (match cmpr with
+    Grammar_types.Lt -> ((Valuation.find cn valuation) <
+			    float_of_int(n))
+    | Grammar_types.Le -> ((Valuation.find cn valuation) <=
+			    float_of_int(n))
+    | Grammar_types.Eq -> ((Valuation.find cn valuation) =
+			    float_of_int(n))
+    | Grammar_types.Ge -> ((Valuation.find cn valuation) >=
+			    float_of_int(n))
+    | Grammar_types.Gt -> ((Valuation.find cn valuation) >
+			    float_of_int(n))
+  )
+  | Grammar_types.And propl -> List.fold_left (function satisfaction ->
+    (function next_proposition  -> satisfaction && (f2 ta valuation
+    next_proposition))) true propl
+
+let f1 ta valuation location duration = List.filter (function
+transition -> (f2 ta valuation transition.Grammar_types.condition))
+  (Array.to_list (location.Grammar_types.departures))
+
+let _ =
+  let lexbuf = Lexing.from_channel stdin in
+  (let result = Parser.main Lexer.token lexbuf in
+   print_int (result.Grammar_types.numlocations);
+   print_newline();
+   print_int (result.Grammar_types.numtrans);
+   print_newline();
+   print_int (result.Grammar_types.numclocks);
+   print_newline();
+   print_int (result.Grammar_types.numinit);
+   print_newline();
+   print_int (Array.length result.Grammar_types.clocks);
+   print_newline();
+   print_int (Array.length result.Grammar_types.locations);
+   print_newline();
+   flush stdout;
+   exit 0)
