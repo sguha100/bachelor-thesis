@@ -29,3 +29,18 @@ Check for time abstracted bisimulation.
 --Create one LTS by combining the node sets of both these zone valuation graphs by adding an artificial parent node and adding edges with two different new labels.
 --Then check for strong bisimilarity. (modularise this later.)
 
+Valuation representation?
+-Clocks can be an array.
+
+-Global parameter which measures absolute time.
+
+-Valuation calculations will use absolute time.
+
+-Associate a  history of clock resets with each clock name. Taken together with the absolute time, we get to know the current value of any clock.
+
+Sanity checks?
+-Check for illegal clock names, illegal location indices etc right after parsing.
+
+Other things
+-Simulate a finite run of an automaton. This is a useful debugging tool.
+

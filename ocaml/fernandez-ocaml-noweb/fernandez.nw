@@ -20,7 +20,7 @@ type ltsindex = int
 type node = {mutable in_adjacency: (action * (ltsindex list)) list}
 @ 
 \item An LTS is represented as an array of nodes, each containing its
-  adjacecnt list sorted by actions, and the total number of different
+  adjacent list sorted by actions, and the total number of different
   actions in it.
 <<fernandez.ml>>=
 type lts = {nodes: node array; actions: action}
@@ -34,7 +34,9 @@ type block = {indices: ltsindex list; info: (action * (int array)) list}
 <<fernandez.ml>>=
 type partition = block list
 @ 
-\item Splitters can be of two kinds, simple and compound.
+\item Splitters can be of two kinds, simple and compound. In the
+  compound datatype, the two splitters are disjoint and together make
+  up the block.
 <<fernandez.ml>>=
 type splitter = Simple of block | Compound of (block * splitter *
 						 splitter)
@@ -44,7 +46,7 @@ type splitter = Simple of block | Compound of (block * splitter *
 \subsection{Functions}
 \begin{itemize}
 \item This function, given $n$, returns a list with the elements $n-1,
-  ..., 0$
+  \ldots, 0$
 <<fernandez.ml>>=
 let getblock n = Array.to_list (Array.init n (function index -> index))
 
