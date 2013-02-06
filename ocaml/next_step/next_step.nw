@@ -1,11 +1,22 @@
-<<next_step.ml>>=
-(* File next-step.ml *)
+\begin{itemize}
 
+<<next_step.ml>>=
+
+(* How the hell do we make this more global than it is now? *)
 module Valuation = Map.Make (String)
 
+@ 
+\item This function creates a valuation for the given timed automaton
+  where all the clocks are set to zero.
+<<next_step.ml>>=
 let f3 ta = List.fold_right (function clock -> (function valuation
 -> Valuation.add clock.Grammar_types.clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
 
+@ 
+\item This function returns a boolean value denoting whether or not
+  the valuation satisfies the proposition
+  given the constraints of this automaton.
+<<next_step.ml>>=
 let rec f2 ta valuation proposition = match proposition with
     Grammar_types.True -> true
   | Grammar_types.False -> false
@@ -25,7 +36,12 @@ let rec f2 ta valuation proposition = match proposition with
     (function next_proposition  -> satisfaction && (f2 ta valuation
     next_proposition))) true propl
 
-let f1 ta valuation location duration = List.filter (function
+@ 
+\item This function returns a list containing all the 
+  locations that the function can go to instantaneously from this
+  location and valuation pair.
+<<next_step.ml>>=
+let f1 ta valuation location = List.filter (function
 transition -> (f2 ta valuation transition.Grammar_types.condition))
   (Array.to_list (location.Grammar_types.departures))
 
@@ -44,5 +60,17 @@ let _ =
    print_newline();
    print_int (Array.length result.Grammar_types.locations);
    print_newline();
+   let a = Array.of_list (f1 (result) (f3 result)
+			    (result.Grammar_types.locations.(result.Grammar_types.numinit)))
+   in
+   let len = Array.length a
+   in
+   for i = 0 to len - 1 do
+     print_int (result.Grammar_types.locations.(i).Grammar_types.locationindex);
+     print_newline();
+   done;
    flush stdout;
    exit 0)
+
+@ 
+\end{itemize}
