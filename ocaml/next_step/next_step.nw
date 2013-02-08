@@ -1,8 +1,8 @@
 \begin{itemize}
-open Grammar_types
 
 <<next_step.ml>>=
-  open Parse_timed_automaton
+open Grammar_types
+open Parse_timed_automaton
 
 (* How the hell do we make this more global than it is now? *)
 module Valuation = Map.Make (String)
@@ -12,7 +12,7 @@ module Valuation = Map.Make (String)
   where all the clocks are set to zero.
 <<next_step.ml>>=
 let zero_valuation ta = List.fold_right (function clockname -> (function valuation
--> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
+-> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.clocks) (Valuation.empty)
 
 @ 
 \item This function returns a boolean value denoting whether or not
@@ -20,21 +20,21 @@ let zero_valuation ta = List.fold_right (function clockname -> (function valuati
   given the constraints of this automaton.
 <<next_step.ml>>=
 let rec f2 ta valuation proposition = match proposition with
-    Grammar_types.True -> true
-  | Grammar_types.False -> false
-  | Grammar_types.Comparison (cn, cmpr, n) -> (match cmpr with
-    Grammar_types.Lt -> ((Valuation.find cn valuation) <
+    True -> true
+  | False -> false
+  | Comparison (cn, cmpr, n) -> (match cmpr with
+    Lt -> ((Valuation.find cn valuation) <
 			    float_of_int(n))
-    | Grammar_types.Le -> ((Valuation.find cn valuation) <=
+    | Le -> ((Valuation.find cn valuation) <=
 			    float_of_int(n))
-    | Grammar_types.Eq -> ((Valuation.find cn valuation) =
+    | Eq -> ((Valuation.find cn valuation) =
 			    float_of_int(n))
-    | Grammar_types.Ge -> ((Valuation.find cn valuation) >=
+    | Ge -> ((Valuation.find cn valuation) >=
 			    float_of_int(n))
-    | Grammar_types.Gt -> ((Valuation.find cn valuation) >
+    | Gt -> ((Valuation.find cn valuation) >
 			    float_of_int(n))
   )
-  | Grammar_types.And propl -> List.fold_left (function satisfaction ->
+  | And propl -> List.fold_left (function satisfaction ->
     (function next_proposition  -> satisfaction && (f2 ta valuation
     next_proposition))) true propl
 
@@ -45,21 +45,21 @@ let rec f2 ta valuation proposition = match proposition with
 <<next_step.ml>>=
 let f1 ta valuation location =
   (let
-      departures = location.Grammar_types.departures
+      departures = location.departures
    in
    let
        possible_departures =  (List.filter
-     (function transition -> (f2 ta valuation transition.Grammar_types.condition))
+     (function transition -> (f2 ta valuation transition.condition))
      (Array.to_list departures))
    in
    let
        possible_arrivals = (List.map
-     (function transition -> ta.Grammar_types.locations.(transition.Grammar_types.nextlocation))
+     (function transition -> ta.locations.(transition.nextlocation))
      possible_departures)
    in
    let
        possible_retentions = (List.filter
-   (function location -> (f2 ta valuation location.Grammar_types.invariant))
+   (function location -> (f2 ta valuation location.invariant))
    possible_arrivals)
    in
    possible_retentions
@@ -74,9 +74,9 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
 let _ =
   let result = parse_timed_automaton stdin in
   let a = Array.of_list (List.map
-			   (function location -> location.Grammar_types.locationindex)
+			   (function location -> location.locationindex)
 			   (f1 (result) (add_delay (zero_valuation result) 2.0)
-			      (result.Grammar_types.locations.(result.Grammar_types.numinit))))
+			      (result.locations.(result.numinit))))
   in
   let len = Array.length a
   in
