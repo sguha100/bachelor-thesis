@@ -1,6 +1,7 @@
 \begin{itemize}
 
 <<next_step.ml>>=
+  open Parse_timed_automaton
 
 (* How the hell do we make this more global than it is now? *)
 module Valuation = Map.Make (String)
@@ -70,33 +71,21 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
   clock_value +. delay) valuation
 
 let _ =
-  let lexbuf = Lexing.from_channel stdin in
-  (let result = Parser.main Lexer.token lexbuf in
-   (* print_int (result.Grammar_types.numlocations); *)
-   (* print_newline(); *)
-   (* print_int (result.Grammar_types.numtrans); *)
-   (* print_newline(); *)
-   (* print_int (result.Grammar_types.numclocks); *)
-   (* print_newline(); *)
-   (* print_int (result.Grammar_types.numinit); *)
-   (* print_newline(); *)
-   (* print_int (Array.length result.Grammar_types.clocks); *)
-   (* print_newline(); *)
-   (* print_int (Array.length result.Grammar_types.locations); *)
-   (* print_newline(); *)
-   let a = Array.of_list (List.map
-			    (function location -> location.Grammar_types.locationindex)
-			    (f1 (result) (add_delay (zero_valuation result) 2.0)
-			       (result.Grammar_types.locations.(result.Grammar_types.numinit))))
-   in
-   let len = Array.length a
-   in
-   for i = 0 to len - 1 do
-     print_int a.(i);
-     print_newline();
-   done;
-   flush stdout;
-   exit 0)
+  let result = parse_timed_automaton stdin in
+  let a = Array.of_list (List.map
+			   (function location -> location.Grammar_types.locationindex)
+			   (f1 (result) (add_delay (zero_valuation result) 2.0)
+			      (result.Grammar_types.locations.(result.Grammar_types.numinit))))
+  in
+  let len = Array.length a
+  in
+  for i = 0 to len - 1 do
+    print_int a.(i);
+    print_newline();
+  done;
+  flush stdout;
+  exit 0
 
 @ 
 \end{itemize}
+

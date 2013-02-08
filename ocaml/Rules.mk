@@ -16,6 +16,7 @@ grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
+grammar-noweb/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli \
 Rules.mk \
@@ -27,6 +28,7 @@ grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
+grammar-noweb/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli \
 Rules.mk \
