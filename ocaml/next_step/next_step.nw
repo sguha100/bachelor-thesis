@@ -9,7 +9,7 @@ module Valuation = Map.Make (String)
 \item This function creates a valuation for the given timed automaton
   where all the clocks are set to zero.
 <<next_step.ml>>=
-let f3 ta = List.fold_right (function clock -> (function valuation
+let zero_valuation ta = List.fold_right (function clock -> (function valuation
 -> Valuation.add clock.Grammar_types.clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
 
 @ 
@@ -45,28 +45,34 @@ let f1 ta valuation location = List.filter (function
 transition -> (f2 ta valuation transition.Grammar_types.condition))
   (Array.to_list (location.Grammar_types.departures))
 
+@ 
+\item This function pushes all the clocks forward by a time delay.
+<<next_step.ml>>=
+let add_delay valuation delay = Valuation.map (function clock_value ->
+  clock_value +. delay) valuation
+
 let _ =
   let lexbuf = Lexing.from_channel stdin in
   (let result = Parser.main Lexer.token lexbuf in
-   print_int (result.Grammar_types.numlocations);
-   print_newline();
-   print_int (result.Grammar_types.numtrans);
-   print_newline();
-   print_int (result.Grammar_types.numclocks);
-   print_newline();
-   print_int (result.Grammar_types.numinit);
-   print_newline();
-   print_int (Array.length result.Grammar_types.clocks);
-   print_newline();
-   print_int (Array.length result.Grammar_types.locations);
-   print_newline();
-   let a = Array.of_list (f1 (result) (f3 result)
+   (* print_int (result.Grammar_types.numlocations); *)
+   (* print_newline(); *)
+   (* print_int (result.Grammar_types.numtrans); *)
+   (* print_newline(); *)
+   (* print_int (result.Grammar_types.numclocks); *)
+   (* print_newline(); *)
+   (* print_int (result.Grammar_types.numinit); *)
+   (* print_newline(); *)
+   (* print_int (Array.length result.Grammar_types.clocks); *)
+   (* print_newline(); *)
+   (* print_int (Array.length result.Grammar_types.locations); *)
+   (* print_newline(); *)
+   let a = Array.of_list (f1 (result) (add_delay (zero_valuation result) 2.0)
 			    (result.Grammar_types.locations.(result.Grammar_types.numinit)))
    in
    let len = Array.length a
    in
    for i = 0 to len - 1 do
-     print_int (result.Grammar_types.locations.(i).Grammar_types.locationindex);
+     print_int (a.(i).Grammar_types.nextlocation);
      print_newline();
    done;
    flush stdout;
