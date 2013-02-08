@@ -2,8 +2,22 @@ open Grammar_types
 
 exception Insane_automaton
 
-let is_sane_proposition proposition = true
-
+let rec is_sane_proposition ta proposition = match proposition with
+    True -> true
+  | False -> true
+  | Comparison (cn, _, _) -> (Array.fold_left
+				(function truth ->
+				  (function clockname ->
+				  truth || clockname == cn))
+				true
+				ta.clocks)
+  | And propl -> (List.fold_left
+		    (function truth -> (
+		      function proposition ->
+			truth && (is_sane_proposition ta proposition)))
+		    true
+		    propl
+  )
 let is_sane_timed_automaton ta = 
   ta.numlocations == Array.length ta.locations
   &&
@@ -25,20 +39,20 @@ let is_sane_timed_automaton ta =
     (Array.fold_left
        (function truth ->
 	 (function location ->
-	   location.locationindex >= 0
+	   truth
+	   &&
+	     location.locationindex >= 0
 	   &&
 	     location.locationindex < ta.numlocations
 	   &&
-	     is_sane_proposition location.invariant
+	     is_sane_proposition ta location.invariant
 	   &&
 	     (Array.fold_left
 		(function truth ->
 		  (function transition ->
 		    truth
 		    &&
-		      is_sane_proposition transition.condition
-		    &&
-		      true (*Fix the clocks, now!*)
+		      is_sane_proposition ta transition.condition
 		    &&
 		      transition.nextlocation >= 0
 		    &&

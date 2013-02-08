@@ -1,4 +1,5 @@
 \begin{itemize}
+open Grammar_types
 
 <<next_step.ml>>=
   open Parse_timed_automaton
@@ -10,8 +11,8 @@ module Valuation = Map.Make (String)
 \item This function creates a valuation for the given timed automaton
   where all the clocks are set to zero.
 <<next_step.ml>>=
-let zero_valuation ta = List.fold_right (function clock -> (function valuation
--> Valuation.add clock.Grammar_types.clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
+let zero_valuation ta = List.fold_right (function clockname -> (function valuation
+-> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.Grammar_types.clocks) (Valuation.empty)
 
 @ 
 \item This function returns a boolean value denoting whether or not
