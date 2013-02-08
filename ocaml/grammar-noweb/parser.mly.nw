@@ -34,7 +34,7 @@
         %left AND
         %start main             /* the entry point */
         %type <Grammar_types.timedautomaton> main
-        %type <Grammar_types.clock list> clocklist
+        %type <string list> clocknamelist
         %type <Grammar_types.location> location
         %type <Grammar_types.location list> locationlist
         %type <Grammar_types.proposition> proposition
@@ -43,17 +43,19 @@
         %%
       main:
         NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMINIT
-  INT clocklist locationlist EOF
+  INT clocknamelist locationlist EOF
         { {Grammar_types.numlocations=$2;
            Grammar_types.numtrans=$4;
            Grammar_types.numclocks=$6;
 	   Grammar_types.numinit=$8;
-           Grammar_types.clocks = Array.of_list($9);
+           Grammar_types.clocks = Array.of_list(List.map
+	   (function clockname -> {Grammar_types.clockname = clockname})
+	   $9);
            Grammar_types.locations = Array.of_list($10)} }
         ;
-      clocklist:
+      clocknamelist:
 	                                                              { [] }
-    | IDENT clocklist                                                 { {Grammar_types.clockname=$1}::$2}
+    | IDENT clocknamelist                                             {$1::$2}
 	;
       location:
 	LOCATION COLON INT INVAR COLON proposition TRANS COLON transitionlist
@@ -79,7 +81,7 @@
 	| (_, _) -> Grammar_types.And ([$1; $3])}
 	;
       transition:
-	proposition RARROW RESET LBRACE clocklist RBRACE SEMI GOTO INT
+	proposition RARROW RESET LBRACE clocknamelist RBRACE SEMI GOTO INT
 	{ {Grammar_types.condition=$1;Grammar_types.clockresets=Array.of_list($5); Grammar_types.nextlocation=$9} }
 	;
       transitionlist:
