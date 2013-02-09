@@ -12,7 +12,32 @@ module Valuation = Map.Make (String)
   where all the clocks are set to zero.
 <<next_step.ml>>=
 let zero_valuation ta = List.fold_right (function clockname -> (function valuation
--> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.clocks) (Valuation.empty)
+-> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.clocknames) (Valuation.empty)
+
+@ 
+\item This function pushes all the clocks forward by a time delay.
+<<next_step.ml>>=
+let add_delay valuation delay = Valuation.map (function clock_value ->
+  clock_value +. delay) valuation
+
+@ 
+\item This function resets the specified clocks.
+<<next_step.ml>>=
+  let reset_clocks valuation clocknamelist =
+    List.fold_left
+      (function valuation ->
+	function clockname ->
+	  if
+	    Valuation.mem clockname valuation (*this should always be
+						true, but who knows
+						these days?*)
+	  then
+	    Valuation.add clockname 0.0 valuation
+	  else
+	    valuation
+      )
+      valuation
+      clocknamelist
 
 @ 
 \item This function returns a boolean value denoting whether or not
@@ -43,7 +68,7 @@ let rec f2 ta valuation proposition = match proposition with
   locations that the function can go to instantaneously from this
   location and valuation pair.
 <<next_step.ml>>=
-let f1 ta valuation location =
+let f1 ta (location, valuation) =
   (let
       departures = location.departures
    in
@@ -54,34 +79,38 @@ let f1 ta valuation location =
    in
    let
        possible_arrivals = (List.map
-     (function transition -> ta.locations.(transition.nextlocation))
+     (function transition ->
+       (
+       ta.locations.(transition.nextlocation)
+       ,
+       reset_clocks valuation (Array.to_list ta.clocknames)
+       )
+     ) 
      possible_departures)
    in
    let
        possible_retentions = (List.filter
-   (function location -> (f2 ta valuation location.invariant))
+   (function (location, _) -> f2 ta valuation location.invariant)
    possible_arrivals)
    in
    possible_retentions
   )
 
-@ 
-\item This function pushes all the clocks forward by a time delay.
-<<next_step.ml>>=
-let add_delay valuation delay = Valuation.map (function clock_value ->
-  clock_value +. delay) valuation
-
 let _ =
   let result = parse_timed_automaton stdin in
   let a = Array.of_list (List.map
 			   (function location -> location.locationindex)
-			   (f1 (result) (add_delay (zero_valuation result) 2.0)
-			      (result.locations.(result.numinit))))
+			   (f1
+			      result
+			      (result.locations.(result.numinit), 
+			      add_delay (zero_valuation result) 2.0)
+			   )
+  )
   in
   let len = Array.length a
   in
   for i = 0 to len - 1 do
-    print_int a.(i);
+    print_int (fst a.(i));
     print_newline();
   done;
   flush stdout;

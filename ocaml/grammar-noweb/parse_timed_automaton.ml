@@ -10,7 +10,7 @@ let rec is_sane_proposition ta proposition = match proposition with
 				  (function clockname ->
 				  truth || clockname == cn))
 				true
-				ta.clocks)
+				ta.clocknames)
   | And propl -> (List.fold_left
 		    (function truth -> (
 		      function proposition ->
@@ -30,7 +30,7 @@ let is_sane_timed_automaton ta =
        ta.locations
     )
   &&
-    ta.numclocks == Array.length ta.clocks
+    ta.numclocks == Array.length ta.clocknames
   &&
     ta.numinit >= 0
   &&
