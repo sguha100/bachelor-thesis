@@ -8,7 +8,7 @@ dir	:= next_step
 include		$(dir)/Rules.mk
 
 .PHONY: targets
-targets: calc.native next_step.native
+targets: next_step.native
 
 calc.native: \
 zone-valuation-graph/calc.ml \
