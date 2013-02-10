@@ -41,9 +41,9 @@ let is_sane_timed_automaton ta =
 	 (function location ->
 	   truth
 	   &&
-	     location.locationindex >= 0
+	     location.location_index >= 0
 	   &&
-	     location.locationindex < ta.numlocations
+	     location.location_index < ta.numlocations
 	   &&
 	     is_sane_proposition ta location.invariant
 	   &&

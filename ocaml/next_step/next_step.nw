@@ -96,7 +96,7 @@ let f1 ta (location, valuation) =
 let _ =
   let result = parse_timed_automaton stdin in
   let a = Array.of_list (List.map
-			   (function (location, _) -> location.locationindex)
+			   (function (location, _) -> location.location_index)
 			   (f1
 			      result
 			      (result.locations.(result.numinit), 

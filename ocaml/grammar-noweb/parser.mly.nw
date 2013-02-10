@@ -57,7 +57,7 @@
 	;
       location:
 	LOCATION COLON INT INVAR COLON proposition TRANS COLON transitionlist
-	{ {Grammar_types.locationindex=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
+	{ {Grammar_types.location_index=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
 	;
       locationlist:
 	                                                              { [] }
