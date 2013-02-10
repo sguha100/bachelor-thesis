@@ -4,6 +4,21 @@
 open Grammar_types
 open Parse_timed_automaton
 
+let display_state state = 
+  print_string("location = ");
+  print_int state.location.location_index;
+  print_newline();
+  Valuation.iter
+    (function clock_name ->
+      (function clock_value ->
+	print_string("clock_name = " ^ clock_name ^
+			", clock_value = ");
+	print_float(clock_value);
+	print_newline()
+      )
+    )
+    state.valuation
+
 @ 
 \item This function creates a valuation for the given timed automaton
   where all the clocks are set to zero.
@@ -65,8 +80,11 @@ let rec f2 ta valuation proposition = match proposition with
   locations that the function can go to instantaneously from this
   location and valuation pair.
 <<next_step.ml>>=
-let f1 ta (location, valuation) =
+let f1 ta state =
   (let
+      (location, valuation) = (state.location, state.valuation)
+   in
+   let
       departures = location.departures
    in
    let
@@ -77,17 +95,17 @@ let f1 ta (location, valuation) =
    let
        possible_arrivals = (List.map
      (function transition ->
-       (
-       ta.locations.(transition.next_location)
-       ,
-       reset_clocks valuation (Array.to_list ta.clock_names)
-       )
+       {
+       location = ta.locations.(transition.next_location)
+       ;
+       valuation = reset_clocks valuation (Array.to_list ta.clock_names)
+       }
      ) 
      possible_departures)
    in
    let
        possible_retentions = (List.filter
-   (function (location, _) -> f2 ta valuation location.invariant)
+   (function state -> f2 ta valuation state.location.invariant)
    possible_arrivals)
    in
    possible_retentions
@@ -95,24 +113,26 @@ let f1 ta (location, valuation) =
 
 let _ =
   let result = parse_timed_automaton stdin in
-  let a = Array.of_list (List.map
-			   (function (location, _) -> location.location_index)
-			   (f1
-			      result
-			      (result.locations.(result.numinit), 
-			       add_delay (zero_valuation result) 2.0)
-			   )
-  )
+  let
+      initstate = 
+    {location = result.locations.(result.numinit);
+     valuation = add_delay (zero_valuation result) 2.0}
+  in
+  display_state initstate;
+  let a =
+    Array.of_list
+      (f1
+	 result
+	 initstate
+      )
   in
   let len = Array.length a
   in
   for i = 0 to len - 1 do
-    print_int a.(i);
-    print_newline();
+    display_state a.(i);
   done;
   flush stdout;
   exit 0
 
 @ 
 \end{itemize}
-

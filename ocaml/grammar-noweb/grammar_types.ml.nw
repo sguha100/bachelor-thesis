@@ -13,3 +13,7 @@ type timed_automaton = {
   clock_names: string array;
   locations: location array
 }
+type state = {
+  location: location;
+  valuation: float Valuation.t
+}

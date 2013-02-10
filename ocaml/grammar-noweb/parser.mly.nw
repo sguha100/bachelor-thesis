@@ -48,7 +48,7 @@
            Grammar_types.numtrans=$4;
            Grammar_types.numclocks=$6;
 	   Grammar_types.numinit=$8;
-           Grammar_types.clocks = Array.of_list $9;
+           Grammar_types.clock_names = Array.of_list $9;
            Grammar_types.locations = Array.of_list($10)} }
         ;
       clock_namelist:
