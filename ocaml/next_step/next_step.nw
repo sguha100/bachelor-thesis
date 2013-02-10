@@ -7,7 +7,7 @@ open Clock_utilities
 
 let display_state ta state = 
   print_string("location = ");
-  print_int ta.locations(state.location).location_index;
+  print_int (ta.locations.(state.location).location_index);
   print_newline();
   Valuation.iter
     (function clock_name ->
@@ -65,7 +65,7 @@ let can_jump_to ta state =
        possible_arrivals = (List.map
      (function transition ->
        {
-       location = ta.locations.(transition.next_location)
+       location = transition.next_location
        ;
        valuation = reset_clocks valuation (Array.to_list transition.clock_resets)
        }
@@ -101,7 +101,7 @@ let _ =
     {location = result.numinit;
      valuation = add_delay (zero_valuation result) 2.0}
   in
-  display_state initstate;
+  display_state result initstate;
   let a =
     Array.of_list
       (can_jump_to
@@ -112,7 +112,7 @@ let _ =
   let len = Array.length a
   in
   for i = 0 to len - 1 do
-    display_state a.(i);
+    display_state result a.(i);
   done;
   flush stdout;
   exit 0
