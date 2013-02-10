@@ -1,8 +1,7 @@
 \begin{itemize}
 
 <<next_step.ml>>=
-include Grammar_typesn
-(* open Grammar_types *)
+open Grammar_types
 open Parse_timed_automaton
 
 @ 
