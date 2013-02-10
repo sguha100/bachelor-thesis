@@ -41,8 +41,8 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
 	function clock_name ->
 	  if
 	    Valuation.mem clock_name valuation (*this should always be
-						true, but who knows
-						these days?*)
+						 true, but who knows
+						 these days?*)
 	  then
 	    Valuation.add clock_name 0.0 valuation
 	  else
