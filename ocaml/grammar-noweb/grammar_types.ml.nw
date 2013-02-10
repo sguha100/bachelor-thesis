@@ -1,6 +1,6 @@
 <<grammar_types.ml>>=
 module Valuation = Map.Make (String)
-type clock = {clockname:string; lastreset: float}
+type clock = {clock_name:string; lastreset: float}
 type comparator = Lt | Le | Eq | Ge | Gt
 type proposition = True | False | Comparison of string*comparator*int | And of proposition list
 type transition = {condition: proposition; clockresets: string array; nextlocation: int}
@@ -10,6 +10,6 @@ type timed_automaton = {
   numtrans: int;
   numclocks: int;
   numinit: int;
-  clocknames: string array;
+  clock_names: string array;
   locations: location array
 }

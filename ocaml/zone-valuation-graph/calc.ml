@@ -10,7 +10,7 @@ let _ =
    print_newline(); 
    print_int (result.Grammar_types.numinit); 
    print_newline(); 
-   print_int (Array.length result.Grammar_types.clocknames); 
+   print_int (Array.length result.Grammar_types.clock_names); 
    print_newline(); 
    print_int (Array.length result.Grammar_types.locations); 
    print_newline(); 

@@ -8,8 +8,8 @@ open Parse_timed_automaton
 \item This function creates a valuation for the given timed automaton
   where all the clocks are set to zero.
 <<next_step.ml>>=
-let zero_valuation ta = List.fold_right (function clockname -> (function valuation
--> Valuation.add clockname 0.0 valuation)) (Array.to_list ta.clocknames) (Valuation.empty)
+let zero_valuation ta = List.fold_right (function clock_name -> (function valuation
+-> Valuation.add clock_name 0.0 valuation)) (Array.to_list ta.clock_names) (Valuation.empty)
 
 @ 
 \item This function pushes all the clocks forward by a time delay.
@@ -20,21 +20,21 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
 @ 
 \item This function resets the specified clocks.
 <<next_step.ml>>=
-  let reset_clocks valuation clocknamelist =
+  let reset_clocks valuation clock_namelist =
     List.fold_left
       (function valuation ->
-	function clockname ->
+	function clock_name ->
 	  if
-	    Valuation.mem clockname valuation (*this should always be
+	    Valuation.mem clock_name valuation (*this should always be
 						true, but who knows
 						these days?*)
 	  then
-	    Valuation.add clockname 0.0 valuation
+	    Valuation.add clock_name 0.0 valuation
 	  else
 	    valuation
       )
       valuation
-      clocknamelist
+      clock_namelist
 
 @ 
 \item This function returns a boolean value denoting whether or not
@@ -80,7 +80,7 @@ let f1 ta (location, valuation) =
        (
        ta.locations.(transition.nextlocation)
        ,
-       reset_clocks valuation (Array.to_list ta.clocknames)
+       reset_clocks valuation (Array.to_list ta.clock_names)
        )
      ) 
      possible_departures)
