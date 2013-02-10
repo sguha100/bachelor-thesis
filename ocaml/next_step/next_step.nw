@@ -3,6 +3,7 @@
 <<next_step.ml>>=
 open Grammar_types
 open Parse_timed_automaton
+open Clock_utilities
 
 let display_state state = 
   print_string("location = ");
@@ -18,38 +19,6 @@ let display_state state =
       )
     )
     state.valuation
-
-@ 
-\item This function creates a valuation for the given timed automaton
-  where all the clocks are set to zero.
-<<next_step.ml>>=
-let zero_valuation ta = List.fold_right (function clock_name -> (function valuation
--> Valuation.add clock_name 0.0 valuation)) (Array.to_list ta.clock_names) (Valuation.empty)
-
-@ 
-\item This function pushes all the clocks forward by a time delay.
-<<next_step.ml>>=
-let add_delay valuation delay = Valuation.map (function clock_value ->
-  clock_value +. delay) valuation
-
-@ 
-\item This function resets the specified clocks.
-<<next_step.ml>>=
-  let reset_clocks valuation clock_namelist =
-    List.fold_left
-      (function valuation ->
-	function clock_name ->
-	  if
-	    Valuation.mem clock_name valuation (*this should always be
-						 true, but who knows
-						 these days?*)
-	  then
-	    Valuation.add clock_name 0.0 valuation
-	  else
-	    valuation
-      )
-      valuation
-      clock_namelist
 
 @ 
 \item This function returns a boolean value denoting whether or not
@@ -80,7 +49,7 @@ let rec satisfies ta valuation proposition = match proposition with
   states that the timed automaton can go to instantaneously from this
   state.
 <<next_step.ml>>=
-let f1 ta state =
+let can_jump_to ta state =
   (let
       (location, valuation) = (state.location, state.valuation)
    in
@@ -111,6 +80,20 @@ let f1 ta state =
    possible_retentions
   )
 
+@ 
+\item This shows whether or not a particular state of a timed
+  automaton can accept a delay without violating the invariant.
+
+<<next_step.ml>>=
+let can_stay_in ta state duration =
+  satisfies
+    ta
+    (add_delay
+       state.valuation
+       duration
+    )
+    state.location.invariant
+
 let _ =
   let result = parse_timed_automaton stdin in
   let
@@ -121,7 +104,7 @@ let _ =
   display_state initstate;
   let a =
     Array.of_list
-      (f1
+      (can_jump_to
 	 result
 	 initstate
       )

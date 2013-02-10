@@ -24,6 +24,7 @@ _tags
 
 next_step.native: \
 next_step/next_step.ml \
+next_step/clock_utilities.ml \
 grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml \
 grammar-noweb/lexer.mll \

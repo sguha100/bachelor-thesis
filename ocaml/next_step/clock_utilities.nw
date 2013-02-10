@@ -1,0 +1,39 @@
+\begin{itemize}
+
+<<clock_utilities.ml>>=
+  open Grammar_types
+
+@ 
+\item This function creates a valuation for the given timed automaton
+  where all the clocks are set to zero.
+<<clock_utilities.ml>>=
+let zero_valuation ta = List.fold_right (function clock_name -> (function valuation
+-> Valuation.add clock_name 0.0 valuation)) (Array.to_list ta.clock_names) (Valuation.empty)
+
+@ 
+\item This function pushes all the clocks forward by a time delay.
+<<clock_utilities.ml>>=
+let add_delay valuation delay = Valuation.map (function clock_value ->
+  clock_value +. delay) valuation
+
+@ 
+\item This function resets the specified clocks.
+<<clock_utilities.ml>>=
+  let reset_clocks valuation clock_namelist =
+    List.fold_left
+      (function valuation ->
+	function clock_name ->
+	  if
+	    Valuation.mem clock_name valuation (*this should always be
+						 true, but who knows
+						 these days?*)
+	  then
+	    Valuation.add clock_name 0.0 valuation
+	  else
+	    valuation
+      )
+      valuation
+      clock_namelist
+
+@ 
+\end{itemize}
