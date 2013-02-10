@@ -33,7 +33,7 @@
         %nonassoc UMINUS        /* highest precedence */
         %left AND
         %start main             /* the entry point */
-        %type <Grammar_types.timedautomaton> main
+        %type <Grammar_types.timed_automaton> main
         %type <string list> clocknamelist
         %type <Grammar_types.location> location
         %type <Grammar_types.location list> locationlist
