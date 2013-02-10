@@ -80,7 +80,7 @@
 	;
       transition:
 	proposition RARROW RESET LBRACE clock_namelist RBRACE SEMI GOTO INT
-	{ {Grammar_types.condition=$1;Grammar_types.clock_resets=Array.of_list($5); Grammar_types.nextlocation=$9} }
+	{ {Grammar_types.condition=$1;Grammar_types.clock_resets=Array.of_list($5); Grammar_types.next_location=$9} }
 	;
       transitionlist:
 	                                                               {[]}

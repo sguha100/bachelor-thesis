@@ -78,7 +78,7 @@ let f1 ta (location, valuation) =
        possible_arrivals = (List.map
      (function transition ->
        (
-       ta.locations.(transition.nextlocation)
+       ta.locations.(transition.next_location)
        ,
        reset_clocks valuation (Array.to_list ta.clock_names)
        )

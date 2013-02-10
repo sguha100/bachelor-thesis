@@ -54,9 +54,9 @@ let is_sane_timed_automaton ta =
 		    &&
 		      is_sane_proposition ta transition.condition
 		    &&
-		      transition.nextlocation >= 0
+		      transition.next_location >= 0
 		    &&
-		      transition.nextlocation < ta.numlocations
+		      transition.next_location < ta.numlocations
 		  )
 		)
 		true
