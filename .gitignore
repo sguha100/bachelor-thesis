@@ -12,3 +12,17 @@ _build
 *.vrb
 # Ignore native applications.
 *.native
+# Ignore generated files.
+ocaml/fernandez-ocaml-noweb/fernandez
+ocaml/fernandez-ocaml-noweb/fernandez.html
+ocaml/fernandez-ocaml-noweb/fernandez.ml
+ocaml/fernandez-ocaml-noweb/fernandez.mli
+ocaml/fernandez-ocaml-noweb/fernandez_app.ml
+ocaml/grammar-noweb/calc.ml
+ocaml/grammar-noweb/grammar_types.ml
+ocaml/grammar-noweb/grammar_types.mli
+ocaml/grammar-noweb/lexer.mll
+ocaml/grammar-noweb/parser.mly
+ocaml/next_step/clock_utilities.ml
+ocaml/next_step/next_step.ml
+ocaml/zone-valuation-graph/graph_functions.ml
