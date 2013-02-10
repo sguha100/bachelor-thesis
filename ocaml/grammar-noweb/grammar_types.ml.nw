@@ -13,3 +13,4 @@ type timedautomaton = {
   clocknames: string array;
   locations: location array
 }
+

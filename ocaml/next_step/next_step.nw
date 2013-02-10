@@ -1,11 +1,9 @@
 \begin{itemize}
 
 <<next_step.ml>>=
-open Grammar_types
+include Grammar_typesn
+(* open Grammar_types *)
 open Parse_timed_automaton
-
-(* How the hell do we make this more global than it is now? *)
-module Valuation = Map.Make (String)
 
 @ 
 \item This function creates a valuation for the given timed automaton

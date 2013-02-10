@@ -1,4 +1,5 @@
 <<grammar_types.mli>>=
+module Valuation: Map.S with type key=string
 type clock = {clockname:string; lastreset: float}
 type comparator = Lt | Le | Eq | Ge | Gt
 type proposition = True | False | Comparison of string*comparator*int | And of proposition list
@@ -12,4 +13,3 @@ type timedautomaton = {
   clocknames: string array;
   locations: location array
 }
-
