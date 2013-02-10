@@ -56,7 +56,7 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
   the valuation satisfies the proposition
   given the constraints of this automaton.
 <<next_step.ml>>=
-let rec f2 ta valuation proposition = match proposition with
+let rec satisfies ta valuation proposition = match proposition with
     True -> true
   | False -> false
   | Comparison (cn, cmpr, n) -> (match cmpr with
@@ -72,7 +72,7 @@ let rec f2 ta valuation proposition = match proposition with
 			    float_of_int(n))
   )
   | And propl -> List.fold_left (function satisfaction ->
-    (function next_proposition  -> satisfaction && (f2 ta valuation
+    (function next_proposition  -> satisfaction && (satisfies ta valuation
     next_proposition))) true propl
 
 @ 
@@ -89,7 +89,7 @@ let f1 ta state =
    in
    let
        possible_departures =  (List.filter
-     (function transition -> (f2 ta valuation transition.condition))
+     (function transition -> (satisfies ta valuation transition.condition))
      (Array.to_list departures))
    in
    let
@@ -105,7 +105,7 @@ let f1 ta state =
    in
    let
        possible_retentions = (List.filter
-   (function state -> f2 ta valuation state.location.invariant)
+   (function state -> satisfies ta valuation state.location.invariant)
    possible_arrivals)
    in
    possible_retentions
