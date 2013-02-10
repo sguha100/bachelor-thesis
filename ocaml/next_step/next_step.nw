@@ -5,9 +5,9 @@ open Grammar_types
 open Parse_timed_automaton
 open Clock_utilities
 
-let display_state state = 
+let display_state ta state = 
   print_string("location = ");
-  print_int state.location.location_index;
+  print_int ta.locations(state.location).location_index;
   print_newline();
   Valuation.iter
     (function clock_name ->
@@ -54,7 +54,7 @@ let can_jump_to ta state =
       (location, valuation) = (state.location, state.valuation)
    in
    let
-      departures = location.departures
+      departures = ta.locations.(location).departures
    in
    let
        possible_departures =  (List.filter
@@ -74,7 +74,7 @@ let can_jump_to ta state =
    in
    let
        possible_retentions = (List.filter
-   (function state -> satisfies ta valuation state.location.invariant)
+   (function state -> satisfies ta valuation ta.locations.(state.location).invariant)
    possible_arrivals)
    in
    possible_retentions
@@ -92,13 +92,13 @@ let can_stay_in ta state duration =
        state.valuation
        duration
     )
-    state.location.invariant
+    ta.locations.(state.location).invariant
 
 let _ =
   let result = parse_timed_automaton stdin in
   let
       initstate = 
-    {location = result.locations.(result.numinit);
+    {location = result.numinit;
      valuation = add_delay (zero_valuation result) 2.0}
   in
   display_state initstate;
