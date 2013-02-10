@@ -77,8 +77,8 @@ let rec f2 ta valuation proposition = match proposition with
 
 @ 
 \item This function returns a list containing all the 
-  locations that the function can go to instantaneously from this
-  location and valuation pair.
+  states that the timed automaton can go to instantaneously from this
+  state.
 <<next_step.ml>>=
 let f1 ta state =
   (let
@@ -98,7 +98,7 @@ let f1 ta state =
        {
        location = ta.locations.(transition.next_location)
        ;
-       valuation = reset_clocks valuation (Array.to_list ta.clock_names)
+       valuation = reset_clocks valuation (Array.to_list transition.clock_resets)
        }
      ) 
      possible_departures)
