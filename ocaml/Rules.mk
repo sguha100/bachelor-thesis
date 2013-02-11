@@ -12,10 +12,12 @@ include		$(dir)/Rules.mk
 .PHONY: targets
 targets: next_step.native
 
+grammar_types = grammar-noweb/grammar_types.mli \
+grammar-noweb/grammar_types.ml
+
 calc.native: \
 zone-valuation-graph/calc.ml \
-grammar-noweb/grammar_types.mli \
-grammar-noweb/grammar_types.ml \
+$(grammar_types) \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 grammar-noweb/parse_timed_automaton.ml \
@@ -28,8 +30,7 @@ next_step.native: \
 next_step/next_step.ml \
 utilities/clock_utilities.ml \
 utilities/clock_utilities.mli \
-grammar-noweb/grammar_types.mli \
-grammar-noweb/grammar_types.ml \
+$(grammar_types) \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 grammar-noweb/parse_timed_automaton.ml \
