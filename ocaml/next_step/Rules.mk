@@ -2,7 +2,7 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_$(d) := $(d)/next_step.ml $(d)/clock_utilities.ml
+TGT_$(d) := $(d)/next_step.ml
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -15,10 +15,6 @@ $(TGT_$(d)): d := $(d)
 $(d)/next_step.ml: $(d)/next_step.nw
 	notangle -Rnext_step.ml $(d)/next_step.nw \
 	>$(d)/next_step.ml
-
-$(d)/clock_utilities.ml: $(d)/clock_utilities.nw
-	notangle -Rclock_utilities.ml $(d)/clock_utilities.nw \
-	>$(d)/clock_utilities.ml
 
 d := $(dirstack_$(sp))
 sp := $(basename $(sp))
