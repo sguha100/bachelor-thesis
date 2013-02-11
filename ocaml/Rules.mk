@@ -6,6 +6,8 @@ dir	:= grammar-noweb
 include		$(dir)/Rules.mk
 dir	:= next_step
 include		$(dir)/Rules.mk
+dir	:= utilities
+include		$(dir)/Rules.mk
 
 .PHONY: targets
 targets: next_step.native
@@ -24,7 +26,8 @@ _tags
 
 next_step.native: \
 next_step/next_step.ml \
-next_step/clock_utilities.ml \
+utilities/clock_utilities.ml \
+utilities/clock_utilities.mli \
 grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml \
 grammar-noweb/lexer.mll \

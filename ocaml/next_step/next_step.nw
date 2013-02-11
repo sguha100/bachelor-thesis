@@ -40,9 +40,9 @@ let rec satisfies ta valuation proposition = match proposition with
     | Gt -> ((Valuation.find cn valuation) >
                 float_of_int(n))
   )
-  | And propl -> List.fold_left (function satisfaction ->
+  | And propositions -> List.fold_left (function satisfaction ->
     (function next_proposition  -> satisfaction && (satisfies ta valuation
-						      next_proposition))) true propl
+						      next_proposition))) true propositions
 
 @ 
 \item This function returns a list containing all the 
@@ -81,6 +81,7 @@ let can_jump_to ta state =
   )
 
 @ 
+
 \item This shows whether or not a particular state of a timed
   automaton can accept a delay without violating the invariant.
 <<next_step.ml>>=
@@ -93,6 +94,12 @@ let can_stay_in ta state duration =
     )
     ta.locations.(state.location).invariant
 
+@ 
+
+\item This gives the range of possible delays which would satisfy the
+  given constraint.
+
+<<next_step.ml>>=
 let rec wait_range ta state proposition =
   match  proposition with
     True -> (0.0, infinity)
