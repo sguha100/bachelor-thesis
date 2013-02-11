@@ -15,6 +15,12 @@ targets: next_step.native
 grammar_types := grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml
 
+clock_utilities := utilities/clock_utilities.ml \
+utilities/clock_utilities.mli
+
+fernandez := fernandez-ocaml-noweb/fernandez.ml \
+fernandez-ocaml-noweb/fernandez.mli
+
 calc.native: \
 zone-valuation-graph/calc.ml \
 $(grammar_types) \
@@ -28,14 +34,12 @@ _tags
 
 next_step.native: \
 next_step/next_step.ml \
-utilities/clock_utilities.ml \
-utilities/clock_utilities.mli \
+$(clock_utilities) \
 $(grammar_types) \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 grammar-noweb/parse_timed_automaton.ml \
-fernandez-ocaml-noweb/fernandez.ml \
-fernandez-ocaml-noweb/fernandez.mli \
+$(fernandez) \
 Rules.mk \
 _tags
 
