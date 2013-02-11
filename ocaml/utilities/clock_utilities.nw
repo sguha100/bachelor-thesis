@@ -35,5 +35,42 @@ let add_delay valuation delay = Valuation.map (function clock_value ->
       valuation
       clock_namelist
 
+let rec max_valuation ta proposition = (
+  let
+      default_valuation =
+    zero_valuation
+      ta
+  in
+  match proposition with
+    True -> default_valuation
+  | False -> default_valuation
+  | Comparison (cn, _, n) -> (if
+      Valuation.mem cn default_valuation (*this should always be true, but who
+  knows these days?*)
+    then
+      Valuation.add
+	cn
+	(float_of_int n)
+	default_valuation
+    else
+      default_valuation
+    )
+  | And propositions ->
+    (List.fold_left
+       (function valuation ->
+	 max_valuation ta
+       )
+       default_valuation
+       propositions
+    )
+)
+
+let max_valuations ta =
+  Array.map
+    (function location ->
+      (max_valuation ta location.invariant)
+    )
+    ta.locations
+
 @ 
 \end{itemize}
