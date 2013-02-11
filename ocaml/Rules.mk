@@ -12,7 +12,7 @@ include		$(dir)/Rules.mk
 .PHONY: targets
 targets: next_step.native
 
-grammar_types = grammar-noweb/grammar_types.mli \
+grammar_types := grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml
 
 calc.native: \
