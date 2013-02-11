@@ -10,6 +10,10 @@ $(TGT_$(d)): d := $(d)
 #prevent the current value of d from getting lost when a target from
 #here is actually rebuilt.
 
+$(TGT_$(d)): $(d)/Rules.mk
+#We do want the related targets to be re-built when the Makefile
+#fragment is updated.
+
 $(d)/calc.ml:$(d)/calc.ml.nw
 	notangle -Rcalc.ml $(d)/calc.ml.nw >$(d)/calc.ml
 $(d)/lexer.mll:$(d)/lexer.mll.nw
