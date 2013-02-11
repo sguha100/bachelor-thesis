@@ -38,7 +38,7 @@ $(clock_utilities) \
 $(grammar_types) \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
-grammar-noweb/parse_timed_automaton.ml \
+utilities/parse_timed_automaton.ml \
 $(fernandez) \
 Rules.mk \
 _tags
