@@ -11,22 +11,46 @@ type comparator = Lt | Le | Eq | Ge | Gt
 type comparator = Lt | Le | Eq | Ge | Gt
 
 <<grammar_types.mli>>=
-type proposition = True | False | Comparison of string*comparator*int | And of proposition list
+type proposition =
+  True
+| False
+| Comparison of string*comparator*int
+| And of proposition list
 
 <<grammar_types.ml>>=
-type proposition = True | False | Comparison of string*comparator*int | And of proposition list
+type proposition =
+  True
+| False
+| Comparison of string*comparator*int
+| And of proposition list
 
 <<grammar_types.mli>>=
-type transition = {condition: proposition; clock_resets: string array; next_location: int}
+type transition = {
+  condition: proposition;
+  clock_resets: string array;
+  next_location: int
+}
 
 <<grammar_types.ml>>=
-type transition = {condition: proposition; clock_resets: string array; next_location: int}
+type transition = {
+  condition: proposition;
+  clock_resets: string array;
+  next_location: int
+}
 
 <<grammar_types.mli>>=
-type location = {location_index:int; invariant:proposition; departures: transition array}
+type location = {
+  location_index:int;
+  invariant:proposition;
+  departures: transition array
+}
 
 <<grammar_types.ml>>=
-type location = {location_index:int; invariant:proposition; departures: transition array}
+type location = {
+  location_index:int;
+  invariant:proposition;
+  departures: transition array
+}
 
 <<grammar_types.mli>>=
 type timed_automaton = {
