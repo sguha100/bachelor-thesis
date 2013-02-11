@@ -1,6 +1,7 @@
 #locations 4
 #trans 5
 #clocks 2
+#actions 1
 #init 0
 X Y
 

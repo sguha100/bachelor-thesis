@@ -1,6 +1,7 @@
 #locations 3
 #trans 4
 #clocks 1
+#actions 1
 #init 0
 X
 

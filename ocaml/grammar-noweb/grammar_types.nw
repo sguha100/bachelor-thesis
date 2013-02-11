@@ -57,6 +57,7 @@ type timed_automaton = {
   numlocations: int;
   numtrans: int;
   numclocks: int;
+  numactions: int;
   numinit: int;
   clock_names: string array;
   locations: location array
@@ -67,6 +68,7 @@ type timed_automaton = {
   numlocations: int;
   numtrans: int;
   numclocks: int;
+  numactions: int;
   numinit: int;
   clock_names: string array;
   locations: location array

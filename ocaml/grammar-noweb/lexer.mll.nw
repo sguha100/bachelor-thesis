@@ -19,11 +19,12 @@ exception Eof
 | ';'              { SEMI }
 | '{'              { LBRACE }
 | '}'              { RBRACE }
-| "#locations"        { NUMLOCATIONS }
+| "#locations"     { NUMLOCATIONS }
 | "#trans"         { NUMTRANS }
 | "#clocks"        { NUMCLOCKS }
+| "#actions"       { NUMACTIONS }
 | "#init"          { NUMINIT }
-| "location"          { LOCATION }
+| "location"       { LOCATION }
 | "prop"           { PROP }
 | "invar"          { INVAR }
 | "trans"          { TRANS }
