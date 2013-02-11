@@ -27,3 +27,4 @@ ocaml/next_step/clock_utilities.ml
 ocaml/next_step/next_step.ml
 ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/utilities/clock_utilities.ml
+/ocaml/utilities/clock_utilities.mli

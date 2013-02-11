@@ -80,6 +80,15 @@ let rec max_valuation ta proposition = (
     )
 )
 
+@ 
+\item This function returns an array of `valuations` which actually
+  contain, for each clock, the maximum integer (converted into a
+  float) which appears in any constraint for that clock.
+
+<<clock_utilities.mli>>=
+val max_valuations: timed_automaton -> (float Valuation.t) array
+
+<<clock_utilities.ml>>=
 let max_valuations ta =
   Array.map
     (function location ->
