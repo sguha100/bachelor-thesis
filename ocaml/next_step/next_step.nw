@@ -133,6 +133,29 @@ let rec wait_range ta state proposition =
       propositions
   )
 
+let rec split_zone_on_proposition zone proposition =
+  match (zone, proposition) with
+    (_, True) -> [zone]
+  | (_, False) -> [zone]
+  | (_, And proposition_list) -> ( (*This is where we split the zone by each
+				     proposition in turn.*)
+    List.fold_left
+      (function zone_list ->
+	function proposition -> ( (*This is where we split the zone
+				    list by this proposition.*)
+	  List.fold_left
+	    (function partial_zone_list ->
+	      function zone ->
+		partial_zone_list @ (split_zone_on_proposition zone proposition)
+	    )
+	    []
+	    zone_list
+	)
+      )
+      [zone]
+      proposition_list
+  )
+    
 let _ =
   let result = parse_timed_automaton stdin in
   let
