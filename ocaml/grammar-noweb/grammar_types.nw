@@ -26,6 +26,7 @@ type proposition =
 
 <<grammar_types.mli>>=
 type transition = {
+  action: int;
   condition: proposition;
   clock_resets: string array;
   next_location: int
@@ -33,6 +34,7 @@ type transition = {
 
 <<grammar_types.ml>>=
 type transition = {
+  action: int;
   condition: proposition;
   clock_resets: string array;
   next_location: int

@@ -8,24 +8,24 @@ X3 X5
 location: 0
 invar: X3 < 5
 trans:
-X5 >= 7 => RESET { X3 }; goto 1
+X5 >= 7 => ACT 0;  RESET { X3 }; goto 1
 
 location: 1
 invar: X7 >= 9 and X8 <= 10
 trans:
-X5 >= 7 => RESET { X3 }; goto 2
+X5 >= 7 => ACT 0;  RESET { X3 }; goto 2
 
 location: 2
 invar: TRUE
 trans:
-X5 >= 7 => RESET { X3 }; goto 3
+X5 >= 7 => ACT 0;  RESET { X3 }; goto 3
 
 location: 3
 invar: TRUE
 trans:
-X5 >= 7 => RESET { X3 }; goto 4
+X5 >= 7 => ACT 0;  RESET { X3 }; goto 4
 
 location: 4
 invar: TRUE
 trans:
-X5 >= 7 => RESET { X3 }; goto 0
+X5 >= 7 => ACT 0;  RESET { X3 }; goto 0

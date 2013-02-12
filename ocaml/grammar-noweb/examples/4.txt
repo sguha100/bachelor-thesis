@@ -8,19 +8,19 @@ X
 location: 0
 invar: TRUE
 trans:
-TRUE => RESET { X }; goto 1
-TRUE => RESET {  }; goto 3
+TRUE => ACT 0;  RESET { X }; goto 1
+TRUE => ACT 0;  RESET {  }; goto 3
 
 location: 1
 invar: TRUE
 trans:
-X <= 2 => RESET {  }; goto 0
-X > 2 => RESET {  }; goto 2
+X <= 2 => ACT 0;  RESET {  }; goto 0
+X > 2 => ACT 0;  RESET {  }; goto 2
 
 location: 2
 invar: TRUE
 trans:
-TRUE => RESET {  }; goto 0
+TRUE => ACT 0;  RESET {  }; goto 0
 
 location: 3
 invar: X >= 2
