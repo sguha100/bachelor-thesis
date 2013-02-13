@@ -1,5 +1,8 @@
 all: targets
 
+CC := gcc
+OCAMLFLAGS := 
+
 dir	:= fernandez-ocaml-noweb
 include		$(dir)/Rules.mk
 dir	:= grammar-noweb
@@ -7,6 +10,8 @@ include		$(dir)/Rules.mk
 dir	:= next_step
 include		$(dir)/Rules.mk
 dir	:= utilities
+include		$(dir)/Rules.mk
+dir	:= c
 include		$(dir)/Rules.mk
 
 .PHONY: targets
@@ -20,8 +25,6 @@ utilities/clock_utilities.mli
 
 fernandez := fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli
-
-OCAMLFLAGS := 
 
 calc.native: \
 zone-valuation-graph/calc.ml \
