@@ -21,6 +21,8 @@ utilities/clock_utilities.mli
 fernandez := fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli
 
+OCAMLFLAGS := 
+
 calc.native: \
 zone-valuation-graph/calc.ml \
 $(grammar_types) \
@@ -44,7 +46,7 @@ Rules.mk \
 _tags
 
 %.native:
-	ocamlbuild zone-valuation-graph/calc.native next_step/next_step.native
+	ocamlbuild $(OCAMLFLAGS) zone-valuation-graph/calc.native next_step/next_step.native
 
 calc.top: zone-valuation-graph/calc.mltop
 	ocamlbuild zone-valuation-graph/calc.top
