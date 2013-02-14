@@ -14,7 +14,8 @@ $(TGT_$(d)): $(d)/Rules.mk
 #fragment is updated.
 
 $(d)/interface: $(d)/interface.c
-	$(CC) -o $(d)/interface $(d)/interface.c
+	echo "The interface rule got triggered!"
+	$(CC) $(CFLAGS) -o $(d)/interface $(d)/interface.c $(LIBS)
 
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))
