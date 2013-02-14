@@ -6,10 +6,12 @@ OCAMLFLAGS :=
 
 # We will need to change this when we make the OCaml-C interface.
 CC := gcc
+CPP := g++
 CFLAGS := -Wall
 CFLAGS += -I/home/mihir/uppaal/include
-CFLAGS += -L/home/mihir/uppaal/lib
-LIBS := -ludbm
+CFLAGS += -I$(shell ocamlc -where)
+# CFLAGS += -L/home/mihir/uppaal/lib
+# LIBS := -ludbm
 
 # The next three are to compact some of the dependencies in the top
 # level.
@@ -22,21 +24,21 @@ utilities/clock_utilities.mli
 fernandez := fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli
 
-# The next four are to include the Rules.mk from each of the subdirectories.
-SUBDIRS := c fernandez-ocaml-noweb grammar-noweb next_step utilities \
-zone-valuation-graph
-
-.PHONY: subdirs $(SUBDIRS)
-
-subdirs: $(SUBDIRS)
-
-$(SUBDIRS):
-	include $@/Rules.mk
+dir := c
+include $(dir)/Rules.mk
+dir := fernandez-ocaml-noweb
+include $(dir)/Rules.mk
+dir := grammar-noweb
+include $(dir)/Rules.mk
+dir := next_step
+include $(dir)/Rules.mk
+dir := utilities
+include $(dir)/Rules.mk
 
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native c/interface
+targets: next_step.native c/interface.o
 
 calc.native: \
 zone-valuation-graph/calc.ml \
