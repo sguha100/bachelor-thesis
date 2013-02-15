@@ -14,7 +14,7 @@ $(TGT_$(d)): $(d)/Rules.mk
 #fragment is updated.
 
 $(d)/interface.o: $(d)/interface.c
-	$(CPP) $(CFLAGS) -c $(d)/interface.c -o $(d)/interface.o
+	$(CPP) $(CFLAGS) $(d)/interface.c -o $(d)/interface.o $(CLIBS)
 
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))

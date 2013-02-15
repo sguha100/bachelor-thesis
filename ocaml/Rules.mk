@@ -2,16 +2,19 @@
 all: targets
 
 # We will need to change this when we make the OCaml-C interface.
-OCAMLFLAGS := 
-
-# We will need to change this when we make the OCaml-C interface.
 CC := gcc
 CPP := g++
 CFLAGS := -Wall
 CFLAGS += -I/home/mihir/uppaal/include
 CFLAGS += -I$(shell ocamlc -where)
-# CFLAGS += -L/home/mihir/uppaal/lib
-# LIBS := -ludbm
+CFLAGS += -L$(shell ocamlc -where)
+CFLAGS += -L/home/mihir/uppaal/lib
+CLIBS := -ludbm -lasmrun -lasmrunp -lbigarray -lcamlrun -lcamlstr \
+-lgraphics -lmldbm -lnums -lthreads -lthreadsnat -lunix
+OCAMLBUILD := ocamlbuild
+OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
+OCAMLLFLAGS := -lflags -I,/home/mihir/uppaal/include
+OCAMLCCLIBS := -cclib -ludbm
 
 # The next three are to compact some of the dependencies in the top
 # level.
@@ -38,7 +41,7 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native c/interface.o
+targets: next_step.native
 
 calc.native: \
 zone-valuation-graph/calc.ml \
@@ -63,7 +66,8 @@ Rules.mk \
 _tags
 
 %.native:
-	ocamlbuild $(OCAMLFLAGS) zone-valuation-graph/calc.native next_step/next_step.native
+	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
+	zone-valuation-graph/calc.native next_step/next_step.native
 
 calc.top: zone-valuation-graph/calc.mltop
 	ocamlbuild zone-valuation-graph/calc.top
