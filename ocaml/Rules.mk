@@ -4,9 +4,7 @@ all: targets
 # We will need to change this when we make the OCaml-C interface.
 OCAMLBUILD := ocamlbuild
 OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
-OCAMLLFLAGS := -lflags -I,/home/mihir/uppaal/include
-OCAMLCFLAGS += -cflags -ccopt,-L/home/mihir/uppaal/lib
-OCAMLLFLAGS += -lflags -cclib,-L/home/mihir/uppaal/lib
+OCAMLLFLAGS := -lflags -cclib,-L/home/mihir/uppaal/lib
 OCAMLLFLAGS += -lflags -cclib,-ludbm
 
 
