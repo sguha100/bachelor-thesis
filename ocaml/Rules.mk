@@ -7,7 +7,6 @@ OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
 OCAMLLFLAGS := -lflags -cclib,-L/home/mihir/uppaal/lib
 OCAMLLFLAGS += -lflags -cclib,-ludbm
 
-
 # The next three are to compact some of the dependencies in the top
 # level.
 grammar_types := grammar-noweb/grammar_types.mli \
@@ -54,7 +53,7 @@ grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
-c/zone.mli \
+utilities/zone.mli \
 Rules.mk \
 _tags
 
