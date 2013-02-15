@@ -1,5 +1,7 @@
 open Grammar_types
 
+let init_zone = Zone.zone_init
+
 exception Insane_automaton
 
 let rec is_sane_proposition ta proposition = match proposition with

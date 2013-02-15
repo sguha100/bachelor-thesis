@@ -30,3 +30,4 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/utilities/clock_utilities.mli
 /ocaml/c/interface
 /ocaml/c/interface.o
+/ocaml/c/zone.clib

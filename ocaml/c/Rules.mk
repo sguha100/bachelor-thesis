@@ -2,7 +2,7 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-TGT_$(d) := $(d)/interface.o
+TGT_$(d) := 
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -12,9 +12,6 @@ $(TGT_$(d)): d := $(d)
 $(TGT_$(d)): $(d)/Rules.mk
 #We do want the related targets to be re-built when the Makefile
 #fragment is updated.
-
-$(d)/interface.o: $(d)/interface.c
-	$(CPP) $(CFLAGS) $(d)/interface.c -o $(d)/interface.o $(CLIBS)
 
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))

@@ -2,19 +2,13 @@
 all: targets
 
 # We will need to change this when we make the OCaml-C interface.
-CC := gcc
-CPP := g++
-CFLAGS := -Wall
-CFLAGS += -I/home/mihir/uppaal/include
-CFLAGS += -I$(shell ocamlc -where)
-CFLAGS += -L$(shell ocamlc -where)
-CFLAGS += -L/home/mihir/uppaal/lib
-CLIBS := -ludbm -lasmrun -lasmrunp -lbigarray -lcamlrun -lcamlstr \
--lgraphics -lmldbm -lnums -lthreads -lthreadsnat -lunix
 OCAMLBUILD := ocamlbuild
 OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
 OCAMLLFLAGS := -lflags -I,/home/mihir/uppaal/include
-OCAMLCCLIBS := -cclib -ludbm
+OCAMLCFLAGS += -cflags -ccopt,-L/home/mihir/uppaal/lib
+OCAMLLFLAGS += -lflags -cclib,-L/home/mihir/uppaal/lib
+OCAMLLFLAGS += -lflags -cclib,-ludbm
+
 
 # The next three are to compact some of the dependencies in the top
 # level.
@@ -62,6 +56,7 @@ grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
+c/zone.mli \
 Rules.mk \
 _tags
 
