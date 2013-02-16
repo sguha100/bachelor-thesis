@@ -1,5 +1,4 @@
-<**/*.c>: include_udbm
-<**/libzone.a>: use_udbm
-<**/zone.cm{x,}a>: use_libzone, use_udbm
-<**/*.native>: use_herodotus
-<fernandez-ocaml-noweb> or <grammar-noweb> or <zone-valuation-graph> or <next_step> or <utilities> or <c>: include
+"c": not_hygienic
+<zone.cm{x,}a>: use_libzone, use_udbm
+<*.native>: use_zone
+<fernandez-ocaml-noweb> or <grammar-noweb> or <zone-valuation-graph> or <next_step> or <utilities>: include

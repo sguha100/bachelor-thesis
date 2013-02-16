@@ -1,2 +1,2 @@
 type raw_t
-external dbm_init: int -> raw_t = "dbm_init"
+external zone_init: int -> raw_t = "dbm_init"
