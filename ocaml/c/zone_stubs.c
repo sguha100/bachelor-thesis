@@ -4,6 +4,9 @@
 #include <caml/custom.h>
 
 /* This stuff is courtesy the UPPAAL DBM library. */
+#ifdef __cplusplus
+
+#endif
 #include <dbm/constraints.h>
 #include <dbm/dbm.h>
 
