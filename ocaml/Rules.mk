@@ -61,7 +61,7 @@ _tags
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	zone-valuation-graph/calc.native next_step/next_step.native
+	next_step/next_step.native
 
-calc.top: zone-valuation-graph/calc.mltop
-	ocamlbuild zone-valuation-graph/calc.top
+
+

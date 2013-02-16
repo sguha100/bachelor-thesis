@@ -1,6 +1,6 @@
 open Grammar_types
 
-let init_zone = Zone.zone_init
+let init_zone = Zone.dbm_init
 
 exception Insane_automaton
 
