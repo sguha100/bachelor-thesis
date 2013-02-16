@@ -39,3 +39,16 @@ CAMLprim value zone_dbm_init (value numclocks) {
   dbm_init(&dbm, dim);
   CAMLreturn (alloc_raw_t(&dbm));
 }
+
+CAMLprim value zone_dbm_constrainC (value numclocks, value zone, value constraint) {
+  CAMLparam3(numclocks, zone, constraint);
+  raw_t *dbm = raw_t_val (zone);
+  cindex_t dim = Int_val (numclocks) + 1;
+  constraint_t c = dbm_constraint2(0, 0,
+				   0, FALSE); //  This means we're
+					      //  ignoring the
+					      //  constraint, which is
+					      //  bad.
+  dbm_constrainC(dbm, dim, c);
+  CAMLreturn (alloc_raw_t(dbm));
+}

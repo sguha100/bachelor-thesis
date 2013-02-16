@@ -1,7 +1,12 @@
 # First, and therefore default, target.
 all: targets
 
-# We will need to change this when we make the OCaml-C interface.
+UDBM_CONFIG = /home/mihir/uppaal/bin/udbm-config
+
+CPP := g++
+CFLAGS := $(shell $(UDBM_CONFIG) --cflags)
+CFLAGS += $(shell $(UDBM_CONFIG) --inc)
+
 OCAMLBUILD := ocamlbuild
 OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
 OCAMLLFLAGS := -lflags -cclib,-L/home/mihir/uppaal/lib
