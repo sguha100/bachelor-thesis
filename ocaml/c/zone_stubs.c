@@ -30,8 +30,9 @@ static value alloc_raw_t(raw_t * w)
 }
 
 CAMLprim value zone_dbm_init (value numclocks) {
+  CAMLparam1(numclocks);
   raw_t dbm;
   cindex_t dim = Int_val (numclocks) + 1;
   dbm_init(&dbm, dim);
-  CAMLreturn (alloc_raw_t(dbm));
+  CAMLreturn (alloc_raw_t(&dbm));
 }
