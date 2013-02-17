@@ -66,5 +66,7 @@ _tags
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	zone-valuation-graph/calc.native next_step/next_step.native
+	c/libzone.a \
+	zone-valuation-graph/calc.native \
+	next_step/next_step.native
 

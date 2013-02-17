@@ -1,5 +1,9 @@
 <<parser.mly>>=
   /* File parser.mly */
+%{
+open Grammar_types;;
+%}
+
         %token <int> INT
 	%token <string> IDENT
         %token PLUS MINUS TIMES DIV
@@ -46,13 +50,13 @@
       main:
         NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMACTIONS INT NUMINIT
   INT clock_namelist locationlist EOF
-        { {Grammar_types.numlocations=$2;
-           Grammar_types.numtrans=$4;
-           Grammar_types.numclocks=$6;
-           Grammar_types.numactions=$8;
-	   Grammar_types.numinit=$10;
-           Grammar_types.clock_names = Array.of_list $11;
-           Grammar_types.locations = Array.of_list($12)} }
+        { {numlocations=$2;
+           numtrans=$4;
+           numclocks=$6;
+           numactions=$8;
+	   numinit=$10;
+           clock_names = Array.of_list $11;
+           locations = Array.of_list($12)} }
         ;
       clock_namelist:
 	                                                              { [] }
@@ -60,30 +64,30 @@
 	;
       location:
 	LOCATION COLON INT INVAR COLON proposition TRANS COLON transitionlist
-	{ {Grammar_types.location_index=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
+	{ {location_index=$3; invariant=$6; departures=Array.of_list($9)} }
 	;
       locationlist:
 	                                                              { [] }
     | location locationlist                                             { $1::$2 }
 	;
       proposition:
-	TRUE                                                          { Grammar_types.True }
-    |	FALSE                                                         { Grammar_types.False }
-    |	IDENT LT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Lt, $3) }
-    |	IDENT LE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Le, $3) }
-    |	IDENT EQ INT                                                  { Grammar_types.Comparison($1, Grammar_types.Eq, $3) }
-    |	IDENT GE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Ge, $3) }
-    |	IDENT GT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Gt, $3) }
+	TRUE                                                          { True }
+    |	FALSE                                                         { False }
+    |	IDENT LT INT                                                  { Comparison($1, Lt, $3) }
+    |	IDENT LE INT                                                  { Comparison($1, Le, $3) }
+    |	IDENT EQ INT                                                  { Comparison($1, Eq, $3) }
+    |	IDENT GE INT                                                  { Comparison($1, Ge, $3) }
+    |	IDENT GT INT                                                  { Comparison($1, Gt, $3) }
     |   proposition AND proposition
 	{match ($1,$3) with
-	  (Grammar_types.And l1, Grammar_types.And l3) -> Grammar_types.And (l1@l3)
-	| (Grammar_types.And l1, _) -> Grammar_types.And ($3::l1)
-	| (_, Grammar_types.And l3) -> Grammar_types.And ($1::l3)
-	| (_, _) -> Grammar_types.And ([$1; $3])}
+	  (And l1, And l3) -> And (l1@l3)
+	| (And l1, _) -> And ($3::l1)
+	| (_, And l3) -> And ($1::l3)
+	| (_, _) -> And ([$1; $3])}
 	;
       transition:
 	proposition RARROW ACT INT SEMI RESET LBRACE clock_namelist RBRACE SEMI GOTO INT
-	{ {Grammar_types.condition=$1; Grammar_types.action=$4;Grammar_types.clock_resets=Array.of_list($8); Grammar_types.next_location=$12} }
+	{ {condition=$1; action=$4;clock_resets=Array.of_list($8); next_location=$12} }
 	;
       transitionlist:
 	                                                               {[]}
