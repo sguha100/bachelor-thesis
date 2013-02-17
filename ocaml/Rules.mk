@@ -60,13 +60,11 @@ grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
 utilities/zone.mli \
-c/libzone.a \
 Rules.mk \
 _tags
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	c/libzone.a \
 	zone-valuation-graph/calc.native \
 	next_step/next_step.native
 
