@@ -34,13 +34,13 @@ include $(dir)/Rules.mk
 
 .PHONY: targets
 # targets: next_step.native
-targets: c/libzone.a
+targets: libzone.a
 
-c/libzone.a: \
+libzone.a: \
 utilities/zone.mli \
 utilities/zone.mllib \
 c/zone_stubs.c
-	$(OCAMLBUILD) c/libzone.a
+	$(OCAMLBUILD) libzone.a
 
 calc.native: \
 zone-valuation-graph/calc.ml \
@@ -63,7 +63,7 @@ grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
 utilities/zone.mli \
-c/libzone.a \
+libzone.a \
 Rules.mk \
 _tags\
 myocamlbuild.ml
