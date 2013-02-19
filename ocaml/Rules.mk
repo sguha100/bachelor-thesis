@@ -1,12 +1,7 @@
 # First, and therefore default, target.
 all: targets
 
-UDBM_CONFIG = /home/mihir/uppaal/bin/udbm-config
-
-CPP := g++
-CFLAGS := $(shell $(UDBM_CONFIG) --cflags)
-CFLAGS += $(shell $(UDBM_CONFIG) --inc)
-
+# We will need to change this when we make the OCaml-C interface.
 OCAMLBUILD := ocamlbuild
 OCAMLCFLAGS := -cflags -I,/home/mihir/uppaal/include
 OCAMLLFLAGS := -lflags -cclib,-L/home/mihir/uppaal/lib
@@ -66,7 +61,7 @@ _tags
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	c/libzone.a \
-	zone-valuation-graph/calc.native \
-	next_step/next_step.native
+	zone-valuation-graph/calc.native next_step/next_step.native
 
+calc.top: zone-valuation-graph/calc.mltop
+	ocamlbuild zone-valuation-graph/calc.top

@@ -18,7 +18,7 @@ $(d)/libzone.a: $(d)/zone_stubs.o
 	ranlib $(d)/libzone.a
 
 $(d)/zone_stubs.o: $(d)/zone_stubs.c
-	$(CPP) $(CFLAGS) -o $@ -c $<	
+	g++ -g -Wall -I/home/mihir/uppaal/include -o $@ -c $<	
 
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))
