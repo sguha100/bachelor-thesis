@@ -33,7 +33,14 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native
+# targets: next_step.native
+targets: c/libzone.a
+
+c/libzone.a: \
+utilities/zone.mli \
+utilities/zone.mllib \
+c/zone_stubs.c
+	$(OCAMLBUILD) c/libzone.a
 
 calc.native: \
 zone-valuation-graph/calc.ml \
@@ -44,7 +51,8 @@ grammar-noweb/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli \
 Rules.mk \
-_tags
+_tags \
+myocamlbuild.ml
 
 next_step.native: \
 next_step/next_step.ml \
@@ -57,7 +65,8 @@ $(fernandez) \
 utilities/zone.mli \
 c/libzone.a \
 Rules.mk \
-_tags
+_tags\
+myocamlbuild.ml
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
