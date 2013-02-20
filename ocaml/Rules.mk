@@ -34,13 +34,19 @@ include $(dir)/Rules.mk
 
 .PHONY: targets
 # targets: next_step.native
-targets: libzone.a
+targets: zone_stubs.cma
 
 libzone.a: \
-utilities/zone.mli \
-utilities/zone.mllib \
+c/zone.mli \
+c/zone_stubs.mlpack \
 c/zone_stubs.c
 	$(OCAMLBUILD) libzone.a
+
+zone_stubs.cma: \
+c/zone.mli \
+c/zone_stubs.mlpack \
+c/zone_stubs.c
+	$(OCAMLBUILD) zone_stubs.cma
 
 calc.native: \
 zone-valuation-graph/calc.ml \
