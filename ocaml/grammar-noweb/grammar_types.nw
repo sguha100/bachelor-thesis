@@ -16,6 +16,7 @@ type proposition =
 | False
 | Comparison of string*comparator*int
 | And of proposition list
+| DBM of Zone_stubs.raw_t
 
 <<grammar_types.ml>>=
 type proposition =
@@ -23,6 +24,7 @@ type proposition =
 | False
 | Comparison of string*comparator*int
 | And of proposition list
+| DBM of Zone_stubs.raw_t
 
 <<grammar_types.mli>>=
 type transition = {
