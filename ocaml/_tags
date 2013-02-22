@@ -1,4 +1,5 @@
-<c/zone_stubs.c>: include_udbm, ocaml
-<zone.cm{x,}a>: use_libzone, use_udbm
-<*.native>: use_zone
+<libzone_stubs.*>: use_udbm
+<c/zone_stubs.c>: include_udbm
+<zone.cm{x,}a>: use_zone, use_udbm
+<**/*.native>: use_zone
 <fernandez-ocaml-noweb> or <grammar-noweb> or <zone-valuation-graph> or <next_step> or <utilities> or <c>: include

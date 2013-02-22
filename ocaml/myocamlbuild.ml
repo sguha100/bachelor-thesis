@@ -6,7 +6,7 @@ let have_udbm = "-DHAVE_UDBM"
 let udbm_lib = "-ludbm"
 let udbm_libdir = "-L/home/mihir/uppaal/lib"
 let udbm_include = "-I/home/mihir/uppaal/include"
-let cpp_lib = "-libstdc++"
+let cpp_lib = "-lstdc++"
   
 let static = true
   
@@ -34,23 +34,27 @@ dispatch begin function
   (* If `static' is true then every ocaml link in bytecode will add
      -custom *)
   if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
+
+  (* zone_stubs is an ocaml library.
+     This will declare use_zone_stubs and include_zone_stubs *)
+  ocaml_lib "zone_stubs";
   
-  (* zone is an ocaml library.
-     This will declare use_zone and include_zone *)
-  ocaml_lib "zone";
+  flag ["link"; "library"; "ocaml"; "byte"; "use_zone"]
+    (S[A"-dllib"; A"-lzone_stubs"; A"-cclib"; A"-lzone_stubs"]);
   
-  flag ["link"; "library"; "ocaml"; "byte"; "use_libzone"]
-    (S[A"-dllib"; A"-lzone"; A"-cclib"; A"-lzone"]);
-  
-  flag ["link"; "library"; "ocaml"; "native"; "use_libzone"]
-    (S[A"-cclib"; A"-lzone"]);
+  flag ["link"; "ocaml"; "native"; "use_zone"]
+    (S[A"-cclib"; A"-L."; A"-cclib"; A"-lzone_stubs"; A"-cclib"; A
+      udbm_libdir; A"-cclib"; A udbm_lib; A"-cclib"; A cpp_lib]);
   
   (* When ocaml is linking something that use the libzone library,
      then one need that file to be up to date. *)
-  dep  ["link"; "ocaml"; "use_libzone"] ["libzone.a"];
+  dep  ["link"; "ocaml"; "use_zone"] ["libzone_stubs.a"];
   
   (* As an approximation all our C files use the headers.
      Note: This will import headers in the build directory. *)
   dep  ["compile"; "c"] headers;
+
+  (*This is just for debugging.*)
+  flag ["link"; "native"] (A"-verbose");
 | _ -> ()
 end

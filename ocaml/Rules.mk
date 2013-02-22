@@ -33,20 +33,13 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-# targets: next_step.native
-targets: zone_stubs.cma
+targets: next_step.native
 
-libzone.a: \
-c/zone.mli \
-c/zone_stubs.mlpack \
+libzone_stubs.a: \
+c/zone_stubs.mli \
+c/zone.mllib \
 c/zone_stubs.c
-	$(OCAMLBUILD) libzone.a
-
-zone_stubs.cma: \
-c/zone.mli \
-c/zone_stubs.mlpack \
-c/zone_stubs.c
-	$(OCAMLBUILD) zone_stubs.cma
+	$(OCAMLBUILD) libzone_stubs.a
 
 calc.native: \
 zone-valuation-graph/calc.ml \
@@ -68,15 +61,14 @@ grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
-utilities/zone.mli \
-libzone.a \
+c/zone_stubs.mli \
 Rules.mk \
 _tags\
 myocamlbuild.ml
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	zone-valuation-graph/calc.native next_step/next_step.native
+	next_step/next_step.native
 
 calc.top: zone-valuation-graph/calc.mltop
 	ocamlbuild zone-valuation-graph/calc.top
