@@ -62,6 +62,7 @@ grammar-noweb/parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
 c/zone_stubs.mli \
+c/zone_stubs.c \
 Rules.mk \
 _tags\
 myocamlbuild.ml

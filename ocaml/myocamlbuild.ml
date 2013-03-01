@@ -53,8 +53,5 @@ dispatch begin function
   (* As an approximation all our C files use the headers.
      Note: This will import headers in the build directory. *)
   dep  ["compile"; "c"] headers;
-
-  (*This is just for debugging.*)
-  flag ["link"; "native"] (A"-verbose");
 | _ -> ()
 end

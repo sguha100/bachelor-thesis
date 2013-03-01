@@ -1,16 +1,16 @@
 open Grammar_types
-
-let init_zone = Zone_stubs.zone_init
+open Zone_stubs
 
 exception Insane_automaton
 
 let rec is_sane_proposition ta proposition = match proposition with
     True -> true
   | False -> true
+  | DBM _ -> true (*not sure about this though.*)
   | Comparison (cn, _, _) -> (Array.fold_left
 				(function truth ->
 				  (function clock_name ->
-				  truth || clock_name == cn))
+				    truth || clock_name == cn))
 				true
 				ta.clock_names)
   | And propl -> (List.fold_left
@@ -82,3 +82,83 @@ let parse_timed_automaton channel =
   else
     raise Insane_automaton
 
+let clock_name_to_index cn clock_names =
+  let len = Array.length clock_names in
+  let res = ref (0 - 1) in
+  for i = 0 to len - 1 do
+    res := if (clock_names.(i) == cn) then i else !res;
+  done;
+  !res
+
+let rec proposition_to_constraint_list numclocks clock_names proposition =
+  match proposition with
+    True -> []
+  | False -> [(dbm_constraint2
+		 0
+		 0
+		 0
+		 true
+  )] (*This weird expression signifies a constraint
+       requiring a zero value to be less than zero.*)
+  | Comparison (cn, Lt, n) -> [dbm_constraint2
+				  (clock_name_to_index
+				     cn
+				     clock_names
+				  )
+				  0
+				  n
+				  true
+			      ]
+  | Comparison (cn, Le, n) -> [dbm_constraint2
+				  (clock_name_to_index
+				     cn
+				     clock_names
+				  )
+				  0
+				  n
+				  false
+			      ]
+  | Comparison (cn, Eq, n) -> [dbm_constraint2
+				  0
+				  (clock_name_to_index
+				     cn
+				     clock_names
+				  )
+				  (0-n)
+				  false;
+			       dbm_constraint2
+				 (clock_name_to_index
+				    cn
+				    clock_names
+				 )
+				 0
+				 n
+				 false
+			      ]
+  | Comparison (cn, Ge, n) -> [dbm_constraint2
+				  0
+				  (clock_name_to_index
+				     cn
+				     clock_names
+				  )
+				  (0-n)
+				  false
+			      ]
+  | Comparison (cn, Gt, n) -> [dbm_constraint2
+				  0
+				  (clock_name_to_index
+				     cn
+				     clock_names
+				  )
+				  (0-n)
+				  true
+			      ]
+  | And proposition_list -> (List.fold_left
+			       (function partial_proposition_list -> function proposition ->
+				 partial_proposition_list @ (proposition_to_constraint_list numclocks clock_names proposition)
+			       )
+			       []
+			       proposition_list
+  )
+  | DBM x -> [] (*This is clearly nonsense, the data structures need
+		  to be drastically revised.*)
