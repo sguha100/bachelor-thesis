@@ -50,35 +50,35 @@ let reset_clocks valuation clock_namelist =
     valuation
     clock_namelist
 
-let rec max_valuation ta proposition = (
-  let
-      default_valuation =
-    zero_valuation
-      ta
-  in
-  match proposition with
-    True -> default_valuation
-  | False -> default_valuation
-  | Comparison (cn, _, n) -> (if
-      Valuation.mem cn default_valuation (*this should always be true, but who
-  knows these days?*)
-    then
-      Valuation.add
-	cn
-	(float_of_int n)
-	default_valuation
-    else
-      default_valuation
-    )
-  | And propositions ->
-    (List.fold_left
-       (function valuation ->
-	 max_valuation ta
-       )
-       default_valuation
-       propositions
-    )
-)
+(* let rec max_valuation ta proposition = ( *)
+(*   let *)
+(*       default_valuation = *)
+(*     zero_valuation *)
+(*       ta *)
+(*   in *)
+(*   match proposition with *)
+(*     True -> default_valuation *)
+(*   | False -> default_valuation *)
+(*   | Comparison (cn, _, n) -> (if *)
+(*       Valuation.mem cn default_valuation (\*this should always be true, but who *)
+(*   knows these days?*\) *)
+(*     then *)
+(*       Valuation.add *)
+(* 	cn *)
+(* 	(float_of_int n) *)
+(* 	default_valuation *)
+(*     else *)
+(*       default_valuation *)
+(*     ) *)
+(*   | And propositions -> *)
+(*     (List.fold_left *)
+(*        (function valuation -> *)
+(* 	 max_valuation ta *)
+(*        ) *)
+(*        default_valuation *)
+(*        propositions *)
+(*     ) *)
+(* ) *)
 
 @ 
 \item This function returns an array of `valuations` which actually
@@ -86,7 +86,7 @@ let rec max_valuation ta proposition = (
   float) which appears in any constraint for that clock.
 
 <<clock_utilities.mli>>=
-val max_valuations: timed_automaton -> (float Valuation.t) array
+(* val max_valuations: timed_automaton -> (float Valuation.t) array *)
 
 <<clock_utilities.ml>>=
 let max_valuations ta =

@@ -25,74 +25,82 @@ let display_state ta state =
   the valuation satisfies the proposition
   given the constraints of this automaton.
 <<next_step.ml>>=
-let rec satisfies ta valuation proposition = match proposition with
-    True -> true
-  | False -> false
-  | Comparison (cn, cmpr, n) -> (match cmpr with
-    Lt -> ((Valuation.find cn valuation) <
-              float_of_int(n))
-    | Le -> ((Valuation.find cn valuation) <=
-                float_of_int(n))
-    | Eq -> ((Valuation.find cn valuation) =
-        float_of_int(n))
-    | Ge -> ((Valuation.find cn valuation) >=
-                float_of_int(n))
-    | Gt -> ((Valuation.find cn valuation) >
-                float_of_int(n))
-  )
-  | And propositions -> List.fold_left (function satisfaction ->
-    (function next_proposition  -> satisfaction && (satisfies ta valuation
-						      next_proposition))) true propositions
+(* let rec satisfies ta valuation proposition = match proposition with *)
+(*     True -> true *)
+(*   | False -> false *)
+(*   | Comparison (cn, cmpr, n) -> (match cmpr with *)
+(*     Lt -> ((Valuation.find cn valuation) < *)
+(*               float_of_int(n)) *)
+(*     | Le -> ((Valuation.find cn valuation) <= *)
+(*                 float_of_int(n)) *)
+(*     | Eq -> ((Valuation.find cn valuation) = *)
+(*         float_of_int(n)) *)
+(*     | Ge -> ((Valuation.find cn valuation) >= *)
+(*                 float_of_int(n)) *)
+(*     | Gt -> ((Valuation.find cn valuation) > *)
+(*                 float_of_int(n)) *)
+(*   ) *)
+(*   | And propositions -> List.fold_left *)
+(*     (function satisfaction -> *)
+(*       (function next_proposition  -> *)
+(* 	satisfaction *)
+(* 	&& *)
+(* 	  (satisfies *)
+(* 	     ta *)
+(* 	     valuation *)
+(* 	     next_proposition))) *)
+(*     true *)
+(*     propositions *)
 
 @ 
 \item This function returns a list containing all the 
   states that the timed automaton can go to instantaneously from this
   state.
 <<next_step.ml>>=
-let can_jump_to ta state =
-  (let
-      (location, valuation) = (state.location, state.valuation)
-   in
-   let
-       departures = ta.locations.(location).departures
-   in
-   let
-       possible_departures =  (List.filter
-				 (function transition -> (satisfies ta valuation transition.condition))
-				 (Array.to_list departures))
-   in
-   let
-       possible_arrivals = (List.map
-			      (function transition ->
-				{
-				  location = transition.next_location
-				  ;
-				  valuation = reset_clocks valuation (Array.to_list transition.clock_resets)
-				}
-			      ) 
-			      possible_departures)
-   in
-   let
-       possible_retentions = (List.filter
-				(function state -> satisfies ta valuation ta.locations.(state.location).invariant)
-				possible_arrivals)
-   in
-   possible_retentions
-  )
+(* let can_jump_to ta state = *)
+(*   (let *)
+(*       (location, valuation) = (state.location, state.valuation) *)
+(*    in *)
+(*    let *)
+(*        departures = ta.locations.(location).departures *)
+(*    in *)
+(*    let *)
+(*        possible_departures =  (List.filter *)
+(* 				 (function transition -> (satisfies ta valuation transition.condition)) *)
+(* 				 (Array.to_list departures)) *)
+(*    in *)
+(*    let *)
+(*        possible_arrivals = (List.map *)
+(* 			      (function transition -> *)
+(* 				{ *)
+(* 				  location = transition.next_location *)
+(* 				  ; *)
+(* 				  valuation = reset_clocks valuation (Array.to_list transition.clock_resets) *)
+(* 				} *)
+(* 			      )  *)
+(* 			      possible_departures) *)
+(*    in *)
+(*    let *)
+(*        possible_retentions = (List.filter *)
+(* 				(function state -> satisfies ta valuation ta.locations.(state.location).invariant) *)
+(* 				possible_arrivals) *)
+(*    in *)
+(*    possible_retentions *)
+(*   ) *)
 
 @ 
 
 \item This shows whether or not a particular state of a timed
   automaton can accept a delay without violating the invariant.
 <<next_step.ml>>=
-let can_stay_in ta state duration =
-  satisfies
-    ta
-    (add_delay
-       state.valuation
-       duration
-    )
-    ta.locations.(state.location).invariant
+(* let can_stay_in ta state duration = *)
+(*   satisfies *)
+(*     ta *)
+(*     (add_delay *)
+(*        state.valuation *)
+(*        duration *)
+(*     ) *)
+(*     ta.locations.(state.location).invariant *)
 
 @ 
 
@@ -100,82 +108,64 @@ let can_stay_in ta state duration =
   given constraint.
 
 <<next_step.ml>>=
-let rec wait_range ta state proposition =
-  match  proposition with
-    True -> (0.0, infinity)
-  | False -> (infinity, infinity)
-  | Comparison (cn, cmpr, n) ->
-    (
-      let
-          clock_value = Valuation.find cn state.valuation
-      in
-      let
-          difference = clock_value -. (float_of_int n)
-      in
-      match cmpr with
-        Lt -> (neg_infinity, -. difference)
-      | Le -> (neg_infinity, -. difference)
-      | Eq -> (-. difference, -. difference)
-      | Ge -> (-. difference, infinity)
-      | Gt -> (-. difference, infinity)
-    )
-  | And propositions -> (
-    List.fold_left
-      (function (current_min, current_max) ->
-        function proposition -> (
-          let
-              (next_min, next_max) = wait_range ta state proposition
-          in
-          (max current_min next_min, min current_max next_max)
-        )
-      )
-      (neg_infinity, infinity)
-      propositions
-  )
+(* let rec wait_range ta state proposition = *)
+(*   match  proposition with *)
+(*     True -> (0.0, infinity) *)
+(*   | False -> (infinity, infinity) *)
+(*   | Comparison (cn, cmpr, n) -> *)
+(*     ( *)
+(*       let *)
+(*           clock_value = Valuation.find cn state.valuation *)
+(*       in *)
+(*       let *)
+(*           difference = clock_value -. (float_of_int n) *)
+(*       in *)
+(*       match cmpr with *)
+(*         Lt -> (neg_infinity, -. difference) *)
+(*       | Le -> (neg_infinity, -. difference) *)
+(*       | Eq -> (-. difference, -. difference) *)
+(*       | Ge -> (-. difference, infinity) *)
+(*       | Gt -> (-. difference, infinity) *)
+(*     ) *)
+(*   | And propositions -> ( *)
+(*     List.fold_left *)
+(*       (function (current_min, current_max) -> *)
+(*         function proposition -> ( *)
+(*           let *)
+(*               (next_min, next_max) = wait_range ta state proposition *)
+(*           in *)
+(*           (max current_min next_min, min current_max next_max) *)
+(*         ) *)
+(*       ) *)
+(*       (neg_infinity, infinity) *)
+(*       propositions *)
+(*   ) *)
 
-let rec split_zone_on_proposition zone proposition =
-  match (zone, proposition) with
-    (_, True) -> [zone]
-  | (_, False) -> [zone]
-  | (_, And proposition_list) -> ( (*This is where we split the zone by each
-				     proposition in turn.*)
-    List.fold_left
-      (function zone_list ->
-	function proposition -> ( (*This is where we split the zone
-				    list by this proposition.*)
-	  List.fold_left
-	    (function partial_zone_list ->
-	      function zone ->
-		partial_zone_list @ (split_zone_on_proposition zone proposition)
-	    )
-	    []
-	    zone_list
-	)
-      )
-      [zone]
-      proposition_list
-  )
+(* let rec split_zone_on_proposition zone proposition = *)
+(*   match (zone, proposition) with *)
+(*     (_, True) -> [zone] *)
+(*   | (_, False) -> [zone] *)
+(*   | (_, And proposition_list) -> ( (\*This is where we split the zone by each *)
+(* 				     proposition in turn.*\) *)
+(*     List.fold_left *)
+(*       (function zone_list -> *)
+(* 	function proposition -> ( (\*This is where we split the zone *)
+(* 				    list by this proposition.*\) *)
+(* 	  List.fold_left *)
+(* 	    (function partial_zone_list -> *)
+(* 	      function zone -> *)
+(* 		partial_zone_list @ (split_zone_on_proposition zone proposition) *)
+(* 	    ) *)
+(* 	    [] *)
+(* 	    zone_list *)
+(* 	) *)
+(*       ) *)
+(*       [zone] *)
+(*       proposition_list *)
+(*   ) *)
     
 let _ =
   let result = parse_timed_automaton stdin in
-  let
-      initstate = 
-    {location = result.numinit;
-     valuation = add_delay (zero_valuation result) 2.0}
-  in
-  display_state result initstate;
-  let a =
-    Array.of_list
-      (can_jump_to
-         result
-         initstate
-      )
-  in
-  let len = Array.length a
-  in
-  for i = 0 to len - 1 do
-    display_state result a.(i);
-  done;
   flush stdout;
   exit 0
 

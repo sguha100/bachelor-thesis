@@ -3,23 +3,35 @@ open Zone_stubs
 
 exception Insane_automaton
 
-let rec is_sane_proposition ta proposition = match proposition with
+let is_sane_unit_clock_constraint ta unit_clock_constraint =
+  let f (cn, n) = (n >= 0)
+    &&
+      (List.exists
+	 ((=) cn)
+	 (Array.to_list ta.clock_names)
+      )
+  in
+  match unit_clock_constraint with
     True -> true
-  | False -> true
-  | DBM _ -> true (*not sure about this though.*)
-  | Comparison (cn, _, _) -> (Array.fold_left
-				(function truth ->
-				  (function clock_name ->
-				    truth || clock_name == cn))
-				true
-				ta.clock_names)
-  | And propl -> (List.fold_left
-		    (function truth -> (
-		      function proposition ->
-			truth && (is_sane_proposition ta proposition)))
-		    true
-		    propl
-  )
+  | False -> false
+  | Lt (cn, n) -> f (cn, n)
+  | Le (cn, n) -> f (cn, n)
+  | Eq (cn, n) -> f (cn, n)
+  | Ge (cn, n) -> f (cn, n)
+  | Gt (cn, n) -> f (cn, n)
+
+let rec is_sane_clock_constraint ta clock_constraint = 
+  List.fold_left
+    (function partial_sanity -> 
+      function unit_clock_constraint ->
+	partial_sanity
+	&&
+	  (is_sane_unit_clock_constraint
+	     ta
+	     unit_clock_constraint))
+    true
+    clock_constraint
+
 let is_sane_timed_automaton ta = 
   ta.numlocations == Array.length ta.locations
   &&
@@ -47,14 +59,14 @@ let is_sane_timed_automaton ta =
 	   &&
 	     location.location_index < ta.numlocations
 	   &&
-	     is_sane_proposition ta location.invariant
+	     is_sane_clock_constraint ta location.invariant
 	   &&
 	     (Array.fold_left
 		(function truth ->
 		  (function transition ->
 		    truth
 		    &&
-		      is_sane_proposition ta transition.condition
+		      is_sane_clock_constraint ta transition.condition
 		    &&
 		      transition.next_location >= 0
 		    &&
@@ -100,7 +112,7 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 		 true
   )] (*This weird expression signifies a constraint
        requiring a zero value to be less than zero.*)
-  | Comparison (cn, Lt, n) -> [dbm_constraint2
+  | Lt (cn, n) -> [dbm_constraint2
 				  (clock_name_to_index
 				     cn
 				     clock_names
@@ -109,7 +121,7 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 				  n
 				  true
 			      ]
-  | Comparison (cn, Le, n) -> [dbm_constraint2
+  | Le (cn, n) -> [dbm_constraint2
 				  (clock_name_to_index
 				     cn
 				     clock_names
@@ -118,7 +130,7 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 				  n
 				  false
 			      ]
-  | Comparison (cn, Eq, n) -> [dbm_constraint2
+  | Eq (cn, n) -> [dbm_constraint2
 				  0
 				  (clock_name_to_index
 				     cn
@@ -135,7 +147,7 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 				 n
 				 false
 			      ]
-  | Comparison (cn, Ge, n) -> [dbm_constraint2
+  | Ge (cn, n) -> [dbm_constraint2
 				  0
 				  (clock_name_to_index
 				     cn
@@ -144,7 +156,7 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 				  (0-n)
 				  false
 			      ]
-  | Comparison (cn, Gt, n) -> [dbm_constraint2
+  | Gt (cn, n) -> [dbm_constraint2
 				  0
 				  (clock_name_to_index
 				     cn
@@ -153,12 +165,3 @@ let rec proposition_to_constraint_list numclocks clock_names proposition =
 				  (0-n)
 				  true
 			      ]
-  | And proposition_list -> (List.fold_left
-			       (function partial_proposition_list -> function proposition ->
-				 partial_proposition_list @ (proposition_to_constraint_list numclocks clock_names proposition)
-			       )
-			       []
-			       proposition_list
-  )
-  | DBM x -> [] (*This is clearly nonsense, the data structures need
-		  to be drastically revised.*)

@@ -1,91 +1,114 @@
 <<parser.mly>>=
-  /* File parser.mly */
-        %token <int> INT
-	%token <string> IDENT
-        %token PLUS MINUS TIMES DIV
-        %token LPAREN RPAREN
-	%token NUMLOCATIONS
-	%token NUMTRANS
-	%token NUMCLOCKS
-	%token NUMACTIONS
-	%token NUMINIT
-	%token LOCATION
-	%token PROP
-	%token INVAR
-	%token TRANS
-	%token GOTO
-	%token RARROW
-	%token COLON
-	%token SEMI
-	%token LBRACE
-	%token RBRACE
-	%token LE
-	%token LT
-	%token GE
-	%token GT
-	%token EQ
-	%token TRUE
-	%token FALSE
-	%token AND
-	%token ACT
-	%token RESET
-        %token EOF
-        %left PLUS MINUS        /* lowest precedence */
-        %left TIMES DIV         /* medium precedence */
-        %nonassoc UMINUS        /* highest precedence */
-        %left AND
-        %start main             /* the entry point */
-        %type <Grammar_types.timed_automaton> main
-        %type <string list> clock_namelist
-        %type <Grammar_types.location> location
-        %type <Grammar_types.location list> locationlist
-        %type <Grammar_types.proposition> proposition
-        %type <Grammar_types.transition> transition
-        %type <Grammar_types.transition list> transitionlist
-        %%
-      main:
-        NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMACTIONS INT NUMINIT
-  INT clock_namelist locationlist EOF
-        { {Grammar_types.numlocations=$2;
-           Grammar_types.numtrans=$4;
-           Grammar_types.numclocks=$6;
-           Grammar_types.numactions=$8;
-	   Grammar_types.numinit=$10;
-           Grammar_types.clock_names = Array.of_list $11;
-           Grammar_types.locations = Array.of_list($12)} }
-        ;
-      clock_namelist:
-	                                                              { [] }
-    | IDENT clock_namelist                                             {$1::$2}
-	;
-      location:
-	LOCATION COLON INT INVAR COLON proposition TRANS COLON transitionlist
-	{ {Grammar_types.location_index=$3; Grammar_types.invariant=$6; Grammar_types.departures=Array.of_list($9)} }
-	;
-      locationlist:
-	                                                              { [] }
-    | location locationlist                                             { $1::$2 }
-	;
-      proposition:
-	TRUE                                                          { Grammar_types.True }
-    |	FALSE                                                         { Grammar_types.False }
-    |	IDENT LT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Lt, $3) }
-    |	IDENT LE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Le, $3) }
-    |	IDENT EQ INT                                                  { Grammar_types.Comparison($1, Grammar_types.Eq, $3) }
-    |	IDENT GE INT                                                  { Grammar_types.Comparison($1, Grammar_types.Ge, $3) }
-    |	IDENT GT INT                                                  { Grammar_types.Comparison($1, Grammar_types.Gt, $3) }
-    |   proposition AND proposition
-	{match ($1,$3) with
-	  (Grammar_types.And l1, Grammar_types.And l3) -> Grammar_types.And (l1@l3)
-	| (Grammar_types.And l1, _) -> Grammar_types.And ($3::l1)
-	| (_, Grammar_types.And l3) -> Grammar_types.And ($1::l3)
-	| (_, _) -> Grammar_types.And ([$1; $3])}
-	;
-      transition:
-	proposition RARROW ACT INT SEMI RESET LBRACE clock_namelist RBRACE SEMI GOTO INT
-	{ {Grammar_types.condition=$1; Grammar_types.action=$4;Grammar_types.clock_resets=Array.of_list($8); Grammar_types.next_location=$12} }
-	;
-      transitionlist:
-	                                                               {[]}
-    | transition transitionlist                                    {$1::$2}
-	;
+/* File parser.mly */
+%token <int> INT
+%token <string> IDENT
+%token PLUS MINUS TIMES DIV
+%token LPAREN RPAREN
+%token NUMLOCATIONS
+%token NUMTRANS
+%token NUMCLOCKS
+%token NUMACTIONS
+%token NUMINIT
+%token LOCATION
+%token PROP
+%token INVAR
+%token TRANS
+%token GOTO
+%token RARROW
+%token COLON
+%token SEMI
+%token LBRACE
+%token RBRACE
+%token LE
+%token LT
+%token GE
+%token GT
+%token EQ
+%token TRUE
+%token FALSE
+%token AND
+%token ACT
+%token RESET
+%token EOF
+%left PLUS MINUS        /* lowest precedence */
+%left TIMES DIV         /* medium precedence */
+%nonassoc UMINUS        /* highest precedence */
+%left AND
+
+%start main             /* the entry point */
+
+%type <Grammar_types.timed_automaton> main
+%type <string list> clock_namelist
+%type <Grammar_types.location> location
+%type <Grammar_types.location list> locationlist
+%type <Grammar_types.clock_constraint> clock_constraint
+%type <Grammar_types.unit_clock_constraint> unit_clock_constraint
+%type <Grammar_types.transition> transition
+%type <Grammar_types.transition list> transitionlist
+
+%%
+main:
+NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMACTIONS INT NUMINIT
+INT clock_namelist locationlist EOF
+{ {Grammar_types.numlocations=$2;
+Grammar_types.numtrans=$4;
+Grammar_types.numclocks=$6;
+Grammar_types.numactions=$8;
+Grammar_types.numinit=$10;
+Grammar_types.clock_names = Array.of_list $11;
+Grammar_types.locations = Array.of_list($12)} }
+;
+
+clock_namelist:
+
+{ [] }
+| IDENT clock_namelist
+{$1::$2}
+;
+
+location:
+LOCATION COLON INT INVAR COLON clock_constraint TRANS COLON transitionlist
+{ {Grammar_types.location_index=$3;
+Grammar_types.invariant=$6;
+Grammar_types.departures=Array.of_list($9)} }
+;
+
+locationlist:
+{ [] }
+| location locationlist
+{ $1::$2 }
+;
+
+unit_clock_constraint:
+TRUE
+{ Grammar_types.True }
+|	FALSE
+{ Grammar_types.False }
+|	IDENT LT INT
+{ Grammar_types.Lt($1, $3) }
+|	IDENT LE INT
+{ Grammar_types.Le($1, $3) }
+|	IDENT EQ INT
+{ Grammar_types.Eq($1, $3) }
+|	IDENT GE INT
+{ Grammar_types.Ge($1, $3) }
+|	IDENT GT INT
+{ Grammar_types.Gt($1, $3) }
+;
+
+clock_constraint:
+unit_clock_constraint
+{ [$1] }
+|   unit_clock_constraint AND clock_constraint
+{ $1::$3 }
+;
+
+transition:
+clock_constraint RARROW ACT INT SEMI RESET LBRACE clock_namelist RBRACE SEMI GOTO INT
+{ {Grammar_types.condition=$1; Grammar_types.action=$4;Grammar_types.clock_resets=Array.of_list($8); Grammar_types.next_location=$12} }
+;
+
+transitionlist:
+{[]}
+| transition transitionlist                                    {$1::$2}
+;

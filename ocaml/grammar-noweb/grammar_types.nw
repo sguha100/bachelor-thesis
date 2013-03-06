@@ -5,31 +5,33 @@ module Valuation: Map.S with type key=string
 module Valuation = Map.Make (String)
 
 <<grammar_types.mli>>=
-type comparator = Lt | Le | Eq | Ge | Gt
+type unit_clock_constraint = True
+		       | False
+		       | Lt of string*int
+		       | Le of string*int
+		       | Eq of string*int
+		       | Ge of string*int
+		       | Gt of string*int
 
 <<grammar_types.ml>>=
-type comparator = Lt | Le | Eq | Ge | Gt
+type unit_clock_constraint = True
+		       | False
+		       | Lt of string*int
+		       | Le of string*int
+		       | Eq of string*int
+		       | Ge of string*int
+		       | Gt of string*int
 
 <<grammar_types.mli>>=
-type proposition =
-  True
-| False
-| Comparison of string*comparator*int
-| And of proposition list
-| DBM of Zone_stubs.raw_t
+type clock_constraint = unit_clock_constraint list
 
 <<grammar_types.ml>>=
-type proposition =
-  True
-| False
-| Comparison of string*comparator*int
-| And of proposition list
-| DBM of Zone_stubs.raw_t
+type clock_constraint = unit_clock_constraint list
 
 <<grammar_types.mli>>=
 type transition = {
   action: int;
-  condition: proposition;
+  condition: clock_constraint;
   clock_resets: string array;
   next_location: int
 }
@@ -37,22 +39,22 @@ type transition = {
 <<grammar_types.ml>>=
 type transition = {
   action: int;
-  condition: proposition;
+  condition: clock_constraint;
   clock_resets: string array;
   next_location: int
 }
 
 <<grammar_types.mli>>=
 type location = {
-  location_index:int;
-  invariant:proposition;
+  location_index: int;
+  invariant: clock_constraint;
   departures: transition array
 }
 
 <<grammar_types.ml>>=
 type location = {
-  location_index:int;
-  invariant:proposition;
+  location_index: int;
+  invariant: clock_constraint;
   departures: transition array
 }
 
