@@ -33,7 +33,7 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native
+targets: next_step.native calc.native
 
 libzone_stubs.a: \
 c/zone_stubs.mli \
@@ -46,7 +46,7 @@ zone-valuation-graph/calc.ml \
 $(grammar_types) \
 grammar-noweb/lexer.mll \
 grammar-noweb/parser.mly \
-grammar-noweb/parse_timed_automaton.ml \
+utilities/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli \
 Rules.mk \
@@ -63,13 +63,14 @@ utilities/parse_timed_automaton.ml \
 $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
+utilities/graph_functions.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml
 
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	next_step/next_step.native
+	next_step/next_step.native zone-valuation-graph/calc.native
 
 calc.top: zone-valuation-graph/calc.mltop
 	ocamlbuild zone-valuation-graph/calc.top

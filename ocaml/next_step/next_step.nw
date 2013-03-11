@@ -4,6 +4,7 @@
 open Grammar_types
 open Parse_timed_automaton
 open Clock_utilities
+open Graph_functions
 
 let display_state ta state = 
   print_string("location = ");

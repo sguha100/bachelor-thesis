@@ -91,3 +91,25 @@ type state = {
   location: int;
   valuation: float Valuation.t
 }
+
+<<grammar_types.ml>>=
+type lbound =
+  Lslack of int
+| Lstrict of int
+
+<<grammar_types.mli>>=
+type lbound =
+  Lslack of int
+| Lstrict of int
+
+<<grammar_types.ml>>=
+type zone_using_list = {
+  zone_location: int;
+  zone_constraint: clock_constraint
+}
+
+<<grammar_types.mli>>=
+type zone_using_list = {
+  zone_location: int;
+  zone_constraint: clock_constraint
+}
