@@ -1,4 +1,5 @@
 open Grammar_types
+open Unit_constraint_intersection
 
 let unit_clock_constraint_max unit_clock_constraint cn =
   match
@@ -47,10 +48,10 @@ let split_on_unit_clock_constraint unit_clock_constraint =
   | Ge (cn1, n1) -> [Lt (cn1, n1); Ge (cn1, n1)]
   | Gt (cn1, n1) -> [Le (cn1, n1); Gt (cn1, n1)]
 
-let init_zone_array ta =
+let init_zone_list_array ta =
   (Array.init
      ta.numlocations
-     (function i -> {zone_location = i; zone_constraint = [True]})
+     (function i -> [{zone_location = i; zone_constraint = [True]}])
   )
 
 let init_tree_array ta = 
@@ -58,275 +59,6 @@ let init_tree_array ta =
      ta.numlocations
      (function i -> [])
   )
-
-let unit_constraint_intersection c1 c2 =
-  match
-    (c1, c2)
-  with
-    (True, _) -> [c2]
-  | (False, _) -> [False]
-  | (_, True) -> [c1]
-  | (_, False) -> [False]
-  | (Lt (cn1, n1), Lt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 < n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Lt (cn1, n1), Le (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 <= n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Lt (cn1, n1), Eq (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 >= n2)
-      then
-        [False]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Lt (cn1, n1), Ge (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 <= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Lt (cn1, n1), Gt (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 <= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Le (cn1, n1), Lt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 <= n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Le (cn1, n1), Le (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 <= n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Le (cn1, n1), Eq (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 < n2)
-      then
-        [False]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Le (cn1, n1), Ge (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 < n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Le (cn1, n1), Gt (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 <= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Eq (cn1, n1), Lt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 < n2)
-      then
-        [c1]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Eq (cn1, n1), Le (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 <= n2)
-      then
-        [c1]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Eq (cn1, n1), Eq (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 == n2)
-      then
-        [c1]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Eq (cn1, n1), Ge (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 >= n2)
-      then
-        [c1]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Eq (cn1, n1), Gt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 > n2)
-      then
-        [c1]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Ge (cn1, n1), Lt (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 >= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Ge (cn1, n1), Le (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 > n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Ge (cn1, n1), Eq (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 <= n2)
-      then
-        [c2]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Ge (cn1, n1), Ge (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 >= n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Ge (cn1, n1), Gt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 > n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Gt (cn1, n1), Lt (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 >= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Gt (cn1, n1), Le (cn2, n2)) ->
-    if
-      ((cn1 = cn2) && (n1 >= n2))
-    then
-      [False]
-    else
-      [c1; c2]
-  | (Gt (cn1, n1), Eq (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 < n2)
-      then
-        [c2]
-      else
-        [False]
-    else
-      [c1; c2]
-  | (Gt (cn1, n1), Ge (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 >= n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
-  | (Gt (cn1, n1), Gt (cn2, n2)) ->
-    if
-      (cn1 = cn2)
-    then
-      if
-        (n1 > n2)
-      then
-        [c1]
-      else
-        [c2]
-    else
-      [c1; c2]
 
 let split_zone_on_clock_constraint zone clock_constraint =
   List.fold_left (*This is where we split by each of the constituents
@@ -360,3 +92,102 @@ let split_zone_on_clock_constraint zone clock_constraint =
     )
     [zone]
     clock_constraint
+
+let split_zone_on_outgoing_transitions zone ta =
+  List.fold_left
+    (function zone_list -> function departure ->
+      List.fold_left
+        (function partial_zone_list ->
+          function zone ->
+            (split_zone_on_clock_constraint zone departure.condition)
+              @
+              partial_zone_list
+        )
+        []
+        zone_list
+    )
+    [zone]
+    (Array.to_list
+       ta.locations.(zone.zone_location).departures
+    )
+
+let dequeue ta (queue, zone_list_array, tree_array) =
+  match queue with
+    [] -> (queue, zone_list_array, tree_array)
+  | qhd::qtl -> (
+    match
+      tree_array.(qhd)
+    with
+      [] ->
+        zone_list_array.(qhd) <- (
+          List.fold_left
+            (function zone_list -> function clock_constraint ->
+              List.fold_left
+                (function partial_zone_list ->
+                  function zone ->
+                    (split_zone_on_clock_constraint zone clock_constraint)
+                    @
+                      partial_zone_list
+                )
+                []
+                zone_list
+            )
+            zone_list_array.(qhd)
+            (ta.locations.(qhd).invariant
+             ::
+               (List.fold_left
+                  (function partial_clock_constraint_list ->
+                    function departure ->
+                      ([departure.condition
+                       ;
+                        (List.filter
+                           (function unit_clock_constraint ->
+                             match
+                               unit_clock_constraint
+                             with
+                               True
+                             | False -> false
+                             | Lt (cn, n)
+                             | Le (cn, n)
+                             | Eq (cn, n)
+                             | Ge (cn, n)
+                             | Gt (cn, n) ->
+                               (not (List.exists
+                                       ((=) cn)
+                                       (Array.to_list departure.clock_resets)
+                                ))
+                           )
+                           ta.locations.(departure.next_location).invariant
+                        )
+                       ]
+                      )
+                  )
+                  []
+                  (Array.to_list ta.locations.(qhd).departures)
+               )
+            )
+        );
+        (qtl, zone_list_array, tree_array) (*This expression seems
+                                             simple because we split
+                                             those zones up there.*)
+    | thd::ttl ->
+      zone_list_array.(qhd) <-
+        (List.fold_left
+           (function zone_list2 ->
+             function zone1 ->
+               List.fold_left
+                 (function partial_zone_list2 ->
+                   function zone2 ->
+                     (split_zone_on_clock_constraint zone2 zone1.zone_constraint)
+                       @
+                       partial_zone_list2
+                 )
+                 []
+                 zone_list2
+           )
+           zone_list_array.(qhd)
+           zone_list_array.(thd)
+        );
+      (qtl, zone_list_array, tree_array)
+  )
+    
