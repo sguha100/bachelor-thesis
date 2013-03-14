@@ -33,7 +33,7 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native calc.native
+targets: next_step.native calc.native test.native
 
 libzone_stubs.a: \
 c/zone_stubs.mli \
@@ -68,9 +68,19 @@ Rules.mk \
 _tags\
 myocamlbuild.ml
 
+test.native: \
+$(clock_utilities) \
+$(grammar_types) \
+utilities/graph_functions.ml \
+Rules.mk \
+_tags\
+myocamlbuild.ml
+
 %.native:
 	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
-	next_step/next_step.native zone-valuation-graph/calc.native
+	next_step/next_step.native \
+	zone-valuation-graph/calc.native \
+	test/test.native
 
 calc.top: zone-valuation-graph/calc.mltop
 	ocamlbuild zone-valuation-graph/calc.top

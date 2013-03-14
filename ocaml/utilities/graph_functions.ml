@@ -5,12 +5,12 @@ let unit_clock_constraint_max unit_clock_constraint cn =
   match
     unit_clock_constraint
   with
-    True -> Lstrict 0
+    True
   | False -> Lstrict 0
-  | Lt (cn1, n1) -> if (cn1 = cn) then Lstrict n1 else Lstrict 0
-  | Le (cn1, n1) -> if (cn1 = cn) then Lslack n1 else Lstrict 0
-  | Eq (cn1, n1) -> if (cn1 = cn) then Lslack n1 else Lstrict 0
-  | Ge (cn1, n1) -> if (cn1 = cn) then Lslack n1 else Lstrict 0
+  | Lt (cn1, n1)
+  | Le (cn1, n1)
+  | Eq (cn1, n1)
+  | Ge (cn1, n1)
   | Gt (cn1, n1) -> if (cn1 = cn) then Lslack n1 else Lstrict 0
 
 let combine_max lbound1 lbound2 =
@@ -42,11 +42,11 @@ let split_on_unit_clock_constraint unit_clock_constraint =
   with
     True -> [True]
   | False -> [True]
-  | Lt (cn1, n1) -> [Lt (cn1, n1); Ge (cn1, n1)]
-  | Le (cn1, n1) -> [Le (cn1, n1); Gt (cn1, n1)]
-  | Eq (cn1, n1) -> [Lt (cn1, n1); Eq (cn1, n1); Gt (cn1, n1)]
+  | Lt (cn1, n1)
   | Ge (cn1, n1) -> [Lt (cn1, n1); Ge (cn1, n1)]
+  | Le (cn1, n1)
   | Gt (cn1, n1) -> [Le (cn1, n1); Gt (cn1, n1)]
+  | Eq (cn1, n1) -> [Lt (cn1, n1); Eq (cn1, n1); Gt (cn1, n1)]
 
 let init_zone_list_array ta =
   (Array.init
