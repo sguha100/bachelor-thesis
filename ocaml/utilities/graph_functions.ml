@@ -155,10 +155,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                  )
               )
               ta
-          );
-        (qtl, zone_list_array, tree_array) (*This expression seems
-                                             simple because we split
-                                             those zones up there.*)
+          )
     | thd::ttl ->
       zone_list_array.(qhd) <-
         (split_zone_list_on_constraint_list
@@ -167,7 +164,26 @@ let dequeue ta (queue, zone_list_array, tree_array) =
               (function zone -> zone.zone_constraint)
               zone_list_array.(thd)
            )
-           ta);
-      (qtl, zone_list_array, tree_array)
+           ta)
   )
-    
+    ;
+    (List.fold_left
+       (function this_must_be_a_unit ->
+         function tree_element ->
+           this_must_be_a_unit;
+           zone_list_array.(tree_element) <-
+             (split_zone_list_on_constraint_list
+                zone_list_array.(tree_element)
+                (List.map
+                   (function zone ->
+                     zone.zone_constraint
+                   )
+                   zone_list_array.(qhd)
+                )
+                ta
+             )
+       )
+       ()
+       tree_array.(qhd)
+    );
+    (qtl, zone_list_array, tree_array)
