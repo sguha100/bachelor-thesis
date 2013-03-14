@@ -181,6 +181,17 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                    zone_list_array.(qhd)
                 )
                 ta
+             );
+           if
+             (List.exists
+                ((=) qhd)
+                tree_array.(tree_element)
+             )
+           then
+             ()
+           else
+             (tree_array.(tree_element) <-
+                qhd::tree_array.(tree_element)
              )
        )
        ()
