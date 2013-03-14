@@ -72,6 +72,7 @@ test.native: \
 $(clock_utilities) \
 $(grammar_types) \
 utilities/graph_functions.ml \
+test/test.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml
