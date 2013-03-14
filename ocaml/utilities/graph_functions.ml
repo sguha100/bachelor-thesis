@@ -192,9 +192,25 @@ let dequeue ta (queue, zone_list_array, tree_array) =
            else
              (tree_array.(tree_element) <-
                 qhd::tree_array.(tree_element)
-             )
+             );
        )
        ()
        tree_array.(qhd)
     );
-    (qtl, zone_list_array, tree_array)
+    let
+        queue =
+      (List.filter
+         (function thd ->
+           List.exists
+             (function tree_element ->
+               List.for_all
+                 ((<>) tree_element)
+                 tree_array.(qhd)
+             )
+             tree_array.(thd)
+         )
+         tree_array.(qhd)) @ qtl
+    in
+    (queue,
+     zone_list_array,
+     tree_array)
