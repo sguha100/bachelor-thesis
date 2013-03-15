@@ -211,6 +211,80 @@ let dequeue ta (queue, zone_list_array, tree_array) =
          )
          tree_array.(qhd)) @ qtl
     in
+    let
+        successors = (Array.to_list
+                        ta.locations.(qhd).departures)
+    in
+    (List.fold_left
+       (function this_must_be_a_unit ->
+         function successor ->
+           this_must_be_a_unit;
+           zone_list_array.(successor) <-
+             (split_zone_list_on_constraint_list
+                zone_list_array.(successor)
+                (List.map
+                   (function zone ->
+                     zone.zone_constraint
+                   )
+                   zone_list_array.(qhd)
+                )
+                ta
+             );
+           if
+             (List.exists
+                ((=) qhd)
+                tree_array.(successor)
+             )
+           then
+             ()
+           else
+             (tree_array.(successor) <-
+                qhd::tree_array.(successor)
+             );
+       )
+       ()
+       (List.map
+          (function departure -> departure.next_location)
+          successors
+       )
+    );
+    let
+        queue =
+      (List.filter
+         (function thd ->
+           List.exists
+             (function tree_element ->
+               List.for_all
+                 ((<>) tree_element)
+                 tree_array.(qhd)
+             )
+             tree_array.(thd)
+         )
+         tree_array.(qhd)) @ queue
+    in
     (queue,
      zone_list_array,
      tree_array)
+
+let rec empty_queue ta (queue, zone_list_array, tree_array) =
+  match queue with
+    [] -> (queue, zone_list_array, tree_array)
+  | qhd::qtl -> (empty_queue
+                   ta
+                   (dequeue
+                      ta
+                      (queue, zone_list_array, tree_array)
+                   )
+  )
+
+let generate_zone_valuation_graph ta =
+  match
+    (empty_queue
+       ta
+       ([ta.numinit],
+        (init_zone_list_array ta),
+        (init_tree_array ta)
+       )
+    )
+  with
+    (_, zone_list_array, _) -> zone_list_array
