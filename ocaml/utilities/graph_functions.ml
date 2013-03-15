@@ -73,19 +73,19 @@ let split_zone_on_clock_constraint zone clock_constraint =
             function zone -> (*return the partial zone list augmented
                                with the zones we get from the
                                splitting of this zone.*)
-                 {zone_location = zone.zone_location; zone_constraint
-                   = (List.fold_left
-                        (function partial_clock_constraint ->
-                          function unit_of_zone_constraint ->
-                            (unit_constraint_intersection unit_of_zone_constraint unit_clock_constraint)
-                            @
-                              partial_clock_constraint
-                        )
-                        []
-                        zone.zone_constraint
-                   )}
-                   ::
-                   partial_zone_list
+              {zone_location = zone.zone_location; zone_constraint
+                = (List.fold_left
+                     (function partial_clock_constraint ->
+                       function unit_of_zone_constraint ->
+                         (unit_constraint_intersection unit_of_zone_constraint unit_clock_constraint)
+                         @
+                           partial_clock_constraint
+                     )
+                     []
+                     zone.zone_constraint
+                )}
+              ::
+                partial_zone_list
           )
           []
           zone_list
@@ -120,41 +120,41 @@ let dequeue ta (queue, zone_list_array, tree_array) =
       [] ->
         zone_list_array.(qhd) <-
           (split_zone_list_on_constraint_list
-              zone_list_array.(qhd)
-              (ta.locations.(qhd).invariant
-               ::
-                 (List.fold_left
-                    (function partial_clock_constraint_list ->
-                      function departure ->
-                        ([departure.condition
-                         ;
-                          (List.filter
-                             (function unit_clock_constraint ->
-                               match
-                                 unit_clock_constraint
-                               with
-                                 True
-                               | False -> false
-                               | Lt (cn, n)
-                               | Le (cn, n)
-                               | Eq (cn, n)
-                               | Ge (cn, n)
-                               | Gt (cn, n) ->
-                                 (not (List.exists
-                                         ((=) cn)
-                                         (Array.to_list departure.clock_resets)
-                                  ))
-                             )
-                             ta.locations.(departure.next_location).invariant
-                          )
-                         ]
-                        )
-                    )
-                    []
-                    (Array.to_list ta.locations.(qhd).departures)
-                 )
-              )
-              ta
+             zone_list_array.(qhd)
+             (ta.locations.(qhd).invariant
+              ::
+                (List.fold_left
+                   (function partial_clock_constraint_list ->
+                     function departure ->
+                       ([departure.condition
+                        ;
+                         (List.filter
+                            (function unit_clock_constraint ->
+                              match
+                                unit_clock_constraint
+                              with
+                                True
+                              | False -> false
+                              | Lt (cn, n)
+                              | Le (cn, n)
+                              | Eq (cn, n)
+                              | Ge (cn, n)
+                              | Gt (cn, n) ->
+                                (not (List.exists
+                                        ((=) cn)
+                                        (Array.to_list departure.clock_resets)
+                                 ))
+                            )
+                            ta.locations.(departure.next_location).invariant
+                         )
+                        ]
+                       )
+                   )
+                   []
+                   (Array.to_list ta.locations.(qhd).departures)
+                )
+             )
+             ta
           )
     | thd::ttl ->
       zone_list_array.(qhd) <-
