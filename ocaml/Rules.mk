@@ -45,7 +45,7 @@ calc.native: \
 zone-valuation-graph/calc.ml \
 $(grammar_types) \
 grammar-noweb/lexer.mll \
-grammar-noweb/parser.mly \
+grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
 fernandez-ocaml-noweb/fernandez.mli \
@@ -58,7 +58,7 @@ next_step/next_step.ml \
 $(clock_utilities) \
 $(grammar_types) \
 grammar-noweb/lexer.mll \
-grammar-noweb/parser.mly \
+grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
 c/zone_stubs.mli \

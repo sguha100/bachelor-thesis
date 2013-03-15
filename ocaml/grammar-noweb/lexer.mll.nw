@@ -1,7 +1,7 @@
 <<lexer.mll>>=
   (* File lexer.mll *)
   {
-   open Parser        (* The type token is defined in parser.mli *)
+   open Timed_automaton_parser        (* The type token is defined in parser.mli *)
 exception Eof
  }
   let intexp = ['0'-'9']+

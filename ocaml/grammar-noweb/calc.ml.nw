@@ -4,7 +4,7 @@ let _ =
   try
     let lexbuf = Lexing.from_channel stdin in
     while true do
-      let result = Parser.main Lexer.token lexbuf in
+      let result = Timed_automaton_parser.main Lexer.token lexbuf in
       print_int (result.Grammar_types.numlocations);
       print_newline();
       print_int (result.Grammar_types.numtrans);

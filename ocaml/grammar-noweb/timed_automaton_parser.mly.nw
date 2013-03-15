@@ -1,4 +1,4 @@
-<<parser.mly>>=
+<<timed_automaton_parser.mly>>=
 /* File parser.mly */
 %token <int> INT
 %token <string> IDENT
