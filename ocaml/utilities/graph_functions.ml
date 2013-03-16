@@ -110,6 +110,7 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
 
 let dequeue ta (queue, zone_list_array, tree_array) =
   Printf.printf("dequeue got called!\n");
+  flush stdout;
   match queue with
     [] -> (queue, zone_list_array, tree_array)
   | qhd::qtl -> (
@@ -121,6 +122,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           "qhd = %s, zone_list length = %s before split\n"
           (string_of_int qhd)
           (string_of_int (List.length zone_list_array.(qhd)));
+        flush stdout;
         let
             constraint_list =
           (ta.locations.(qhd).invariant
@@ -163,6 +165,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
            "constraint_list length = %s\n"
            (string_of_int (List.length constraint_list))
         );
+        flush stdout;
         (zone_list_array.(qhd) <-
            split_zone_list_on_constraint_list
             zone_list_array.(qhd)
@@ -172,7 +175,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         Printf.printf
           "qhd = %s, zone_list length = %s after split\n"
           (string_of_int qhd)
-          (string_of_int (List.length zone_list_array.(qhd)))
+          (string_of_int (List.length zone_list_array.(qhd)));
+        flush stdout
     | thd::ttl ->
       zone_list_array.(qhd) <-
         (split_zone_list_on_constraint_list
@@ -184,19 +188,25 @@ let dequeue ta (queue, zone_list_array, tree_array) =
            ta)
   )
     ;
+    (Printf.printf "Starting with elements of the tree of qhd.\n");
+    flush stdout;
     (List.fold_left
        (function this_must_be_a_unit ->
          function tree_element ->
            this_must_be_a_unit;
+           let
+               constraint_list =
+             (List.map
+                (function zone ->
+                  zone.zone_constraint
+                )
+                zone_list_array.(qhd)
+             )
+           in
            zone_list_array.(tree_element) <-
              (split_zone_list_on_constraint_list
                 zone_list_array.(tree_element)
-                (List.map
-                   (function zone ->
-                     zone.zone_constraint
-                   )
-                   zone_list_array.(qhd)
-                )
+                constraint_list
                 ta
              );
            if
@@ -214,6 +224,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
        ()
        tree_array.(qhd)
     );
+    (Printf.printf "Done with elements of the tree of qhd.\n");
+    flush stdout;
     let
         queue =
       (List.filter
@@ -232,21 +244,33 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         successors = (Array.to_list
                         ta.locations.(qhd).departures)
     in
+    (Printf.printf "Starting with successors of qhd.\n");
+    flush stdout;
     (List.fold_left
        (function this_must_be_a_unit ->
          function successor ->
+           Printf.printf "A successor arrived.\n";
+           flush stdout;
            this_must_be_a_unit;
+           let
+               constraint_list = (List.map
+                                    (function zone ->
+                                      zone.zone_constraint
+                                    )
+                                    zone_list_array.(qhd)
+           )
+           in
+           Printf.printf
+             "constraint_list length = %s\n"
+             (string_of_int (List.length constraint_list));
+           flush stdout;
            zone_list_array.(successor) <-
              (split_zone_list_on_constraint_list
                 zone_list_array.(successor)
-                (List.map
-                   (function zone ->
-                     zone.zone_constraint
-                   )
-                   zone_list_array.(qhd)
-                )
+                constraint_list
                 ta
              );
+           Printf.printf "A successor left.\n";
            if
              (List.exists
                 ((=) qhd)
@@ -265,10 +289,14 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           successors
        )
     );
+    (Printf.printf "Done with the successors of qhd.\n");
+    (flush stdout);
     let
         queue =
       Printf.printf "queue length then = %s\n" (string_of_int
-                                                  (List.length queue));
+                                                  (List.length
+                                                     queue));
+      flush stdout;
       (List.filter
          (function thd ->
            List.exists
@@ -283,6 +311,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     in
     Printf.printf "queue length now = %s\n" (string_of_int
                                                (List.length queue));
+    flush stdout;
     (queue,
      zone_list_array,
      tree_array)

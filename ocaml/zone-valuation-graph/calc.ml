@@ -5,7 +5,14 @@ open Grammar_types
 
 let _ =
   let result = parse_timed_automaton stdin in
+  let
+      unit = (Printf.printf "Timed automaton parsed successfully!\n");
+    (flush stdout)
+  in
   let g = generate_zone_valuation_graph result in
+  let
+      unit = Printf.printf "Zone-valuation graph generated successfully!\n"
+  in
   Printf.printf "numlocations = %s\n" (string_of_int result.numlocations);
   Printf.printf "numtrans = %s\n" (string_of_int result.numtrans);
   Printf.printf "numclocks = %s\n" (string_of_int result.numclocks);
