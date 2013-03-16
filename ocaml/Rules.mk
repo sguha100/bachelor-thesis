@@ -44,7 +44,7 @@ c/zone_stubs.c
 calc.native: \
 zone-valuation-graph/calc.ml \
 $(grammar_types) \
-grammar-noweb/lexer.mll \
+grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/fernandez.ml \
@@ -57,7 +57,7 @@ next_step.native: \
 next_step/next_step.ml \
 $(clock_utilities) \
 $(grammar_types) \
-grammar-noweb/lexer.mll \
+grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
 $(fernandez) \
@@ -83,5 +83,15 @@ myocamlbuild.ml
 	zone-valuation-graph/calc.native \
 	test/test.native
 
-calc.top: zone-valuation-graph/calc.mltop
-	ocamlbuild zone-valuation-graph/calc.top
+calc.top: \
+zone-valuation-graph/calc.ml \
+$(grammar_types) \
+grammar-noweb/timed_automaton_lexer.mll \
+grammar-noweb/timed_automaton_parser.mly \
+utilities/parse_timed_automaton.ml \
+fernandez-ocaml-noweb/fernandez.ml \
+fernandez-ocaml-noweb/fernandez.mli \
+Rules.mk \
+_tags \
+myocamlbuild.ml
+	ocamlbuild calc.top

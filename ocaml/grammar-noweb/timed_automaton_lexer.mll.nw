@@ -1,5 +1,5 @@
-<<lexer.mll>>=
-  (* File lexer.mll *)
+<<timed_automaton_lexer.mll>>=
+  (* File timed_automaton_lexer.mll *)
   {
    open Timed_automaton_parser        (* The type token is defined in parser.mli *)
 exception Eof

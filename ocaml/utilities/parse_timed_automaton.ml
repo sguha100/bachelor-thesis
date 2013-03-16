@@ -85,7 +85,7 @@ let parse_timed_automaton channel =
       lexbuf = Lexing.from_channel channel
   in
   let
-      ta = Timed_automaton_parser.main Lexer.token lexbuf
+      ta = Timed_automaton_parser.main Timed_automaton_lexer.token lexbuf
   in
   if
     is_sane_timed_automaton ta

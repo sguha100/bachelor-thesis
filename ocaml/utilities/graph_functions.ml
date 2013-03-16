@@ -111,6 +111,7 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
     constraint_list
 
 let dequeue ta (queue, zone_list_array, tree_array) =
+  Printf.printf("dequeue got called!\n");
   match queue with
     [] -> (queue, zone_list_array, tree_array)
   | qhd::qtl -> (
@@ -118,44 +119,62 @@ let dequeue ta (queue, zone_list_array, tree_array) =
       tree_array.(qhd)
     with
       [] ->
-        zone_list_array.(qhd) <-
-          (split_zone_list_on_constraint_list
-             zone_list_array.(qhd)
-             (ta.locations.(qhd).invariant
-              ::
-                (List.fold_left
-                   (function partial_clock_constraint_list ->
-                     function departure ->
-                       ([departure.condition
-                        ;
-                         (List.filter
-                            (function unit_clock_constraint ->
-                              match
-                                unit_clock_constraint
-                              with
-                                True
-                              | False -> false
-                              | Lt (cn, n)
-                              | Le (cn, n)
-                              | Eq (cn, n)
-                              | Ge (cn, n)
-                              | Gt (cn, n) ->
-                                (not (List.exists
-                                        ((=) cn)
-                                        (Array.to_list departure.clock_resets)
-                                 ))
-                            )
-                            ta.locations.(departure.next_location).invariant
+        Printf.printf
+          "qhd = %s, zone_list length = %s before split\n"
+          (string_of_int qhd)
+          (string_of_int (List.length zone_list_array.(qhd)));
+        let
+            constraint_list =
+          (ta.locations.(qhd).invariant
+           ::
+             (List.fold_left
+                (function partial_clock_constraint_list ->
+                  function departure ->
+                    ([departure.condition
+                     ;
+                      (List.filter
+                         (function unit_clock_constraint ->
+                           match
+                             unit_clock_constraint
+                           with
+                             True
+                           | False -> false
+                           | Lt (cn, n)
+                           | Le (cn, n)
+                           | Eq (cn, n)
+                           | Ge (cn, n)
+                           | Gt (cn, n) ->
+                             (not (List.exists
+                                     ((=) cn)
+                                     (Array.to_list departure.clock_resets)
+                              ))
                          )
-                        ]
-                       )
-                   )
-                   []
-                   (Array.to_list ta.locations.(qhd).departures)
+                         ta.locations.(departure.next_location).invariant
+                      )
+                     ]
+                     @
+                       partial_clock_constraint_list
+                    )
                 )
+                []
+                (Array.to_list ta.locations.(qhd).departures)
              )
-             ta
           )
+        in
+        (Printf.printf
+           "constraint_list length = %s\n"
+           (string_of_int (List.length constraint_list))
+        );
+        (zone_list_array.(qhd) <-
+           split_zone_list_on_constraint_list
+            zone_list_array.(qhd)
+            constraint_list
+            ta
+        ) ;
+        Printf.printf
+          "qhd = %s, zone_list length = %s after split\n"
+          (string_of_int qhd)
+          (string_of_int (List.length zone_list_array.(qhd)))
     | thd::ttl ->
       zone_list_array.(qhd) <-
         (split_zone_list_on_constraint_list
@@ -250,6 +269,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     let
         queue =
+      Printf.printf "queue length then = %s\n" (string_of_int
+                                                  (List.length queue));
       (List.filter
          (function thd ->
            List.exists
@@ -262,6 +283,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
          )
          tree_array.(qhd)) @ queue
     in
+    Printf.printf "queue length now = %s\n" (string_of_int
+                                               (List.length queue));
     (queue,
      zone_list_array,
      tree_array)

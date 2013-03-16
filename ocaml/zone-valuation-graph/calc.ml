@@ -1,21 +1,25 @@
 (* File calc.ml *)
 open Parse_timed_automaton
 open Graph_functions
+open Grammar_types
 
 let _ =
   let result = parse_timed_automaton stdin in
   let g = generate_zone_valuation_graph result in
-  print_int (result.Grammar_types.numlocations); 
-  print_newline(); 
-  print_int (result.Grammar_types.numtrans); 
-  print_newline(); 
-  print_int (result.Grammar_types.numclocks); 
-  print_newline(); 
-  print_int (result.Grammar_types.numinit); 
-  print_newline(); 
-  print_int (Array.length result.Grammar_types.clock_names); 
-  print_newline(); 
-  print_int (Array.length result.Grammar_types.locations); 
-  print_newline(); 
+  Printf.printf "numlocations = %s\n" (string_of_int result.numlocations);
+  Printf.printf "numtrans = %s\n" (string_of_int result.numtrans);
+  Printf.printf "numclocks = %s\n" (string_of_int result.numclocks);
+  Printf.printf "numinit = %s\n" (string_of_int result.numinit);
+  let len = (Array.length g) in
+  for i = 0 to len - 1 do
+    Printf.printf
+      "i = %s, %s\n"
+      (string_of_int
+         i)
+      (string_of_int
+         (List.length
+            g.(i)
+         ));
+  done;
   flush stdout;
   exit 0

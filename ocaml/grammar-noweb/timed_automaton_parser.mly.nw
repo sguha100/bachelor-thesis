@@ -1,5 +1,5 @@
 <<timed_automaton_parser.mly>>=
-/* File parser.mly */
+/* File timed_automaton_parser.mly */
 %token <int> INT
 %token <string> IDENT
 %token PLUS MINUS TIMES DIV
