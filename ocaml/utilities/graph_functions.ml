@@ -40,7 +40,7 @@ let split_on_unit_clock_constraint unit_clock_constraint =
   match
     unit_clock_constraint
   with
-    True -> [True]
+    True
   | False -> [True]
   | Lt (cn1, n1)
   | Ge (cn1, n1) -> [Lt (cn1, n1); Ge (cn1, n1)]
@@ -73,18 +73,16 @@ let split_zone_on_clock_constraint zone clock_constraint =
             function zone -> (*return the partial zone list augmented
                                with the zones we get from the
                                splitting of this zone.*)
-              {zone_location = zone.zone_location; zone_constraint
-                = (List.fold_left
-                     (function partial_clock_constraint ->
-                       function unit_of_zone_constraint ->
-                         (unit_constraint_intersection unit_of_zone_constraint unit_clock_constraint)
-                         @
-                           partial_clock_constraint
-                     )
-                     []
-                     zone.zone_constraint
-                )}
-              ::
+              (List.map
+                 (function unit_clock_constraint -> (*Yep, variable overuse.*)
+                   {zone_location = zone.zone_location;
+                    zone_constraint =
+                       unit_clock_constraint :: zone.zone_constraint
+                   }
+                 )
+                 (split_on_unit_clock_constraint unit_clock_constraint)
+              )
+              @
                 partial_zone_list
           )
           []
