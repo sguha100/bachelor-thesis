@@ -1,6 +1,8 @@
 open Grammar_types
 open Graph_functions
 open Unit_constraint_intersection
+open Zone_stubs
+open UDBM_utilities
 
 let test1 found expected =
   (List.for_all
@@ -142,6 +144,44 @@ let test13 =
   else
     "test13 failed"
   
+let test14 =
+  if
+    0 = clock_name_to_index "X" [|"X"; "Y"|]
+  then
+    "test14 passed"
+  else
+    "test14 failed"
+
+let test15 =
+  if
+    1 = clock_name_to_index "Y" [|"X"; "Y"|]
+  then
+    "test15 passed"
+  else
+    "test15 failed"
+
+let test16 =
+  if
+    -1 = clock_name_to_index "Z" [|"X"; "Y"|]
+  then
+    "test16 passed"
+  else
+    "test16 failed"
+
+(* let test17 = *)
+(*   if *)
+(*     (dbm_isEmpty *)
+(*        (clock_constraint_to_raw_t *)
+(*           [|"X"; "Y"|] *)
+(*           [Le("X", 3); Ge ("X", 4)] *)
+(*        ) *)
+(*        3 *)
+(*     ) *)
+(*   then *)
+(*     "test17 passed" *)
+(*   else *)
+(*     "test17 failed" *)
+
 let _ =
   print_string test2;
   print_newline ();
@@ -165,4 +205,12 @@ let _ =
   print_newline ();
   print_string test13;
   print_newline ();
+  print_string test14;
+  print_newline ();
+  print_string test15;
+  print_newline ();
+  print_string test16;
+  print_newline ();
+  (* print_string test17; *)
+  (* print_newline (); *)
   exit 0

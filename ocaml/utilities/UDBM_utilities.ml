@@ -3,11 +3,18 @@ open Grammar_types
 
 let clock_name_to_index cn clock_names =
   let len = Array.length clock_names in
-  let res = ref (0 - 1) in
-  for i = 0 to len - 1 do
-    res := if (clock_names.(i) == cn) then i else !res;
-  done;
-  !res
+  let rec f i cn list =
+    match list with
+      [] -> -1
+    | hd::tl ->
+      if
+        hd = cn
+      then
+        i
+      else
+        f (i+1) cn tl
+  in
+  f 0 cn (Array.to_list clock_names)
 
 let rec unit_clock_constraint_to_udbm_constraint_list clock_names unit_clock_constraint =
   match unit_clock_constraint with
