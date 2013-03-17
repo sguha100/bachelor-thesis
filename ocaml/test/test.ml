@@ -168,7 +168,21 @@ let test16 =
   else
     "test16 failed"
 
-(* let test17 = *)
+let test17 =
+  if
+    (dbm_isEmpty
+       (clock_constraint_to_raw_t
+          [|"X"; "Y"|]
+          [False]
+       )
+       3
+    )
+  then
+    "test17 passed"
+  else
+    "test17 failed"
+
+(* let test18 = *)
 (*   if *)
 (*     (dbm_isEmpty *)
 (*        (clock_constraint_to_raw_t *)
@@ -178,9 +192,9 @@ let test16 =
 (*        3 *)
 (*     ) *)
 (*   then *)
-(*     "test17 passed" *)
+(*     "test18 passed" *)
 (*   else *)
-(*     "test17 failed" *)
+(*     "test18 failed" *)
 
 let _ =
   print_string test2;
@@ -211,6 +225,6 @@ let _ =
   print_newline ();
   print_string test16;
   print_newline ();
-  (* print_string test17; *)
-  (* print_newline (); *)
+  print_string test17;
+  print_newline ();
   exit 0

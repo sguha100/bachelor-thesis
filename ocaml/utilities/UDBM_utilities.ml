@@ -2,7 +2,6 @@ open Zone_stubs
 open Grammar_types
 
 let clock_name_to_index cn clock_names =
-  let len = Array.length clock_names in
   let rec f i cn list =
     match list with
       [] -> -1
@@ -16,7 +15,16 @@ let clock_name_to_index cn clock_names =
   in
   f 0 cn (Array.to_list clock_names)
 
-let rec unit_clock_constraint_to_udbm_constraint_list clock_names unit_clock_constraint =
+let rec unit_clock_constraint_to_udbm_constraint_list
+    clock_names
+    unit_clock_constraint =
+  let
+      index cn =
+    1 + 
+      (clock_name_to_index
+         cn
+         clock_names)
+  in
   match unit_clock_constraint with
     True -> []
   | False -> [(dbm_constraint2
@@ -26,56 +34,43 @@ let rec unit_clock_constraint_to_udbm_constraint_list clock_names unit_clock_con
 		 true
   )] (*This weird expression signifies a constraint
        requiring a zero value to be less than zero.*)
+    (*Update: this weird expression is illegal, that is, a constraint
+      in which i = j cannot be applied to the DBM, and also, no
+      constraint can be applied to a DBM which makes the DBM empty. I
+      think we'll work around by preventing this from ever being sent
+      to the DBM functions which are uptight about this.*)
   | Lt (cn, n) -> [dbm_constraint2
-		      (clock_name_to_index
-			 cn
-			 clock_names
-		      )
+		      (index cn)
 		      0
 		      n
 		      true
 		  ]
   | Le (cn, n) -> [dbm_constraint2
-		      (clock_name_to_index
-			 cn
-			 clock_names
-		      )
+		      (index cn)
 		      0
 		      n
 		      false
 		  ]
   | Eq (cn, n) -> [dbm_constraint2
 		      0
-		      (clock_name_to_index
-			 cn
-			 clock_names
-		      )
+		      (index cn)
 		      (0-n)
 		      false;
 		   dbm_constraint2
-		     (clock_name_to_index
-			cn
-			clock_names
-		     )
+		     (index cn)
 		     0
 		     n
 		     false
 		  ]
   | Ge (cn, n) -> [dbm_constraint2
 		      0
-		      (clock_name_to_index
-			 cn
-			 clock_names
-		      )
+		      (index cn)
 		      (0-n)
 		      false
 		  ]
   | Gt (cn, n) -> [dbm_constraint2
 		      0
-		      (clock_name_to_index
-			 cn
-			 clock_names
-		      )
+		      (index cn)
 		      (0-n)
 		      true
 		  ]
