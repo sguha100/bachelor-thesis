@@ -56,7 +56,7 @@ static value alloc_constraint_t(constraint_t * w)
 
 CAMLprim value zone_dbm_init (value dim) {
   CAMLparam1(dim);
-  raw_t *dbm = (raw_t *)malloc(sizeof(raw_t));
+  raw_t *dbm = (raw_t *)malloc(dim*dim*sizeof(raw_t));
   dbm_init(dbm, Int_val(dim));
   CAMLreturn (alloc_raw_t(dbm));
 }

@@ -64,6 +64,7 @@ $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
 utilities/graph_functions.ml \
+utilities/UDBM_utilities.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml
@@ -72,6 +73,7 @@ test.native: \
 $(clock_utilities) \
 $(grammar_types) \
 utilities/graph_functions.ml \
+utilities/UDBM_utilities.ml \
 test/test.ml \
 Rules.mk \
 _tags\
