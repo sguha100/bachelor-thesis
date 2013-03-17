@@ -2,25 +2,25 @@ open Grammar_types
 open Graph_functions
 open Unit_constraint_intersection
 
-let test1 a1 b1 =
+let test1 found expected =
   (List.for_all
-     (function b1elem ->
+     (function expectedelem ->
        List.exists
-         ((=) b1elem)
-         a1
+         ((=) expectedelem)
+         found
      )
-     b1
+     expected
   )
   &&
     (List.for_all
-       (function a1elem ->
+       (function foundelem ->
          (List.exists
-            ((=) a1elem)
-            b1)
+            ((=) foundelem)
+            expected)
          ||
-           (a1elem = True)
+           (foundelem = True)
        )
-       a1
+       found
     )
 
 let test2 = 
@@ -82,15 +82,66 @@ let test5 =
     "test5 failed"
 
 let test6 =
-  let a1 = 
+  let a = 
     split_zone_on_clock_constraint
       {zone_location = 0;
        zone_constraint = [Le ("X", 8); Ge ("X", 2)]
       }
       [Le ("X", 6); Ge ("X", 4)]
   in
-  (Printf.sprintf "test6: %s" (string_of_int (List.length a1)))
+  (Printf.sprintf "test6: %s" (string_of_int (List.length a)))
 
+let test7 clock_constraint clock_name_list expected =
+  (minimise_clock_constraint clock_constraint clock_name_list) = expected
+
+let test8 =
+  if
+    test7 [False; False; False; Eq ("X", 7)] ["X"] [False]
+  then
+    "test8 passed"
+  else
+    "test8 failed"
+  
+let test9 =
+  if
+    test7 [True; True; True; Eq ("X", 7)] ["X"] [Eq ("X", 7)]
+  then
+    "test9 passed"
+  else
+    "test9 failed"
+  
+let test10 =
+  if
+    test7 [Lt ("X", 5); Lt ("X", 7); Lt ("X", 3)] ["X"] [Lt ("X", 3)]
+  then
+    "test10 passed"
+  else
+    "test10 failed"
+  
+let test11 =
+  if
+    test7 [Le ("X", 5); Le ("X", 7); Le ("X", 3)] ["X"] [Le ("X", 3)]
+  then
+    "test11 passed"
+  else
+    "test11 failed"
+  
+let test12 =
+  if
+    test7 [Ge ("X", 5); Ge ("X", 7); Ge ("X", 3)] ["X"] [Ge ("X", 7)]
+  then
+    "test12 passed"
+  else
+    "test12 failed"
+  
+let test13 =
+  if
+    test7 [Gt ("X", 5); Gt ("X", 7); Gt ("X", 3)] ["X"] [Gt ("X", 7)]
+  then
+    "test13 passed"
+  else
+    "test13 failed"
+  
 let _ =
   print_string test2;
   print_newline ();
@@ -101,5 +152,17 @@ let _ =
   print_string test5;
   print_newline ();
   print_string test6;
+  print_newline ();
+  print_string test8;
+  print_newline ();
+  print_string test9;
+  print_newline ();
+  print_string test10;
+  print_newline ();
+  print_string test11;
+  print_newline ();
+  print_string test12;
+  print_newline ();
+  print_string test13;
   print_newline ();
   exit 0
