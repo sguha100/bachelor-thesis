@@ -15,7 +15,7 @@ let clock_name_to_index cn clock_names =
   in
   f 0 cn (Array.to_list clock_names)
 
-let rec unit_clock_constraint_to_udbm_constraint_list
+let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names
     unit_clock_constraint =
   let
@@ -26,32 +26,27 @@ let rec unit_clock_constraint_to_udbm_constraint_list
          clock_names)
   in
   match unit_clock_constraint with
-    True -> []
-  | False -> [(dbm_constraint2
-		 0
-		 0
-		 0
-		 true
-  )] (*This weird expression signifies a constraint
+    True -> Some []
+  | False -> None (*This weird expression signifies a constraint
        requiring a zero value to be less than zero.*)
     (*Update: this weird expression is illegal, that is, a constraint
       in which i = j cannot be applied to the DBM, and also, no
       constraint can be applied to a DBM which makes the DBM empty. I
       think we'll work around by preventing this from ever being sent
       to the DBM functions which are uptight about this.*)
-  | Lt (cn, n) -> [dbm_constraint2
+  | Lt (cn, n) -> Some [dbm_constraint2
 		      (index cn)
 		      0
 		      n
 		      true
 		  ]
-  | Le (cn, n) -> [dbm_constraint2
+  | Le (cn, n) -> Some [dbm_constraint2
 		      (index cn)
 		      0
 		      n
 		      false
 		  ]
-  | Eq (cn, n) -> [dbm_constraint2
+  | Eq (cn, n) -> Some [dbm_constraint2
 		      0
 		      (index cn)
 		      (0-n)
@@ -62,46 +57,86 @@ let rec unit_clock_constraint_to_udbm_constraint_list
 		     n
 		     false
 		  ]
-  | Ge (cn, n) -> [dbm_constraint2
+  | Ge (cn, n) -> Some [dbm_constraint2
 		      0
 		      (index cn)
 		      (0-n)
 		      false
 		  ]
-  | Gt (cn, n) -> [dbm_constraint2
+  | Gt (cn, n) -> Some [dbm_constraint2
 		      0
 		      (index cn)
 		      (0-n)
 		      true
 		  ]
 
-let clock_constraint_to_udbm_constraint_list
-    clock_names
-    clock_constraint =
+(* let clock_constraint_to_udbm_constraint_list_option *)
+(*     clock_names *)
+(*     clock_constraint = *)
+(*   List.fold_left *)
+(*     (function None -> (function _ -> None) *)
+(*     | Some partial_udbm_constraint_list -> *)
+(*       (function unit_clock_constraint -> *)
+(*         match *)
+(*           (unit_clock_constraint_to_udbm_constraint_list_option *)
+(*              clock_names *)
+(*              unit_clock_constraint) *)
+(*         with *)
+(*           None -> None *)
+(*         | Some new_constraints -> *)
+(*           Some (new_constraints *)
+(*                 @ *)
+(*                   partial_udbm_constraint_list) *)
+(*       ) *)
+(*     ) *)
+(*     [] *)
+(*     clock_constraint *)
+
+let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
+  let
+      dim = (1 + Array.length clock_names)
+  in
   List.fold_left
-    (function partial_udbm_constraint_list ->
-      function unit_clock_constraint ->
-        (unit_clock_constraint_to_udbm_constraint_list
-           clock_names
-           unit_clock_constraint)
-          @
-          partial_udbm_constraint_list
+    (function
+    | None -> (function unit_clock_constraint -> None)
+    | (Some partial_raw_t) ->
+      (function unit_clock_constraint -> 
+        (match
+          unit_clock_constraint_to_udbm_constraint_list_option
+            clock_names
+            unit_clock_constraint
+        with
+          None -> None
+        | Some constraint_t_list ->
+          let
+              dst =
+            List.fold_left (*We just KNOW this folding will work.*)
+              (function partial_raw_t ->
+                function constraint_t ->
+                  dbm_constrainC
+                    partial_raw_t
+                    dim
+                    constraint_t
+              )
+              (dbm_init dim)
+              constraint_t_list
+          in
+          if
+            (dbm_haveIntersection
+               dst
+               partial_raw_t
+               dim
+            )
+          then
+            Some (dbm_intersection partial_raw_t dst dim)
+          else
+            None
+        )
+      )
     )
-    []
+    (* (function partial_raw_t_option -> *)
+    (*   function unit_clock_constraint -> *)
+    (*     None *)
+    (* ) *)
+    (Some (dbm_init dim))
     clock_constraint
-
-let clock_constraint_to_raw_t clock_names clock_constraint =
-  List.fold_left
-    (function partial_raw_t ->
-      function constraint_t ->
-        dbm_constrainC
-          partial_raw_t
-          (1 + Array.length clock_names)
-          constraint_t
-    )
-    (dbm_init (1 + Array.length clock_names))
-    (clock_constraint_to_udbm_constraint_list
-       clock_names
-       clock_constraint
-    )
-

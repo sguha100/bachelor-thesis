@@ -70,8 +70,8 @@ CAMLprim value zone_dbm_finish (value dbm) {
 
 CAMLprim value zone_dbm_constrainC (value dbm, value dim, value c) {
   CAMLparam3(dbm, dim, c);
-  printf("(constraint_t_val(c))->i = %d\n", (constraint_t_val(c))->i);
-  printf("(constraint_t_val(c))->j = %d\n", (constraint_t_val(c))->j);
+  /* printf("(constraint_t_val(c))->i = %d\n", (constraint_t_val(c))->i); */
+  /* printf("(constraint_t_val(c))->j = %d\n", (constraint_t_val(c))->j); */
   dbm_constrainC(raw_t_val(dbm), Int_val(dim), *(constraint_t_val(c)));
   CAMLreturn (dbm);
 }
@@ -91,9 +91,24 @@ CAMLprim value zone_dbm_constraint2 (value i,
 
 CAMLprim value zone_dbm_isEmpty (value dbm, value dim) {
   CAMLparam2(dbm, dim);
-  if (dbm_isEmpty(raw_t_val(dbm), dim) == TRUE) {
+  if (dbm_isEmpty(raw_t_val(dbm), Int_val(dim)) == TRUE) {
     CAMLreturn (Val_int(1)); //ocaml true
   } else {
     CAMLreturn (Val_int(0)); //ocaml false
   }
+}
+
+CAMLprim value zone_dbm_haveIntersection (value dst, value src, value dim) {
+  CAMLparam3(dst, src, dim);
+  if (dbm_intersection(raw_t_val(dst), raw_t_val(src), Int_val(dim)) == TRUE) {
+    CAMLreturn (Val_int(1)); //ocaml true
+  } else {
+    CAMLreturn (Val_int(0)); //ocaml false
+  }
+}
+
+CAMLprim value zone_dbm_intersection (value dst, value src, value dim) {
+  CAMLparam3(dst, src, dim);
+  dbm_intersection(raw_t_val(dst), raw_t_val(src), Int_val(dim));
+  CAMLreturn (dst);
 }

@@ -7,3 +7,5 @@ external dbm_constrainC: raw_t -> int -> constraint_t -> raw_t =
 external dbm_constraint2: int -> int -> int -> bool -> constraint_t =
   "zone_dbm_constraint2"
 external dbm_isEmpty: raw_t -> int -> bool = "zone_dbm_isEmpty"
+external dbm_haveIntersection: raw_t -> raw_t -> int -> bool = "zone_dbm_haveIntersection"
+external dbm_intersection: raw_t -> raw_t -> int -> raw_t = "zone_dbm_intersection"
