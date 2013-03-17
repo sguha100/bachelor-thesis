@@ -229,7 +229,7 @@ let minimise_clock_constraint clock_constraint clock_name_list =
   in
   phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint)))))
 
-let split_zone_on_clock_constraint zone clock_constraint =
+let split_zone_on_clock_constraint zone clock_constraint clock_names=
   List.fold_left (*This is where we split by each of the constituents
                    of the constraint, one by one.*)
     (function zone_list ->
@@ -242,14 +242,24 @@ let split_zone_on_clock_constraint zone clock_constraint =
             function zone -> (*return the partial zone list augmented
                                with the zones we get from the
                                splitting of this zone.*)
-              (List.map
-                 (function unit_clock_constraint -> (*Yep, variable overuse.*)
-                   {zone_location = zone.zone_location;
-                    zone_constraint =
-                       unit_clock_constraint :: zone.zone_constraint
-                   }
+              (List.filter
+                 (function zone ->
+                 match
+                   (clock_constraint_to_raw_t_option clock_names zone.zone_constraint)
+                 with
+                   None -> false
+                 | _ -> true
                  )
-                 (split_on_unit_clock_constraint unit_clock_constraint)
+                 (List.map
+                    (function unit_clock_constraint -> (*Yep, variable overuse.*)
+                      {zone_location = zone.zone_location;
+                       zone_constraint =
+                          unit_clock_constraint :: zone.zone_constraint
+                      }
+                    )
+                    (split_on_unit_clock_constraint unit_clock_constraint)
+                 ) (*OK, this list contains all the possible zones,
+                     but some have to go.*)
               )
               @
                 partial_zone_list
@@ -267,7 +277,7 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
         List.fold_left
           (function partial_zone_list ->
             function zone ->
-              (split_zone_on_clock_constraint zone clock_constraint)
+              (split_zone_on_clock_constraint zone clock_constraint ta.clock_names)
               @
                 partial_zone_list
           )

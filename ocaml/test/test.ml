@@ -90,6 +90,7 @@ let test6 =
        zone_constraint = [Le ("X", 8); Ge ("X", 2)]
       }
       [Le ("X", 6); Ge ("X", 4)]
+      [|"X"|]
   in
   (Printf.sprintf "test6: %s" (string_of_int (List.length a)))
 
@@ -202,6 +203,7 @@ let _ =
   print_newline ();
   print_string test6;
   print_newline ();
+  print_string "test6 should be 3.\n";
   print_string test8;
   print_newline ();
   print_string test9;
