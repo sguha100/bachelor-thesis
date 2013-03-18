@@ -90,20 +90,20 @@ let minimise_clock_constraint clock_constraint clock_name_list =
               clock_constraint
           then
             Lt (cn, (List.fold_left
-                        (function current_min ->
-                          function Lt (cn1, n1) ->
-                            if
-                              cn1 = cn
-                            then
-                              min
-                                current_min
-                                n1
-                            else
-                              current_min
-                          | _ -> current_min
-                        )
-                        max_int
-                        clock_constraint
+                       (function current_min ->
+                         function Lt (cn1, n1) ->
+                           if
+                             cn1 = cn
+                           then
+                             min
+                               current_min
+                               n1
+                           else
+                             current_min
+                         | _ -> current_min
+                       )
+                       max_int
+                       clock_constraint
             ))
             ::
               (List.filter
@@ -127,20 +127,20 @@ let minimise_clock_constraint clock_constraint clock_name_list =
               clock_constraint
           then
             Le (cn, (List.fold_left
-                        (function current_min ->
-                          function Le (cn1, n1) ->
-                            if
-                              cn1 = cn
-                            then
-                              min
-                                current_min
-                                n1
-                            else
-                              current_min
-                          | _ -> current_min
-                        )
-                        max_int
-                        clock_constraint
+                       (function current_min ->
+                         function Le (cn1, n1) ->
+                           if
+                             cn1 = cn
+                           then
+                             min
+                               current_min
+                               n1
+                           else
+                             current_min
+                         | _ -> current_min
+                       )
+                       max_int
+                       clock_constraint
             ))
             ::
               (List.filter
@@ -164,20 +164,20 @@ let minimise_clock_constraint clock_constraint clock_name_list =
               clock_constraint
           then
             Ge (cn, (List.fold_left
-                        (function current_max ->
-                          function Ge (cn1, n1) ->
-                            if
-                              cn1 = cn
-                            then
-                              max
-                                current_max
-                                n1
-                            else
-                              current_max
-                          | _ -> current_max
-                        )
-                        min_int
-                        clock_constraint
+                       (function current_max ->
+                         function Ge (cn1, n1) ->
+                           if
+                             cn1 = cn
+                           then
+                             max
+                               current_max
+                               n1
+                           else
+                             current_max
+                         | _ -> current_max
+                       )
+                       min_int
+                       clock_constraint
             ))
             ::
               (List.filter
@@ -201,20 +201,20 @@ let minimise_clock_constraint clock_constraint clock_name_list =
               clock_constraint
           then
             Gt (cn, (List.fold_left
-                        (function current_max ->
-                          function Gt (cn1, n1) ->
-                            if
-                              cn1 = cn
-                            then
-                              max
-                                current_max
-                                n1
-                            else
-                              current_max
-                          | _ -> current_max
-                        )
-                        min_int
-                        clock_constraint
+                       (function current_max ->
+                         function Gt (cn1, n1) ->
+                           if
+                             cn1 = cn
+                           then
+                             max
+                               current_max
+                               n1
+                           else
+                             current_max
+                         | _ -> current_max
+                       )
+                       min_int
+                       clock_constraint
             ))
             ::
               (List.filter
@@ -244,17 +244,18 @@ let split_zone_on_clock_constraint zone clock_constraint clock_names=
                                splitting of this zone.*)
               (List.filter
                  (function zone ->
-                 match
-                   (clock_constraint_to_raw_t_option clock_names zone.zone_constraint)
-                 with
-                   None -> false
-                 | _ -> true
+                   match
+                     (clock_constraint_to_raw_t_option clock_names zone.zone_constraint)
+                   with
+                     None -> false
+                   | _ -> true
                  )
                  (List.map
                     (function unit_clock_constraint -> (*Yep, variable overuse.*)
                       {zone_location = zone.zone_location;
                        zone_constraint =
-                          unit_clock_constraint :: zone.zone_constraint
+                          (unit_clock_constraint ::
+                             zone.zone_constraint)
                       }
                     )
                     (split_on_unit_clock_constraint unit_clock_constraint)
@@ -271,15 +272,28 @@ let split_zone_on_clock_constraint zone clock_constraint clock_names=
     clock_constraint
 
 let split_zone_list_on_constraint_list zone_list constraint_list ta =
+  let
+      clock_name_list = (Array.to_list ta.clock_names)
+  in
   List.fold_left
     (function zone_list ->
       function clock_constraint ->
         List.fold_left
           (function partial_zone_list ->
             function zone ->
-              (split_zone_on_clock_constraint zone clock_constraint ta.clock_names)
-              @
-                partial_zone_list
+              (List.map
+                 (function zone ->
+                   {zone_location = zone.zone_location;
+                    zone_constraint =
+                       (minimise_clock_constraint
+                          zone.zone_constraint
+                          clock_name_list)
+                   }
+                 )
+                 ((split_zone_on_clock_constraint zone clock_constraint ta.clock_names)
+                  @
+                    partial_zone_list)
+              )
           )
           []
           zone_list
@@ -292,87 +306,95 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   flush stdout;
   match queue with
     [] -> (queue, zone_list_array, tree_array)
-  | qhd::qtl -> (
-    match
-      tree_array.(qhd)
-    with
-      [] ->
-        Printf.printf
-          "qhd = %s, zone_list length = %s before split\n"
-          (string_of_int qhd)
-          (string_of_int (List.length zone_list_array.(qhd)));
-        flush stdout;
-        let
-            constraint_list =
-          (ta.locations.(qhd).invariant
-           ::
-             (List.fold_left
-                (function partial_clock_constraint_list ->
-                  function departure ->
-                    ([departure.condition
-                     ;
-                      (List.filter
-                         (function unit_clock_constraint ->
-                           match
-                             unit_clock_constraint
-                           with
-                             True
-                           | False -> false
-                           | Lt (cn, n)
-                           | Le (cn, n)
-                           | Eq (cn, n)
-                           | Ge (cn, n)
-                           | Gt (cn, n) ->
-                             (not (List.exists
-                                     ((=) cn)
-                                     (Array.to_list departure.clock_resets)
-                              ))
-                         )
-                         ta.locations.(departure.next_location).invariant
+  | qhd::qtl ->
+    let
+        queue = qtl
+    in
+    Printf.printf
+      "qhd = %s, zone_list length = %s before split\n"
+      (string_of_int qhd)
+      (string_of_int (List.length zone_list_array.(qhd)));
+    flush stdout;
+    (
+      match
+        tree_array.(qhd)
+      with
+        [] ->
+          let
+              constraint_list =
+            (ta.locations.(qhd).invariant
+             ::
+               (List.fold_left
+                  (function partial_clock_constraint_list ->
+                    function departure ->
+                      ([departure.condition
+                       ;
+                        (List.filter
+                           (function unit_clock_constraint ->
+                             match
+                               unit_clock_constraint
+                             with
+                               True
+                             | False -> false
+                             | Lt (cn, n)
+                             | Le (cn, n)
+                             | Eq (cn, n)
+                             | Ge (cn, n)
+                             | Gt (cn, n) ->
+                               (not (List.exists
+                                       ((=) cn)
+                                       (Array.to_list departure.clock_resets)
+                                ))
+                           )
+                           ta.locations.(departure.next_location).invariant
+                        )
+                       ]
+                       @
+                         partial_clock_constraint_list
                       )
-                     ]
-                     @
-                       partial_clock_constraint_list
-                    )
-                )
-                []
-                (Array.to_list ta.locations.(qhd).departures)
-             )
+                  )
+                  []
+                  (Array.to_list ta.locations.(qhd).departures)
+               )
+            )
+          in
+          (Printf.printf
+             "constraint_list length = %s\n"
+             (string_of_int (List.length constraint_list))
+          );
+          flush stdout;
+          (zone_list_array.(qhd) <-
+             (split_zone_list_on_constraint_list
+                zone_list_array.(qhd)
+                constraint_list
+                ta)
           )
-        in
-        (Printf.printf
-           "constraint_list length = %s\n"
-           (string_of_int (List.length constraint_list))
-        );
-        flush stdout;
-        (zone_list_array.(qhd) <-
-           split_zone_list_on_constraint_list
-            zone_list_array.(qhd)
-            constraint_list
-            ta
-        ) ;
-        Printf.printf
-          "qhd = %s, zone_list length = %s after split\n"
-          (string_of_int qhd)
-          (string_of_int (List.length zone_list_array.(qhd)));
-        flush stdout
-    | thd::ttl ->
-      zone_list_array.(qhd) <-
-        (split_zone_list_on_constraint_list
-           zone_list_array.(qhd)
-           (List.map
-              (function zone -> zone.zone_constraint)
-              zone_list_array.(thd)
-           )
-           ta)
-  )
+      | thd::ttl ->
+        zone_list_array.(qhd) <-
+          (split_zone_list_on_constraint_list
+             zone_list_array.(qhd)
+             (List.map
+                (function zone -> zone.zone_constraint)
+                zone_list_array.(thd)
+             )
+             ta)
+    ) ;
+    Printf.printf
+      "qhd = %s, zone_list length = %s after split\n"
+      (string_of_int qhd)
+      (string_of_int (List.length zone_list_array.(qhd)));
+    flush stdout
     ;
-    (Printf.printf "Starting with elements of the tree of qhd.\n");
+    (Printf.printf
+       "Starting with %s elements of the tree of qhd.\n"
+       (string_of_int (List.length tree_array.(qhd))));
     flush stdout;
     (List.fold_left
        (function this_must_be_a_unit ->
          function tree_element ->
            this_must_be_a_unit;
+           (Printf.printf "constraint_list length = %s\n"
+              (string_of_int (List.length zone_list_array.(qhd))));
            let
                constraint_list =
              (List.map
@@ -382,12 +404,33 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 zone_list_array.(qhd)
              )
            in
-           zone_list_array.(tree_element) <-
+           let
+               changed_zone_list =
              (split_zone_list_on_constraint_list
                 zone_list_array.(tree_element)
                 constraint_list
                 ta
-             );
+             )
+           in
+           queue =
+               if
+                 (List.length changed_zone_list
+                  <>
+                    List.length zone_list_array.(tree_element)
+                 )
+                   &&
+                   (List.for_all
+                      ((<>) tree_element)
+                      queue
+                   )
+               then
+                 tree_element::queue
+               else
+                 queue
+           ;
+           zone_list_array.(tree_element) <-
+             changed_zone_list
+           ;
            if
              (List.exists
                 ((=) qhd)
@@ -405,23 +448,33 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     (Printf.printf "Done with elements of the tree of qhd.\n");
     flush stdout;
+    (* let *)
+    (*     queue = *)
+    (*   (List.filter *)
+    (*      (function thd -> *)
+    (*        (List.exists *)
+    (*           (function tree_element -> *)
+    (*             List.for_all *)
+    (*               ((<>) tree_element) *)
+    (*               tree_array.(qhd) *)
+    (*           ) *)
+    (*           tree_array.(thd) *)
+    (*        ) *)
+    (*        && *)
+    (*          (List.for_all *)
+    (*             ((<>) thd) *)
+    (*             queue *)
+    (*          ) (\*This expression prevents queue duplication.*\) *)
+    (*      ) *)
+    (*      tree_array.(qhd)) @ queue *)
+    (* in *)
     let
-        queue =
-      (List.filter
-         (function thd ->
-           List.exists
-             (function tree_element ->
-               List.for_all
-                 ((<>) tree_element)
-                 tree_array.(qhd)
-             )
-             tree_array.(thd)
-         )
-         tree_array.(qhd)) @ qtl
-    in
-    let
-        successors = (Array.to_list
-                        ta.locations.(qhd).departures)
+        successors = 
+      (List.map
+         (function departure -> departure.next_location)
+         (Array.to_list
+            ta.locations.(qhd).departures)
+      )
     in
     (Printf.printf "Starting with successors of qhd.\n");
     flush stdout;
@@ -443,12 +496,32 @@ let dequeue ta (queue, zone_list_array, tree_array) =
              "constraint_list length = %s\n"
              (string_of_int (List.length constraint_list));
            flush stdout;
-           zone_list_array.(successor) <-
+           let
+               changed_zone_list =
              (split_zone_list_on_constraint_list
                 zone_list_array.(successor)
                 constraint_list
                 ta
-             );
+             )
+           in
+           queue =
+               if
+                 (List.length changed_zone_list
+                  <>
+                    List.length zone_list_array.(successor)
+                 )
+                   &&
+                   (List.for_all
+                      ((<>) successor)
+                      queue
+                   )
+               then
+                 successor::queue
+               else
+                 queue
+           ;
+           zone_list_array.(successor) <-
+             changed_zone_list;
            Printf.printf "A successor left.\n";
            if
              (List.exists
@@ -463,31 +536,34 @@ let dequeue ta (queue, zone_list_array, tree_array) =
              );
        )
        ()
-       (List.map
-          (function departure -> departure.next_location)
-          successors
-       )
+       successors
     );
     (Printf.printf "Done with the successors of qhd.\n");
     (flush stdout);
-    let
-        queue =
-      Printf.printf "queue length then = %s\n" (string_of_int
-                                                  (List.length
-                                                     queue));
-      flush stdout;
-      (List.filter
-         (function thd ->
-           List.exists
-             (function tree_element ->
-               List.for_all
-                 ((<>) tree_element)
-                 tree_array.(qhd)
-             )
-             tree_array.(thd)
-         )
-         tree_array.(qhd)) @ queue
-    in
+    (* let *)
+    (*     queue = *)
+    (*   Printf.printf "queue length then = %s\n" (string_of_int *)
+    (*                                               (List.length *)
+    (*                                                  queue)); *)
+    (*   flush stdout; *)
+    (*   (List.filter *)
+    (*      (function successor -> *)
+    (*        (List.exists *)
+    (*           (function tree_element -> *)
+    (*             List.for_all *)
+    (*               ((<>) tree_element) *)
+    (*               tree_array.(qhd) *)
+    (*           ) *)
+    (*           tree_array.(successor) *)
+    (*        ) *)
+    (*        && *)
+    (*          (List.for_all *)
+    (*             ((<>) successor) *)
+    (*             queue *)
+    (*          ) *)
+    (*      ) *)
+    (*      successors) @ queue *)
+    (* in *)
     Printf.printf "queue length now = %s\n" (string_of_int
                                                (List.length queue));
     flush stdout;
