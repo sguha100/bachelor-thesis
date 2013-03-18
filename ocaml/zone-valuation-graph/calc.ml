@@ -2,6 +2,8 @@
 open Parse_timed_automaton
 open Graph_functions
 open Grammar_types
+open UDBM_utilities
+open Zone_stubs
 
 let _ =
   let result = parse_timed_automaton stdin in
@@ -49,6 +51,38 @@ let _ =
              )
           )
         ;
+        Printf.printf "trans:\n";
+        List.iter
+          (function departure ->
+            Printf.printf
+              "ACT %s; RESET { %s }; goto %s\n"
+              (string_of_int departure.action)
+              (String.concat
+                 " "
+                 (Array.to_list departure.clock_resets)
+              )
+              (string_of_int departure.next_location)
+          )
+          (List.filter
+             (function departure ->
+               match
+                 (clock_constraint_to_raw_t_option
+                    result.clock_names
+                    departure.condition)
+               with
+                 None -> false
+               | Some dst ->
+                 (match
+                     (clock_constraint_to_raw_t_option
+                        result.clock_names
+                        zone.zone_constraint)
+                  with
+                    None -> false
+                  | Some src -> (dbm_haveIntersection dst src (1 + result.numclocks))
+                 )
+             )
+             (Array.to_list result.locations.(i).departures)
+          )
       )
       g.(i)
     ;
