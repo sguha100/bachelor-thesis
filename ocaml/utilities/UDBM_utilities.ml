@@ -140,3 +140,20 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
     (* ) *)
     (Some (dbm_init dim))
     clock_constraint
+
+let clock_constraint_haveIntersection clock_names c1 c2 =
+    match
+      (clock_constraint_to_raw_t_option
+         clock_names
+         c1)
+    with
+      None -> false
+    | Some dst ->
+      (match
+          (clock_constraint_to_raw_t_option
+             clock_names
+             c2)
+       with
+         None -> false
+       | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
+      )
