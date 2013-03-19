@@ -1,5 +1,6 @@
 open Grammar_types
 open Unit_constraint_intersection
+open Zone_stubs
 open UDBM_utilities
 open Fernandez
 
@@ -449,26 +450,6 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     (Printf.printf "Done with elements of the tree of qhd.\n");
     flush stdout;
-    (* let *)
-    (*     queue = *)
-    (*   (List.filter *)
-    (*      (function thd -> *)
-    (*        (List.exists *)
-    (*           (function tree_element -> *)
-    (*             List.for_all *)
-    (*               ((<>) tree_element) *)
-    (*               tree_array.(qhd) *)
-    (*           ) *)
-    (*           tree_array.(thd) *)
-    (*        ) *)
-    (*        && *)
-    (*          (List.for_all *)
-    (*             ((<>) thd) *)
-    (*             queue *)
-    (*          ) (\*This expression prevents queue duplication.*\) *)
-    (*      ) *)
-    (*      tree_array.(qhd)) @ queue *)
-    (* in *)
     let
         successors = 
       (List.map
@@ -541,30 +522,6 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     (Printf.printf "Done with the successors of qhd.\n");
     (flush stdout);
-    (* let *)
-    (*     queue = *)
-    (*   Printf.printf "queue length then = %s\n" (string_of_int *)
-    (*                                               (List.length *)
-    (*                                                  queue)); *)
-    (*   flush stdout; *)
-    (*   (List.filter *)
-    (*      (function successor -> *)
-    (*        (List.exists *)
-    (*           (function tree_element -> *)
-    (*             List.for_all *)
-    (*               ((<>) tree_element) *)
-    (*               tree_array.(qhd) *)
-    (*           ) *)
-    (*           tree_array.(successor) *)
-    (*        ) *)
-    (*        && *)
-    (*          (List.for_all *)
-    (*             ((<>) successor) *)
-    (*             queue *)
-    (*          ) *)
-    (*      ) *)
-    (*      successors) @ queue *)
-    (* in *)
     Printf.printf "queue length now = %s\n" (string_of_int
                                                (List.length queue));
     flush stdout;
@@ -584,14 +541,50 @@ let rec empty_queue ta (queue, zone_list_array, tree_array) =
   )
 
 let generate_zone_valuation_graph ta =
-  match
-    (empty_queue
-       ta
-       ([ta.numinit],
-        (init_zone_list_array ta),
-        (init_tree_array ta)
-       )
-    )
-  with
-    (_, zone_list_array, _) -> zone_list_array
+  let zone_list_array = 
+    match
+      (empty_queue
+         ta
+         ([ta.numinit],
+          (init_zone_list_array ta),
+          (init_tree_array ta)
+         )
+      )
+    with
+      (_, zone_list_array, _) -> zone_list_array
+  in
+  let
+      graph = 
+    Array.map
+      (function zone_list ->
+        List.map
+          (function zone ->
+            (zone,
+             (List.filter
+                (function departure ->
+                  match
+                    (clock_constraint_to_raw_t_option
+                       ta.clock_names
+                       departure.condition)
+                  with
+                    None -> false
+                  | Some dst ->
+                    (match
+                        (clock_constraint_to_raw_t_option
+                           ta.clock_names
+                           zone.zone_constraint)
+                     with
+                       None -> false
+                     | Some src -> (dbm_haveIntersection dst src (1 + ta.numclocks))
+                    )
+                )
+                (Array.to_list ta.locations.(zone.zone_location).departures)
+             )
+            )
+          )
+          zone_list
+      )
+      zone_list_array
+  in
+  graph
 
