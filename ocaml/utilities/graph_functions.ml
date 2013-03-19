@@ -1,6 +1,7 @@
 open Grammar_types
 open Unit_constraint_intersection
 open UDBM_utilities
+open Fernandez
 
 let unit_clock_constraint_max unit_clock_constraint cn =
   match
@@ -593,3 +594,4 @@ let generate_zone_valuation_graph ta =
     )
   with
     (_, zone_list_array, _) -> zone_list_array
+

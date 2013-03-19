@@ -97,3 +97,7 @@ Rules.mk \
 _tags \
 myocamlbuild.ml
 	ocamlbuild calc.top
+
+Fernandez_modules.cmo: fernandez-ocaml-noweb/Fernandez_modules.ml
+	ocamlbuild Fernandez_modules.cmo
+

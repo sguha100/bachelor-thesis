@@ -3,7 +3,8 @@ dirstack_$(sp) := $(d)
 d := $(dir)
 
 TGT_$(d) := fernandez_app.native $(d)/fernandez_app.ml \
- $(d)/fernandez.ml $(d)/fernandez.mli $(d)/fernandez.html
+ $(d)/fernandez.ml $(d)/fernandez.mli $(d)/fernandez.html \
+Fernandez_modules.cmo
 
 # all:fernandez.ml fernandez.mli fernandez_app.native fernandez.html
 
@@ -29,6 +30,9 @@ $(d)/fernandez.ml:$(d)/fernandez.nw;echo $(d)
 
 $(d)/fernandez.mli:$(d)/fernandez.nw
 	notangle -Rfernandez.mli $(d)/fernandez.nw > $(d)/fernandez.mli
+
+$(d)/Fernandez_modules.ml:$(d)/fernandez.nw
+	notangle -RFernandez_modules.ml $(d)/fernandez.nw > $(d)/Fernandez_modules.ml
 
 $(d)/fernandez.html:$(d)/fernandez.nw
 	noweave -filter l2h -index -html $(d)/fernandez.nw | htmltoc \

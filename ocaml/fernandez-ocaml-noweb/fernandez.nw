@@ -54,13 +54,13 @@ let getblock n = Array.to_list (Array.init n (function index -> index))
 \item $t$ is the tree, $x$ is the formerly simple block that was
   split into the new simple blocks $x1$ and $x2$.
 <<fernandez.ml>>=
-let rec twowayupdatetree t x x1 x2 =
+let rec two_way_update_tree t x x1 x2 =
   match t with
     Simple t0 -> if (t0.indices = x.indices) then (Compound (x, Simple x1, Simple x2), true) else (t, false)
   | Compound (t0, t1, t2) -> (
-      match (twowayupdatetree t1 x x1 x2) with
+      match (two_way_update_tree t1 x x1 x2) with
 	(_, false) -> (
-	  match (twowayupdatetree t2 x x1 x2) with
+	  match (two_way_update_tree t2 x x1 x2) with
 	    (_, false) -> (t, false)
 	  | (tt2, true) -> (Compound (t0, t1, tt2), true)
 	 )
@@ -71,11 +71,11 @@ let rec twowayupdatetree t x x1 x2 =
 \item $w$ is the queue, $x$ is the formerly simple block that was
   split into the new simple blocks $x1$ and $x2$.
 <<fernandez.ml>>=
-let rec twowayupdatequeue w x x1 x2 =
+let rec two_way_update_queue w x x1 x2 =
   match w with
     [] -> [Compound (x, Simple x1, Simple x2)]
-  | t::ts -> (match (twowayupdatetree t x x1 x2) with
-      (_, false) -> t::(twowayupdatequeue ts x x1 x2)
+  | t::ts -> (match (two_way_update_tree t x x1 x2) with
+      (_, false) -> t::(two_way_update_queue ts x x1 x2)
     | (tt, true) -> tt::ts
      )
 
@@ -98,7 +98,7 @@ let rec twowayupdatequeue w x x1 x2 =
 @ 
 \item $l$ is the lts, $x$ is the block being split, $b$ is the simple splitter, $a$ is the action.
 <<fernandez.ml>>=
- let simplesplitblockonaction l x b a =
+ let simple_split_block_on_action l x b a =
    match
      List.partition (function xelem -> List.exists (function belem ->
        List.exists (function (aa, nl) -> a=aa && List.mem xelem nl)
@@ -115,7 +115,7 @@ let rec twowayupdatequeue w x x1 x2 =
   T_{a}^{-1}[b1]$, and
   $x - T_{a}^{-1}[b2] - T_{a}^{-1}[b1]$.
 <<fernandez.ml>>=
-let compoundsplitblockonaction l x b b1 b2 a = let 
+let compound_split_block_on_action l x b b1 b2 a = let 
 (b1, b2) = if ((List.length b2.indices) < (List.length b1.indices))
   then (b2, b1) else (b1, b2)
  in match
@@ -140,14 +140,14 @@ let compoundsplitblockonaction l x b b1 b2 a = let
   \item $l$ is the LTS,  $w$ is the queue,  $xl$ is the list of blocks
   being split,  $b$ is the simple splitter,  $a$ is the action.
 <<fernandez.ml>>=
-let rec simplesplitblocksonaction l (w, xl) b a =
+let rec simple_split_blocks_on_action l (w, xl) b a =
   match xl with
     [] -> (w, [])
-  | x::xs -> (let (ww, xxs) = (simplesplitblocksonaction l (w, xs) b
-  a) in (match (simplesplitblockonaction l x b a) with
+  | x::xs -> (let (ww, xxs) = (simple_split_blocks_on_action l (w, xs) b
+  a) in (match (simple_split_block_on_action l x b a) with
     ({indices= []; info= _}, x2) -> (ww, x2::xxs)
     | (x1, {indices=[]; info= _}) -> (ww, x1::xxs)
-    | (x1, x2) -> (let www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
+    | (x1, x2) -> (let www = (two_way_update_queue ww x x1 x2) in (www, x1::x2::xxs))
 									   ))
 
 @ 
@@ -155,11 +155,11 @@ let rec simplesplitblocksonaction l (w, xl) b a =
       being split, $b$ is the compound  splitter which consists of
 	  blocks $b1$ and $b2$, $a$ is the action.
 <<fernandez.ml>>=
-let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
+let rec compound_split_blocks_on_action l (w, xl) b b1 b2 a =
   match xl with
     [] -> (w, [])
-  | x::xs -> (let (ww, xxs) = (compoundsplitblocksonaction l (w, xs) b
-  b1 b2 a) in (match (compoundsplitblockonaction l x b b1 b2 a) with
+  | x::xs -> (let (ww, xxs) = (compound_split_blocks_on_action l (w, xs) b
+  b1 b2 a) in (match (compound_split_block_on_action l x b b1 b2 a) with
       (({indices=[]; info=_}, {indices=[]; info=_}), ({indices=[];
   info=_}, x4)) -> (ww, x4::xxs)
     | (({indices=[]; info=_}, x1), ({indices=[]; info=_}, {indices=[];
@@ -169,18 +169,18 @@ let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
     | ((x3, {indices=[]; info=_}), ({indices=[]; info=_}, {indices=[];
   info=_})) -> (ww, x3::xxs)
     | ((x3, x1), ({indices=[]; info=_}, {indices=[]; info=_})) -> (let
-  www = (twowayupdatequeue ww x x3 x1) in (www, x3::x1::xxs))
+  www = (two_way_update_queue ww x x3 x1) in (www, x3::x1::xxs))
     | ((x3, {indices=[]; info=_}), (x2, {indices=[]; info=_})) -> (let
-  www = (twowayupdatequeue ww x x3 x2) in (www, x3::x2::xxs))
+  www = (two_way_update_queue ww x x3 x2) in (www, x3::x2::xxs))
     | (({indices=[]; info=_}, x1), (x2, {indices=[]; info=_})) -> (let
-  www = (twowayupdatequeue ww x x1 x2) in (www, x1::x2::xxs))
+  www = (two_way_update_queue ww x x1 x2) in (www, x1::x2::xxs))
     | ((x3, x1), (x2, {indices=[]; info=_})) -> (let www = (let x23 =
   {indices = x2.indices@x3.indices; info = (List.map2 (function (aa2,
   nl2) -> (function (aa3, nl3) -> (aa2, Array.of_list(List.map2
   (function nl2elem -> (function nl3elem -> nl2elem + nl3elem))
   (Array.to_list nl2) (Array.to_list nl3))))) x2.info x3.info)} in
-  (twowayupdatequeue
-  (twowayupdatequeue ww x x1 x23) x23 x2 x3)) in (www,
+  (two_way_update_queue
+  (two_way_update_queue ww x x1 x23) x23 x2 x3)) in (www,
   x1::x2::x3::xxs))
      ))
 
@@ -191,12 +191,12 @@ let rec compoundsplitblocksonaction l (w, xl) b b1 b2 a =
 (*
   alias for sanity
  *)
-let splitpartitiononaction l (w, pi) sp a = match sp with
-  Simple b -> simplesplitblocksonaction l (w, pi) b a
-| Compound (b, Simple b1, Simple b2) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
-| Compound (b, Compound (b1, _, _), Simple b2) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
-| Compound (b, Simple b1, Compound (b2, _, _)) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
-| Compound (b, Compound (b1, _, _), Compound (b2, _, _)) -> compoundsplitblocksonaction l (w, pi) b b1 b2 a
+let split_partition_on_action l (w, pi) sp a = match sp with
+  Simple b -> simple_split_blocks_on_action l (w, pi) b a
+| Compound (b, Simple b1, Simple b2) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+| Compound (b, Compound (b1, _, _), Simple b2) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+| Compound (b, Simple b1, Compound (b2, _, _)) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+| Compound (b, Compound (b1, _, _), Compound (b2, _, _)) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
 
 @ 
   \item $l$ is the LTS, $pi$ is the partition being split, $w$ is the
@@ -205,10 +205,10 @@ let splitpartitiononaction l (w, pi) sp a = match sp with
 <<fernandez.ml>>=
 (*
  *)
-let rec splitpartitiononactions l (w, pi) b a =
+let rec split_partition_on_actions l (w, pi) b a =
   match a with
-    0 -> splitpartitiononaction l (w, pi) b 0
-  | a -> splitpartitiononaction l (splitpartitiononactions l (w, pi) b (a-1)) b a
+    0 -> split_partition_on_action l (w, pi) b 0
+  | a -> split_partition_on_action l (split_partition_on_actions l (w, pi) b (a-1)) b a
 
 @ 
 \item $l$ is the LTS, $w$ is the queue, $pi$ is the partition being
@@ -216,10 +216,10 @@ let rec splitpartitiononactions l (w, pi) b a =
 <<fernandez.ml>>=
 let dequeue l (w, pi) = match w with
   [] -> ([], pi)
-| (Simple b)::wtail -> splitpartitiononactions l (wtail, pi) (Simple
+| (Simple b)::wtail -> split_partition_on_actions l (wtail, pi) (Simple
 								b)
   (l.actions - 1)
-| (Compound (b, b1, b2))::wtail -> splitpartitiononactions l
+| (Compound (b, b1, b2))::wtail -> split_partition_on_actions l
   (wtail@[b1; b2], pi) (Compound (b, b1, b2)) (l.actions - 1)
 
 @ 
@@ -257,13 +257,13 @@ let b1 = getblockfromindices lts1 [0; 1; 2; 3; 4; 5; 6; 7]
 let pi1 = [getblockfromindices lts1 [0; 1; 2; 3; 4; 5; 6; 7]]
 let a1 = 0
 let w1 = []
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let (w1, pi1) = simple_split_blocks_on_action lts1 (w1, pi1) b1 a1
 let array1 = getinfobyaction lts1 b1.indices a1
 let list1 = getblockfromindices lts1 b1.indices
 let a1 = 1
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let (w1, pi1) = simple_split_blocks_on_action lts1 (w1, pi1) b1 a1
 let a1 = 2
-let (w1, pi1) = simplesplitblocksonaction lts1 (w1, pi1) b1 a1
+let (w1, pi1) = simple_split_blocks_on_action lts1 (w1, pi1) b1 a1
 let b2 = {indices = [0; 1; 2; 3; 4; 5; 6; 7]; info = []}
 let b3 = {indices = [0; 1; 4; 5]; info = []}
 let b4 = {indices = [2; 3; 6; 7]; info = []}
@@ -304,3 +304,282 @@ val lts2: lts
 @ 
 <<fernandez_app.ml>>=
 let _ = (let (w3, pi3) = Fernandez.fernandez Fernandez.lts2 in exit 0)
+
+@ 
+<<Fernandez_modules.ml>>=
+module type LTS_TYPE =
+sig
+  type node_ref_t
+  type action_t
+  type lts_t
+  val expand_node: node_ref_t -> string list
+  val expand_action: action_t -> string
+  val nodes: lts_t -> node_ref_t list
+  val actions: lts_t -> action_t list
+  val in_adjacency: lts_t -> node_ref_t -> (action_t * (node_ref_t list)) list
+end
+
+module LTS =
+  functor (LT: LTS_TYPE) ->
+struct
+  type node_ref_t = LT.node_ref_t
+  type action_t = LT.action_t
+      (* type lts = {nodes: node_ref_t array; actions: action_t
+  array} *)
+  let expand_node = LT.expand_node
+  let expand_action = LT.expand_action
+  let nodes = LT.nodes
+  let actions = LT.actions
+  let in_adjacency = LT.in_adjacency
+  type block =
+    {node_refs: node_ref_t list;
+     info: (action_t -> (node_ref_t -> int))}
+  type partition = block list
+  type splitter = Simple of block | Compound of (block * splitter *
+                                                   splitter)
+  let rec two_way_update_tree t x x1 x2 =
+    match t with
+      Simple t0 ->
+        if
+          (
+                (List.for_all
+                   (function t0elem ->
+                     (List.exists ((=) t0elem) x.node_refs)
+                   )
+                   t0.node_refs
+                )
+                &&
+                (List.for_all
+                   (function xelem ->
+                     (List.exists ((=) xelem) t0.node_refs)
+                   )
+                   x.node_refs
+                )
+          ) 
+        then
+          (Compound (x, Simple x1, Simple x2), true)
+        else
+          (t, false)
+    | Compound (t0, t1, t2) -> (
+      match
+        (two_way_update_tree t1 x x1 x2)
+      with
+        (_, false) -> (
+          match
+            (two_way_update_tree t2 x x1 x2)
+          with
+            (_, false) -> (t, false)
+          | (tt2, true) -> (Compound (t0, t1, tt2), true)
+         )
+      | (tt1, true) -> (Compound (t0, tt1, t2), true)
+    )
+
+  let rec two_way_update_queue w x x1 x2 =
+    match w with
+      [] -> [Compound (x, Simple x1, Simple x2)]
+    | t::ts -> (match (two_way_update_tree t x x1 x2) with
+      (_, false) -> t::(two_way_update_queue ts x x1 x2)
+      | (tt, true) -> tt::ts
+    )
+
+  let get_info l node_refs =
+    function a ->
+      function node_ref ->
+        List.length
+          (List.filter
+             (function belem ->
+               List.exists
+                 (function (aa, nl) -> a=aa && List.mem node_ref nl)
+                 (in_adjacency l belem)
+             )
+             node_refs)
+
+ let get_block_from_node_refs l node_refs =
+   {node_refs = node_refs;
+    info =
+       (get_info l node_refs)
+   }
+
+ let simple_split_block_on_action l x b a =
+   match
+     List.partition
+       (function xelem ->
+         List.exists
+           (function belem ->
+             List.exists
+               (function (aa, nl) -> a=aa && List.mem xelem nl)
+         (in_adjacency l belem))
+           b.node_refs) x.node_refs
+   with
+     (x1indices, x2indices) -> (get_block_from_node_refs l x1indices, get_block_from_node_refs l x2indices)
+
+ let compound_split_block_on_action l x b b1 b2 a =
+   let 
+     (b1, b2) =
+     if
+       ((List.length b2.node_refs) < (List.length b1.node_refs))
+     then
+       (b2, b1)
+     else
+       (b1, b2)
+   in
+   match
+     (List.partition
+        (function xelem -> (b1.info a xelem) > 0)
+        x.node_refs)
+  with
+    (y1, y2) ->
+      (match
+          (List.partition
+             (function xelem ->
+               (b1.info a xelem) < (b.info a xelem)
+             )
+             y1
+             ,
+           List.partition
+             (function xelem ->
+               (b.info a xelem) > 0
+               )
+             y2)
+       with
+         ((x3noderefs, x1noderefs), (x2noderefs, x4noderefs)) ->
+           ((get_block_from_node_refs l x3noderefs,
+             get_block_from_node_refs l x1noderefs),
+            (get_block_from_node_refs l x2noderefs,
+             get_block_from_node_refs l x4noderefs))
+      )
+        
+let rec simple_split_blocks_on_action l (w, xl) b a =
+  match xl with
+    [] -> (w, [])
+  | x::xs ->
+    (let
+        (ww, xxs) = (simple_split_blocks_on_action l (w, xs) b a)
+     in
+     (match (simple_split_block_on_action l x b a) with
+    ({node_refs= []; info= _}, x2) -> (ww, x2::xxs)
+    | (x1, {node_refs=[]; info= _}) -> (ww, x1::xxs)
+    | (x1, x2) -> (let www = (two_way_update_queue ww x x1 x2) in (www, x1::x2::xxs))
+                                                                           ))
+
+let rec compound_split_blocks_on_action l (w, xl) b b1 b2 a =
+  match xl with
+    [] -> (w, [])
+  | x::xs ->
+    (let
+        (ww, xxs) =
+       (compound_split_blocks_on_action l (w, xs) b b1 b2 a)
+     in
+     (match
+         (compound_split_block_on_action l x b b1 b2 a)
+      with
+        (({node_refs=[]; info=_}, {node_refs=[]; info=_}), ({node_refs=[];
+                                                         info=_}, x4)) ->
+          (ww, x4::xxs)
+      | (({node_refs=[]; info=_}, x1), ({node_refs=[]; info=_}, {node_refs=[];
+                                                             info=_})) ->
+        (ww, x1::xxs)
+    | (({node_refs=[]; info=_}, {node_refs=[]; info=_}), (x2, {node_refs=[];
+                                                           info=_})) ->
+      (ww, x2::xxs)
+    | ((x3, {node_refs=[]; info=_}), ({node_refs=[]; info=_}, {node_refs=[];
+                                                           info=_})) ->
+      (ww, x3::xxs)
+    | ((x3, x1), ({node_refs=[]; info=_}, {node_refs=[]; info=_})) ->
+      (let
+          www = (two_way_update_queue ww x x3 x1)
+       in
+       (www, x3::x1::xxs))
+    | ((x3, {node_refs=[]; info=_}), (x2, {node_refs=[]; info=_})) ->
+      (let
+          www = (two_way_update_queue ww x x3 x2)
+       in
+       (www, x3::x2::xxs))
+    | (({node_refs=[]; info=_}, x1), (x2, {node_refs=[]; info=_})) ->
+      (let
+          www = (two_way_update_queue ww x x1 x2)
+       in
+       (www, x1::x2::xxs))
+    | ((x3, x1), (x2, {node_refs=[]; info=_})) ->
+      (let www =
+         (let x23 =
+            {node_refs = x2.node_refs@x3.node_refs;
+             info =
+                (function a -> function node_ref ->
+                  x2.info a node_ref + x3.info a node_ref
+                )}
+          in
+          (two_way_update_queue
+             (two_way_update_queue ww x x1 x23) x23 x2 x3))
+       in
+       (www, x1::x2::x3::xxs))
+     ))
+
+let split_partition_on_action l (w, pi) sp a =
+  match
+    sp
+  with
+    Simple b -> simple_split_blocks_on_action l (w, pi) b a
+  | Compound (b, Simple b1, Simple b2) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+  | Compound (b, Compound (b1, _, _), Simple b2) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+  | Compound (b, Simple b1, Compound (b2, _, _)) -> compound_split_blocks_on_action l (w, pi) b b1 b2 a
+  | Compound (b, Compound (b1, _, _), Compound (b2, _, _)) ->
+    compound_split_blocks_on_action l (w, pi) b b1 b2 a
+
+let rec split_partition_on_actions l (w, pi) b action_list =
+  List.fold_left
+    (function (w, pi) ->
+      split_partition_on_action l (w, pi) b
+    )
+    (w, pi)
+    action_list
+
+let dequeue l (w, pi) =
+  match
+    w
+  with
+  [] -> ([], pi)
+| (Simple b)::wtail ->
+  split_partition_on_actions l (wtail, pi) (Simple b)
+  (actions l)
+| (Compound (b, b1, b2))::wtail ->
+  split_partition_on_actions
+    l
+    (wtail@[b1; b2], pi)
+    (Compound (b, b1, b2))
+    (actions l)
+
+let rec emptyqueue l (w, pi) =
+  match
+    w
+  with
+    [] -> ([], pi)
+  | whead::wtail -> emptyqueue l (dequeue l (w, pi))
+
+let fernandez l =
+  let
+      llistblock = (get_block_from_node_refs l (nodes l))
+  in
+  emptyqueue l ([Simple llistblock], [llistblock])
+
+end
+
+module SimpleLT =
+  struct
+    type node_ref_t = int
+    type action_t = int
+    type lts_t =
+      {action_count : action_t;
+       in_adjacencies: ((action_t *(node_ref_t list)) list) array}
+    let expand_node = function i -> [string_of_int i]
+    let expand_action = function a -> string_of_int a
+    let nodes=
+      function l ->
+        Array.to_list (Array.init (Array.length l.in_adjacencies) (function i -> i))
+    let actions =
+      function l ->
+        Array.to_list (Array.init l.action_count (function a-> a))
+    let in_adjacency = function l -> Array.get l.in_adjacencies
+  end
+
+module SimpleLTS = LTS (SimpleLT)
