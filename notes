@@ -44,3 +44,19 @@ Sanity checks?
 Other things
 -Simulate a finite run of an automaton. This is a useful debugging tool.
 
+19 March meeting
+-implement time abstracted bisimulation using region graphs (definitely, but in future)
+-finish LTS bisimilarity (imm.)
+-make a DOT representation(imm.)
+-CSMA/CD OK as an example
+-CSMA/CD not so great for pre-ordering relations like ours. 
+-ask shibashis for such an example.
+-one idea: tweak propagation delay and see whether the resulting automata are prebismilar (definitely, in future)
+-slides: use tripakis' paper to clarify
+-slides with theoretical things done by shibashis
+-slides explaining implementation
+-slide showing graphviz result on one TA (take from CAV paper).
+-initial slide explaining what project is about.
+-initial slide explaining what i've done since december.
+-conclude with what will we have at the end. (including time-abstracted bisimulation of some kind.)
+-comment code (later)
