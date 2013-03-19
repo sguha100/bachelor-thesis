@@ -566,21 +566,6 @@ let generate_zone_valuation_graph ta =
                     ta.clock_names
                     departure.condition
                     zone.zone_constraint
-                  (* match *)
-                  (*   (clock_constraint_to_raw_t_option *)
-                  (*      ta.clock_names *)
-                  (*      departure.condition) *)
-                  (* with *)
-                  (*   None -> false *)
-                  (* | Some dst -> *)
-                  (*   (match *)
-                  (*       (clock_constraint_to_raw_t_option *)
-                  (*          ta.clock_names *)
-                  (*          zone.zone_constraint) *)
-                  (*    with *)
-                  (*      None -> false *)
-                  (*    | Some src -> (dbm_haveIntersection dst src (1 + ta.numclocks)) *)
-                  (*   ) *)
                 )
                 (Array.to_list ta.locations.(zone.zone_location).departures)
              )
