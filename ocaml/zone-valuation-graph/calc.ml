@@ -53,7 +53,7 @@ let _ =
         ;
         Printf.printf "trans:\n";
         List.iter
-          (function departure ->
+          (function (departure, _) ->
             Printf.printf
               "ACT %s; RESET { %s }; goto %s\n"
               (string_of_int departure.action)

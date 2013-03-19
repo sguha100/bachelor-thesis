@@ -560,15 +560,50 @@ let generate_zone_valuation_graph ta =
         List.map
           (function zone ->
             (zone,
-             (List.filter
-                (function departure ->
-                  clock_constraint_haveIntersection
-                    ta.clock_names
-                    departure.condition
-                    zone.zone_constraint
-                )
-                (Array.to_list ta.locations.(zone.zone_location).departures)
-             )
+             let
+                 departures =
+               List.filter
+                 (function departure ->
+                   clock_constraint_haveIntersection
+                     ta.clock_names
+                     zone.zone_constraint
+                     departure.condition
+                 )
+                 (Array.to_list
+                    ta.locations.(zone.zone_location).departures)
+             in
+             List.map
+               (function departure ->
+                 (departure,
+                  List.filter
+                    (function arrival_zone ->
+                      clock_constraint_haveIntersection
+                        ta.clock_names
+                        zone.zone_constraint
+                        (List.filter
+                           (function unit_clock_constraint ->
+                             match
+                               unit_clock_constraint
+                             with
+                               True
+                             | False -> false
+                             | Lt (cn, n)
+                             | Le (cn, n)
+                             | Eq (cn, n)
+                             | Ge (cn, n)
+                             | Gt (cn, n) ->
+                               (not (List.exists
+                                       ((=) cn)
+                                       (Array.to_list departure.clock_resets)
+                                ))
+                           )
+                           arrival_zone.zone_constraint
+                        )
+                    )
+                    zone_list_array.(departure.next_location)
+                 )
+               )
+               departures
             )
           )
           zone_list
