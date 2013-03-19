@@ -34,3 +34,5 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/c/libzone.a
 /ocaml/c/zone_stubs.o
 /ocaml/grammar-noweb/timed_automaton_parser.mly
+/ocaml/zone-valuation-graph/#calc.ml#
+/ocaml/zone-valuation-graph/.#calc.ml
