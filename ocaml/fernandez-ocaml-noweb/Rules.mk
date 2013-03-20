@@ -31,9 +31,6 @@ $(d)/fernandez.ml:$(d)/fernandez.nw;echo $(d)
 $(d)/fernandez.mli:$(d)/fernandez.nw
 	notangle -Rfernandez.mli $(d)/fernandez.nw > $(d)/fernandez.mli
 
-$(d)/Fernandez_modules.ml:$(d)/fernandez.nw
-	notangle -RFernandez_modules.ml $(d)/fernandez.nw > $(d)/Fernandez_modules.ml
-
 $(d)/fernandez.html:$(d)/fernandez.nw
 	noweave -filter l2h -index -html $(d)/fernandez.nw | htmltoc \
 	>$(d)/fernandez.html
