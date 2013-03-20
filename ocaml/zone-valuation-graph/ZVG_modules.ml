@@ -25,7 +25,11 @@ module ZVGLT =
           )
     let actions =
       function l ->
-        Array.to_list (Array.init l.action_count (function a-> a))
+        Array.to_list
+          (Array.init
+             (1 + l.action_count) (*The extra action is -1, for time transitions.*)
+             (function a-> a - 1)
+          )
     let in_adjacency = function l -> function zone ->
       List.map
         (function a ->
