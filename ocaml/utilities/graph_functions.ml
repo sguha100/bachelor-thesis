@@ -4,6 +4,23 @@ open Zone_stubs
 open UDBM_utilities
 open Fernandez
 
+let string_of_clock_constraint clock_constraint =
+  (String.concat
+     " AND "
+     (List.map
+        (function
+        | True -> "TRUE"
+        | False -> "FALSE"
+        | Lt (cn, n) -> cn ^ " < " ^ (string_of_int n)
+        | Le (cn, n) -> cn ^ " <= " ^ (string_of_int n)
+        | Eq (cn, n) -> cn ^ " = " ^ (string_of_int n)
+        | Ge (cn, n) -> cn ^ " >= " ^ (string_of_int n)
+        | Gt (cn, n) -> cn ^ " > " ^ (string_of_int n)
+        )
+        clock_constraint
+     )
+  )
+
 let unit_clock_constraint_max unit_clock_constraint cn =
   match
     unit_clock_constraint
