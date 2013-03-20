@@ -374,24 +374,28 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                     function departure ->
                       ([departure.condition
                        ;
-                        (List.filter
-                           (function unit_clock_constraint ->
-                             match
-                               unit_clock_constraint
-                             with
-                               True
-                             | False -> false
-                             | Lt (cn, n)
-                             | Le (cn, n)
-                             | Eq (cn, n)
-                             | Ge (cn, n)
-                             | Gt (cn, n) ->
-                               (not (List.exists
-                                       ((=) cn)
-                                       (Array.to_list departure.clock_resets)
-                                ))
-                           )
+                        (* (List.filter *)
+                        (*    (function unit_clock_constraint -> *)
+                        (*      match *)
+                        (*        unit_clock_constraint *)
+                        (*      with *)
+                        (*        True *)
+                        (*      | False -> false *)
+                        (*      | Lt (cn, n) *)
+                        (*      | Le (cn, n) *)
+                        (*      | Eq (cn, n) *)
+                        (*      | Ge (cn, n) *)
+                        (*      | Gt (cn, n) -> *)
+                        (*        (not (List.exists *)
+                        (*                ((=) cn) *)
+                        (*                (Array.to_list departure.clock_resets) *)
+                        (*         )) *)
+                        (*    ) *)
+                        (*    ta.locations.(departure.next_location).invariant *)
+                        (* ) *)
+                        (clock_constraint_without_reset_clocks
                            ta.locations.(departure.next_location).invariant
+                           departure.clock_resets
                         )
                        ]
                        @
@@ -622,11 +626,11 @@ let generate_zone_valuation_graph ta =
                     (function arrival_zone ->
                       clock_constraint_haveIntersection
                         ta.clock_names
-                        zone.zone_constraint
-                        (clock_constraint_without_reset_clocks
-                           arrival_zone.zone_constraint
+                        (clock_constraint_after_clock_resets
+                           zone.zone_constraint
                            departure.clock_resets
                         )
+                        arrival_zone.zone_constraint
                     )
                     zone_list_array.(departure.next_location)
                  )
