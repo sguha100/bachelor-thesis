@@ -10,7 +10,9 @@ module ZVGLT =
                                                 (zone_using_list list)) list)) list) array;
                   action_count: int}
     let node_name =
-      function l -> function zone -> string_of_int zone.zone_location (*This is bad!*)
+      function l -> function zone -> ((string_of_int
+                                        zone.zone_location) ^ " " ^
+                                         (string_of_clock_constraint zone.zone_constraint) )
     let expand_action = function l -> function a -> string_of_int a
     let nodes =
       function l ->

@@ -36,21 +36,7 @@ let _ =
         Printf.printf "\nlocation: %s\n" (string_of_int i);
         Printf.printf
           "invar: %s\n"
-          (String.concat
-             " AND "
-             (List.map
-                (function
-                | True -> "TRUE"
-                | False -> "FALSE"
-                | Lt (cn, n) -> cn ^ " < " ^ (string_of_int n)
-                | Le (cn, n) -> cn ^ " <= " ^ (string_of_int n)
-                | Eq (cn, n) -> cn ^ " = " ^ (string_of_int n)
-                | Ge (cn, n) -> cn ^ " >= " ^ (string_of_int n)
-                | Gt (cn, n) -> cn ^ " > " ^ (string_of_int n)
-                )
-                zone.zone_constraint
-             )
-          )
+          (string_of_clock_constraint zone.zone_constraint)
         ;
         Printf.printf "trans:\n";
         List.iter
