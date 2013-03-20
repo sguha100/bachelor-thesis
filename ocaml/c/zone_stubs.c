@@ -118,3 +118,9 @@ CAMLprim value zone_dbm_freeClock (value dbm, value dim, value k) {
   dbm_freeClock(raw_t_val(dbm), Int_val(dim), Int_val(k));
   CAMLreturn (dbm);
 }
+
+CAMLprim value zone_dbm_updateValue (value dbm, value dim, value k, value val) {
+  CAMLparam4(dbm, dim, k, val);
+  dbm_updateValue(raw_t_val(dbm), Int_val(dim), Int_val(k), Int_val(val));
+  CAMLreturn (dbm);
+}
