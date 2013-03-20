@@ -623,24 +623,9 @@ let generate_zone_valuation_graph ta =
                       clock_constraint_haveIntersection
                         ta.clock_names
                         zone.zone_constraint
-                        (List.filter
-                           (function unit_clock_constraint ->
-                             match
-                               unit_clock_constraint
-                             with
-                               True
-                             | False -> false
-                             | Lt (cn, n)
-                             | Le (cn, n)
-                             | Eq (cn, n)
-                             | Ge (cn, n)
-                             | Gt (cn, n) ->
-                               (not (List.exists
-                                       ((=) cn)
-                                       (Array.to_list departure.clock_resets)
-                                ))
-                           )
+                        (clock_constraint_without_reset_clocks
                            arrival_zone.zone_constraint
+                           departure.clock_resets
                         )
                     )
                     zone_list_array.(departure.next_location)
