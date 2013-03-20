@@ -290,6 +290,32 @@ let split_zone_on_clock_constraint zone clock_constraint clock_names=
     [zone]
     clock_constraint
 
+let clock_constraint_without_reset_clocks clock_constraint clock_resets =
+  List.fold_left
+    (function clock_constraint -> function clock_reset ->
+      List.filter
+        (function
+        | True
+        | False -> true
+        | Lt (cn, _)
+        | Le (cn, _)
+        | Eq (cn, _)
+        | Ge (cn, _)
+        | Gt (cn, _) -> cn <> clock_reset
+        )
+        clock_constraint
+    )
+    clock_constraint
+    (Array.to_list clock_resets)
+
+let clock_constraint_after_clock_resets clock_constraint clock_resets =
+  (List.map
+     (function clock_reset -> Eq (clock_reset, 0))
+     (Array.to_list clock_resets)
+  )
+    @
+    (clock_constraint_without_reset_clocks clock_constraint clock_resets)
+
 let split_zone_list_on_constraint_list zone_list constraint_list ta =
   let
       clock_name_list = (Array.to_list ta.clock_names)

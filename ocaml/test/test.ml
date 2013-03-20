@@ -192,6 +192,20 @@ let test18 =
   else
     "test18 failed"
 
+let test19 =
+  if
+    [Eq ("X1", 0); Eq ("X3", 0); Gt ("X2", 3); Lt
+      ("X2", 5)]
+      =
+    (clock_constraint_after_clock_resets
+       [Ge ("X1", 5); Gt ("X2", 3); Le ("X1", 7); Lt ("X3", 5); Lt
+         ("X2", 5)]
+       [|"X1"; "X3"|])
+  then
+    "test19 passed"
+  else
+    "test19 failed"
+
 let _ =
   print_string test2;
   print_newline ();
@@ -225,5 +239,7 @@ let _ =
   print_string test17;
   print_newline ();
   print_string test18;
+  print_newline ();
+  print_string test19;
   print_newline ();
   exit 0
