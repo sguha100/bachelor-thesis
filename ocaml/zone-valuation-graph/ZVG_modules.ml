@@ -27,36 +27,38 @@ module ZVGLT =
       function l ->
         Array.to_list (Array.init l.action_count (function a-> a))
     let in_adjacency = function l -> function zone ->
-      let ll = 
-        (match
-            (List.find
-               (function (zone1, _) -> zone1 = zone)
-               l.nodes.(zone.zone_location)
-            )
-         with
-           (_, ll) -> ll
-        )
-      in
-      Array.to_list
-        (Array.init
-           l.action_count
-           (function a ->
-             (a,
-              List.concat
-                (List.map
-                   (function (departure, arrival_zones) ->
-                     if
-                       (a = departure.action)
-                     then
-                       arrival_zones
-                     else
-                       []
+      List.map
+        (function a ->
+          (a,
+           let
+               all_zones_with_departures =
+             List.concat
+               (Array.to_list l.nodes)
+           in
+           let
+               useful_zones_with_departures =
+             List.filter
+               (function (zone1, dl) ->
+                 List.exists
+                   (function (departure, zone_list) ->
+                     departure.action = a
+                       &&
+                         (List.mem zone zone_list)
                    )
-                   ll
-                )
-             )
-           )
+                   dl
+               )
+               all_zones_with_departures
+           in
+           let
+               useful_zones =
+             List.map
+               (function (zone1, _) -> zone1)
+               useful_zones_with_departures
+           in
+           useful_zones
+          )
         )
+        (actions l)
   end
 
 module ZVGLTS = LTS (ZVGLT)
