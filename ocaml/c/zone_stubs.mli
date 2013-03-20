@@ -9,3 +9,5 @@ external dbm_constraint2: int -> int -> int -> bool -> constraint_t =
 external dbm_isEmpty: raw_t -> int -> bool = "zone_dbm_isEmpty"
 external dbm_haveIntersection: raw_t -> raw_t -> int -> bool = "zone_dbm_haveIntersection"
 external dbm_intersection: raw_t -> raw_t -> int -> raw_t = "zone_dbm_intersection"
+external dbm_freeClock: raw_t -> int -> int -> raw_t = "zone_dbm_freeClock"
+  

@@ -112,3 +112,9 @@ CAMLprim value zone_dbm_intersection (value dst, value src, value dim) {
   dbm_intersection(raw_t_val(dst), raw_t_val(src), Int_val(dim));
   CAMLreturn (dst);
 }
+
+CAMLprim value zone_dbm_freeClock (value dbm, value dim, value k) {
+  CAMLparam3(dbm, dim, k);
+  dbm_freeClock(raw_t_val(dbm), Int_val(dim), Int_val(k));
+  CAMLreturn (dbm);
+}
