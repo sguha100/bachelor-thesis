@@ -83,7 +83,8 @@ struct
                  (function (aa, nl) -> a=aa && List.mem node_ref nl)
                  (in_adjacency l belem)
              )
-             node_refs)
+             node_refs
+          )
 
   let get_block_from_node_refs l node_refs =
     {node_refs = node_refs;
@@ -99,7 +100,8 @@ struct
             (function belem ->
               List.exists
                 (function (aa, nl) -> a=aa && List.mem xelem nl)
-                (in_adjacency l belem))
+                (in_adjacency l belem)
+            )
             b.node_refs)
         x.node_refs
     with
@@ -254,6 +256,7 @@ struct
     in
     let
         (_, pi) = emptyqueue l ([Simple llistblock], [llistblock])
+        (* (_, pi) = dequeue l ([Simple llistblock], [llistblock]) *)
     in
     pi
 
@@ -285,8 +288,8 @@ struct
                     Printf.fprintf
                       out
                       "\"%s\" -> \"%s\" [label = \"%s\"]\n"
-                      (node_name l node_ref)
                       (node_name l nlelem)
+                      (node_name l node_ref)
                       (expand_action l a)
                   )
                   nl

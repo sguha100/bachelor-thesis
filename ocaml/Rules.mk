@@ -48,8 +48,7 @@ $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
-fernandez-ocaml-noweb/fernandez.ml \
-fernandez-ocaml-noweb/fernandez.mli \
+fernandez-ocaml-noweb/Fernandez_modules.ml \
 Rules.mk \
 _tags \
 myocamlbuild.ml
