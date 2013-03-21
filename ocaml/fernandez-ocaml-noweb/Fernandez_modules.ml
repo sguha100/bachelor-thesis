@@ -268,17 +268,21 @@ struct
     List.fold_left
       (function count -> function block ->
         Printf.fprintf out
-          "subgraph cluster_%s { \nrank = same; %s ;\n}\n"
-          (string_of_int count)
-          (String.concat
-             ";"
-             (List.map
-                (function node_ref -> "\"" ^ (node_name l node_ref) ^ "\"")
-                block.node_refs
-             )
-          )
-        ;
+          "subgraph cluster_%s { \nrank = same; \n"
+          (string_of_int count);
         List.iter
+          (function node_ref ->
+            Printf.fprintf out ("\"%s\";\n") (node_name l node_ref);
+          )
+          block.node_refs;
+        Printf.fprintf out "}\n";
+        (count + 1)
+      )
+      0
+      partition;
+    List.iter
+      (function block ->
+                List.iter
           (function node_ref ->
           (* Printf.fprintf out "\"%s\";\n" (node_name l node_ref); *)
             List.iter
@@ -297,9 +301,7 @@ struct
               (in_adjacency l node_ref);
           )
           block.node_refs;
-        (count + 1)
       )
-      0
       partition;
     Printf.fprintf out "}\n";
     flush out
