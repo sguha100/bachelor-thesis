@@ -272,7 +272,10 @@ struct
           (string_of_int count);
         List.iter
           (function node_ref ->
-            Printf.fprintf out ("\"%s\";\n") (node_name l node_ref);
+            Printf.fprintf
+              out
+              ("\"%s\";\n")
+              (node_name l node_ref);
           )
           block.node_refs;
         Printf.fprintf out "}\n";
