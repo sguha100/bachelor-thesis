@@ -11,5 +11,7 @@ external dbm_haveIntersection: raw_t -> raw_t -> int -> bool = "zone_dbm_haveInt
 external dbm_intersection: raw_t -> raw_t -> int -> raw_t = "zone_dbm_intersection"
 external dbm_freeClock: raw_t -> int -> int -> raw_t =
   "zone_dbm_freeClock"
-external dbm_updateValue: raw_t -> int -> int -> int -> raw_t = "zone_dbm_updateValue"
+external dbm_updateValue: raw_t -> int -> int -> int -> raw_t =
+  "zone_dbm_updateValue"
+external dbm_up: raw_t -> int -> raw_t = "zone_dbm_up"
   

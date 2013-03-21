@@ -124,3 +124,9 @@ CAMLprim value zone_dbm_updateValue (value dbm, value dim, value k, value val) {
   dbm_updateValue(raw_t_val(dbm), Int_val(dim), Int_val(k), Int_val(val));
   CAMLreturn (dbm);
 }
+
+CAMLprim value zone_dbm_up(value dbm, value dim) {
+  CAMLparam2(dbm, dim);
+  dbm_up(raw_t_val(dbm), Int_val(dim));
+  CAMLreturn (dbm);
+}

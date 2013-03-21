@@ -609,7 +609,13 @@ let generate_zone_valuation_graph ta =
             (zone,
              let
                  departures =
-               List.filter
+               {action = -1;
+                condition = [True];
+                clock_resets = [||];
+                next_location = zone.zone_location
+               } (*This one is a time transition.*)
+               ::
+               (List.filter
                  (function departure ->
                    clock_constraint_haveIntersection
                      ta.clock_names
@@ -618,21 +624,53 @@ let generate_zone_valuation_graph ta =
                  )
                  (Array.to_list
                     ta.locations.(zone.zone_location).departures)
+               )
              in
              List.map
                (function departure ->
                  (departure,
-                  List.filter
-                    (function arrival_zone ->
-                      clock_constraint_haveIntersection
-                        ta.clock_names
-                        (clock_constraint_after_clock_resets
-                           zone.zone_constraint
-                           departure.clock_resets
-                        )
-                        arrival_zone.zone_constraint
+                  if (departure.action >= 0) then (*action transition*)
+                    (List.filter
+                       (function arrival_zone ->
+                         clock_constraint_haveIntersection
+                           ta.clock_names
+                           (clock_constraint_after_clock_resets
+                              zone.zone_constraint
+                              departure.clock_resets
+                           )
+                           arrival_zone.zone_constraint
+                       )
+                       zone_list_array.(departure.next_location)
                     )
-                    zone_list_array.(departure.next_location)
+                  else (*time transition*)
+                    (List.filter
+                       (function arrival_zone ->
+                         (* clock_constraint_haveIntersection *)
+                         (*   ta.clock_names *)
+                         (*   zone.zone_constraint (\*TODO: make this upward unbounded!*\) *)
+                         (*   arrival_zone.zone_constraint *)
+                         match
+                           (clock_constraint_to_raw_t_option
+                              ta.clock_names
+                              zone.zone_constraint)
+                         with
+                           None -> false
+                         | Some dst ->
+                           (match
+                               (clock_constraint_to_raw_t_option
+                                  ta.clock_names
+                                  arrival_zone.zone_constraint)
+                            with
+                              None -> false
+                            | Some src ->
+                              (dbm_haveIntersection
+                                 (dbm_up dst (1 + Array.length ta.clock_names))
+                                 src
+                                 (1 + Array.length ta.clock_names))
+                           )
+                       )
+                       zone_list_array.(departure.next_location)
+                    )
                  )
                )
                departures
