@@ -347,15 +347,13 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
     constraint_list
 
 let dequeue ta (queue, zone_list_array, tree_array) =
-  flush stdout;
-  match queue with
-    [] -> (queue, zone_list_array, tree_array)
+  let queueref = ref queue in
+  match !queueref with
+    [] -> (!queueref, zone_list_array, tree_array)
   | qhd::qtl ->
     Printf.printf "dequeue %s!\n\n" (string_of_int qhd);
     flush stdout;
-    let
-        queue = qtl
-    in
+    queueref := qtl;
     Printf.printf
       "qhd = %s, zone_list length = %s before split\n"
       (string_of_int qhd)
@@ -444,7 +442,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 ta
              )
            in
-           queue =
+           queueref :=
                if
                  (List.length changed_zone_list
                   <>
@@ -453,15 +451,15 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                    &&
                    (List.for_all
                       ((<>) tree_element)
-                      queue
+                      !queueref
                    )
                then
                  (Printf.printf "enqueue %s\n\n" (string_of_int
                                                     tree_element);
                   flush stdout;
-                  tree_element::queue)
+                  tree_element::(!queueref))
                else
-                 queue
+                 (!queueref)
            ;
            zone_list_array.(tree_element) <-
              changed_zone_list
@@ -519,7 +517,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 ta
              )
            in
-           queue =
+           queueref :=
                if
                  (List.length changed_zone_list
                   <>
@@ -528,15 +526,15 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                    &&
                    (List.for_all
                       ((<>) successor)
-                      queue
+                      !queueref
                    )
                then
                  (Printf.printf "enqueue successor %s\n\n"
                     (string_of_int successor);
                   flush stdout;
-                  successor::queue)
+                  successor::(!queueref))
                else
-                 queue
+                 (!queueref)
            ;
            zone_list_array.(successor) <-
              changed_zone_list;
@@ -562,7 +560,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     Printf.printf "queue length now = %s\n" (string_of_int
                                                (List.length queue));
     flush stdout;
-    (queue,
+    (!queueref,
      zone_list_array,
      tree_array)
 
