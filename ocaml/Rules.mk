@@ -13,9 +13,6 @@ OCAMLLFLAGS += -lflags -cclib,-lstdc++
 grammar_types := grammar-noweb/grammar_types.mli \
 grammar-noweb/grammar_types.ml
 
-clock_utilities := utilities/clock_utilities.ml \
-utilities/clock_utilities.mli
-
 fernandez := fernandez-ocaml-noweb/Fernandez_modules.ml
 
 dir := c
@@ -54,7 +51,6 @@ myocamlbuild.ml
 
 next_step.native: \
 next_step/next_step.ml \
-$(clock_utilities) \
 $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
@@ -69,7 +65,6 @@ _tags\
 myocamlbuild.ml
 
 test.native: \
-$(clock_utilities) \
 $(grammar_types) \
 utilities/graph_functions.ml \
 utilities/UDBM_utilities.ml \
