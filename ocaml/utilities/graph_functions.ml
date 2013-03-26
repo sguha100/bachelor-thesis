@@ -2,7 +2,6 @@ open Grammar_types
 open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
-open Fernandez
 
 let string_of_clock_constraint clock_constraint =
   (String.concat
