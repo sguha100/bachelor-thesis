@@ -16,8 +16,7 @@ grammar-noweb/grammar_types.ml
 clock_utilities := utilities/clock_utilities.ml \
 utilities/clock_utilities.mli
 
-fernandez := fernandez-ocaml-noweb/fernandez.ml \
-fernandez-ocaml-noweb/fernandez.mli
+fernandez := fernandez-ocaml-noweb/Fernandez_modules.ml
 
 dir := c
 include $(dir)/Rules.mk
