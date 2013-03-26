@@ -4,9 +4,7 @@ d := $(dir)
 
 TGT_$(d) := fernandez_app.native $(d)/fernandez_app.ml \
  $(d)/fernandez.ml $(d)/fernandez.mli $(d)/fernandez.html \
-Fernandez_modules.cmo
-
-# all:fernandez.ml fernandez.mli fernandez_app.native fernandez.html
+$(d)/Fernandez_modules.ml
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -24,6 +22,10 @@ $(d)/fernandez.mli
 $(d)/fernandez_app.ml: $(d)/fernandez.nw
 	notangle -Rfernandez_app.ml $(d)/fernandez.nw \
 	>$(d)/fernandez_app.ml
+
+$(d)/Fernandez_modules.ml: $(d)/Fernandez_modules.nw
+	notangle -RFernandez_modules.ml $(d)/Fernandez_modules.nw \
+	>$(d)/Fernandez_modules.ml
 
 $(d)/fernandez.ml:$(d)/fernandez.nw;echo $(d)
 	notangle -Rfernandez.ml $(d)/fernandez.nw >$(d)/fernandez.ml
