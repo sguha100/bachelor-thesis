@@ -404,7 +404,11 @@ newblock
 
 \end_inset
 
- Model checking of real-time reachability properties using abstractions.
+ 
+\emph on
+Model checking of real-time reachability properties using abstractions.
+
+\emph default
  
 \begin_inset ERT
 status collapsed
@@ -425,6 +429,10 @@ newblock
 98, Lisbon, Portugal.
  LNCS, Vol.
  1384, Springer- Verlag, 1998.
+\end_layout
+
+\begin_layout EndFrame
+
 \end_layout
 
 \end_body
