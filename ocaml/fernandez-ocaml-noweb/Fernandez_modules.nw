@@ -1,19 +1,67 @@
+\section{Fernandez' algorithm in Ocaml}
+
+This section documents the current implementation of Fernandez'
+algorithm in Ocaml.
+
+\subsection{Signature LTS_TYPE}
+This signature defines the interface we expect any LTS data type to provide.
 <<Fernandez_modules.ml>>=
 module type LTS_TYPE =
 sig
+@ 
+Data types
+\begin{itemize}
+\item Data type for an LTS node, may or may not implement adjacency list internally.
+<<Fernandez_modules.ml>>=
   type node_ref_t
+@ 
+\item Data type for an LTS action.
+<<Fernandez_modules.ml>>=
   type action_t
+@ 
+\item Data type for an LTS.
+<<Fernandez_modules.ml>>=
   type lts_t
+@ 
+\end{itemize}
+Methods
+\begin{itemize}
+\item This is the node label used while drawing the LTS in graphviz.
+<<Fernandez_modules.ml>>=
   val node_name: lts_t -> node_ref_t -> string
+@ 
+\item This is in the edge label used while drawing the LTS in graphviz.
+<<Fernandez_modules.ml>>=
   val expand_action: lts_t -> action_t -> string
+@ 
+\item This lists the nodes of an LTS.
+<<Fernandez_modules.ml>>=
   val nodes: lts_t -> node_ref_t list
+@ 
+\item This lists the nodes of an LTS.
+<<Fernandez_modules.ml>>=
   val actions: lts_t -> action_t list
+@ 
+\item This provides the in_adjacency for a particular node in an LTS.
+<<Fernandez_modules.ml>>=
   val in_adjacency: lts_t -> node_ref_t -> (action_t * (node_ref_t list)) list
 end
 
+@ 
+\end{itemize}
+\subsection{Functor LTS}
+This functor provides the essential algorithms for an LTS while
+abstracting out the exact implementation.
+<<Fernandez_modules.ml>>=
 module LTS =
   functor (LT: LTS_TYPE) ->
 struct
+@ 
+Data types
+\begin{itemize}
+\item The following datatypes come from the underlying LTS
+  implementation.
+<<Fernandez_modules.ml>>=
   type node_ref_t = LT.node_ref_t
   type action_t = LT.action_t
   (* type lts = {nodes: node_ref_t array; actions: action_t
@@ -23,12 +71,31 @@ struct
   let nodes = LT.nodes
   let actions = LT.actions
   let in_adjacency = LT.in_adjacency
+@ 
+\item This is a block, stores a list of nodes as well as Fernandez'
+  $info$ structure.
+<<Fernandez_modules.ml>>=
   type block =
     {node_refs: node_ref_t list;
      info: (action_t -> (node_ref_t -> int))}
+@ 
+\item This is a partition, its' constituent blocks are mutually
+  exclusive and exhaustive on the nodes of the LTS.
+<<Fernandez_modules.ml>>=
   type partition = block list
+@ 
+\item This is a splitter, it can be simple or compound, thus each
+  splitter is a binary tree.
+<<Fernandez_modules.ml>>=
   type splitter = Simple of block | Compound of (block * splitter *
                                                    splitter)
+@ 
+\end{itemize}
+Methods
+\begin{itemize}
+\item This function updates the splitter $t$, replacing any occurence of the
+  simple splitter $x$ with the compound splitter $(x, x1, x2)$.
+<<Fernandez_modules.ml>>=
   let rec two_way_update_tree t x x1 x2 =
     match t with
       Simple t0 ->
@@ -66,6 +133,10 @@ struct
       | (tt1, true) -> (Compound (t0, tt1, t2), true)
     )
 
+@ 
+\item This function updates the queue $w$, replacing any occurrence of
+  the simple splitter $x$ with the compound splitter $(x, x1, x2)$.
+<<Fernandez_modules.ml>>=
   let rec two_way_update_queue w x x1 x2 =
     match w with
       [] -> [Compound (x, Simple x1, Simple x2)]
@@ -74,6 +145,10 @@ struct
       | (tt, true) -> tt::ts
     )
 
+@ 
+\item This function generates the $info$ structure for the nodes $node_refs$
+  in the LTS $l$.
+<<Fernandez_modules.ml>>=
   let get_info l node_refs =
     function a ->
       function node_ref ->
@@ -87,12 +162,20 @@ struct
              node_refs
           )
 
+@ 
+\item This function generates a block for the nodes $node_refs$ in the
+  LTS $l$.
+<<Fernandez_modules.ml>>=
   let get_block_from_node_refs l node_refs =
     {node_refs = node_refs;
      info =
         (get_info l node_refs)
     }
 
+@ 
+\item This function splits the block $x$ of the LTS $l$ using the
+  simple splitter $b$ and the action $a$.
+<<Fernandez_modules.ml>>=
   let simple_split_block_on_action l x b a =
     match
       List.partition
@@ -108,6 +191,10 @@ struct
     with
       (x1indices, x2indices) -> (get_block_from_node_refs l x1indices, get_block_from_node_refs l x2indices)
 
+@ 
+\item This function splits the block $x$ of the LTS $l$ using the
+  compound splitter $(b, b1, b2)$ and the action $a$.
+<<Fernandez_modules.ml>>=
   let compound_split_block_on_action l x b b1 b2 a =
     let 
         (b1, b2) =
@@ -144,6 +231,11 @@ struct
                get_block_from_node_refs l x4noderefs))
         )
           
+@ 
+\item This function splits the blocks in $xl$ of the LTS $l$ using the
+  simple splitter $b$ and the action $a$ and updates the queue $w$
+      accordingly.
+<<Fernandez_modules.ml>>=
   let rec simple_split_blocks_on_action l (w, xl) b a =
     match xl with
       [] -> (w, [])
@@ -157,6 +249,11 @@ struct
        | (x1, x2) -> (let www = (two_way_update_queue ww x x1 x2) in (www, x1::x2::xxs))
        ))
 
+@ 
+\item This function splits the blocks in $xl$ of the LTS $l$ using the
+  simple splitter $(b, b1, b2)$ and the action $a$ and updates the queue $w$
+      accordingly.
+<<Fernandez_modules.ml>>=
   let rec compound_split_blocks_on_action l (w, xl) b b1 b2 a =
     match xl with
       [] -> (w, [])
@@ -210,6 +307,11 @@ struct
            (www, x1::x2::x3::xxs))
        ))
 
+@ 
+\item This function splits the partition $pi$ of the LTS $l$ using the
+  splitter $sp$ and the action $a$ and updates the queue $w$
+      accordingly.
+<<Fernandez_modules.ml>>=
   let split_partition_on_action l (w, pi) sp a =
     match
       sp
@@ -221,6 +323,11 @@ struct
     | Compound (b, Compound (b1, _, _), Compound (b2, _, _)) ->
       compound_split_blocks_on_action l (w, pi) b b1 b2 a
 
+@ 
+\item This function splits the partition $pi$ of the LTS $l$ using the
+  splitter $sp$ and the actions $action_list$ and updates the queue $w$
+      accordingly.
+<<Fernandez_modules.ml>>=
   let rec split_partition_on_actions l (w, pi) b action_list =
     List.fold_left
       (function (w, pi) ->
@@ -229,6 +336,10 @@ struct
       (w, pi)
       action_list
 
+@ 
+\item This function dequeues an splitter from the queue $w$ and splits
+  $pi$ on it.
+<<Fernandez_modules.ml>>=
   let dequeue l (w, pi) =
     match
       w
@@ -244,6 +355,10 @@ struct
         (Compound (b, b1, b2))
         (actions l)
 
+@ 
+\item This function dequeues each splitter from the queue $w$ in turn, splitting
+  $pi$ on it.
+<<Fernandez_modules.ml>>=
   let rec emptyqueue l (w, pi) =
     match
       w
@@ -251,6 +366,9 @@ struct
       [] -> ([], pi)
     | whead::wtail -> emptyqueue l (dequeue l (w, pi))
 
+@ 
+\item This function splits the LTS $l$ using Fernandez' algorithm.
+<<Fernandez_modules.ml>>=
   let fernandez l =
     let
         llistblock = (get_block_from_node_refs l (nodes l))
@@ -261,6 +379,10 @@ struct
     in
     pi
 
+@ 
+\item This function prints a DOT representation of the equivalence
+  classes given by a partition of the LTS.
+<<Fernandez_modules.ml>>=
   let print_dot l partition filename =
     let
         out = open_out filename  
@@ -310,7 +432,15 @@ struct
     Printf.fprintf out "}\n";
     flush out
 end
+@ 
+\end{itemize}
+<<Fernandez_modules.ml>>=
 
+@ 
+\subsection Structure SimpleLT
+This structure provides a simple LTS, using an array of in adjacency
+lists to represent the LTS.
+<<Fernandez_modules.ml>>=
 module SimpleLT =
 struct
   type node_ref_t = int
@@ -329,6 +459,10 @@ struct
   let in_adjacency = function l -> Array.get l.in_adjacencies
 end
 
+@ 
+\subsection Structure SimpleLTS
+This structure uses the functor LTS and the structure SimpleLT.
+<<Fernandez_modules.ml>>=
 module SimpleLTS = LTS (SimpleLT)
 let lts1 = {SimpleLT.in_adjacencies = [|[(2, [6])]; 
                                         [(0, [1])]; 
@@ -338,6 +472,10 @@ let lts1 = {SimpleLT.in_adjacencies = [|[(2, [6])];
                                         [(0, [4; 5]); (2, [6])];
                                         [(1, [3]); (2, [2])];
                                         [(0, [1])]|]; SimpleLT.action_count=3}
+
+@ 
+\subsection Examples
+<<Fernandez_modules.ml>>=
 let pi1 = SimpleLTS.fernandez lts1
 let lts2 = {SimpleLT.in_adjacencies=[|[(0, [5])]; 
                                       [(0, [0; 1])]; 
