@@ -105,65 +105,62 @@ let dequeue ta (queue, zone_list_array, tree_array) =
        "Starting with the tree of qhd = [%s].\n"
        (String.concat "; " (List.map string_of_int tree_array.(qhd))));
     flush stdout;
-    (List.fold_left
-       (function this_must_be_a_unit ->
-         function tree_element ->
-           this_must_be_a_unit;
-           (Printf.printf "constraint_list length = %s\n"
-              (string_of_int (List.length zone_list_array.(qhd))));
-           flush stdout;
-           let
-               constraint_list =
-             (List.map
-                (function zone ->
-                  zone.zone_constraint
-                )
-                zone_list_array.(qhd)
-             )
-           in
-           let
-               changed_zone_list =
-             (split_zone_list_on_constraint_list
-                zone_list_array.(tree_element)
-                constraint_list
-                ta
-             )
-           in
-           queueref :=
-             if
-               (List.length changed_zone_list
-                <>
-                  List.length zone_list_array.(tree_element)
-               )
-               &&
-                 (List.for_all
-                    ((<>) tree_element)
-                    !queueref
-                 )
-             then
-               (Printf.printf "enqueue %s\n\n" (string_of_int
-                                                  tree_element);
-                flush stdout;
-                tree_element::(!queueref))
-             else
-               (!queueref)
-           ;
-           zone_list_array.(tree_element) <-
-             changed_zone_list
-           ;
+    (List.iter
+       (function tree_element ->
+         (Printf.printf "constraint_list length = %s\n"
+            (string_of_int (List.length zone_list_array.(qhd))));
+         flush stdout;
+         let
+             constraint_list =
+           (List.map
+              (function zone ->
+                zone.zone_constraint
+              )
+              zone_list_array.(qhd)
+           )
+         in
+         let
+             changed_zone_list =
+           (split_zone_list_on_constraint_list
+              zone_list_array.(tree_element)
+              constraint_list
+              ta
+           )
+         in
+         queueref :=
            if
-             (List.exists
-                ((=) qhd)
-                tree_array.(tree_element)
+             (List.length changed_zone_list
+              <>
+                List.length zone_list_array.(tree_element)
              )
+             &&
+               (List.for_all
+                  ((<>) tree_element)
+                  !queueref
+               )
            then
-             ()
+             (Printf.printf "enqueue %s\n\n" (string_of_int
+                                                tree_element);
+              flush stdout;
+              tree_element::(!queueref))
            else
-             (tree_array.(tree_element) <-
-                qhd::tree_array.(tree_element)
-             );
+             (!queueref)
+         ;
+         zone_list_array.(tree_element) <-
+           changed_zone_list
+         ;
+         if
+           (List.exists
+              ((=) qhd)
+              tree_array.(tree_element)
+           )
+         then
+           ()
+         else
+           (tree_array.(tree_element) <-
+              qhd::tree_array.(tree_element)
+           );
        )
-       ()
        tree_array.(qhd)
     );
     (Printf.printf "Done with elements of the tree of qhd.\n");
