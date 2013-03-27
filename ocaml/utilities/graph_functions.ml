@@ -34,7 +34,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         zone_list_array.(qhd) <- (
           Printf.printf
             "qhd = %s, zone_list length = %s before split\n"
-          (string_of_int qhd)
+            (string_of_int qhd)
             (string_of_int (List.length zone_list_array.(qhd)));
           (Printf.printf
              "Tree top is %s, constraint_list length = %s\n"
@@ -63,22 +63,19 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             constraint_list =
           (ta.locations.(qhd).invariant
            ::
-             (List.fold_left
-                (function partial_clock_constraint_list ->
-                  function departure ->
-                    ([departure.condition
+             (List.concat
+                (List.map
+                   (function departure ->
+                     [departure.condition
                      ;
                       (clock_constraint_without_reset_clocks
                          ta.locations.(departure.next_location).invariant
                          departure.clock_resets
                       )
                      ]
-                     @
-                       partial_clock_constraint_list
-                    )
+                   )
+                   (Array.to_list ta.locations.(qhd).departures)
                 )
-                []
-                (Array.to_list ta.locations.(qhd).departures)
              )
           )
         in
@@ -86,10 +83,10 @@ let dequeue ta (queue, zone_list_array, tree_array) =
            "qhd = %s, zone_list length = %s before split\n"
            (string_of_int qhd)
            (string_of_int (List.length zone_list_array.(qhd))));
-          (Printf.printf
-             "Self-splitting, constraint_list length = %s\n"
-             (string_of_int (List.length constraint_list))
-          );
+        (Printf.printf
+           "Self-splitting, constraint_list length = %s\n"
+           (string_of_int (List.length constraint_list))
+        );
         flush stdout;
         (zone_list_array.(qhd) <-
            (split_zone_list_on_constraint_list
@@ -133,23 +130,23 @@ let dequeue ta (queue, zone_list_array, tree_array) =
              )
            in
            queueref :=
-               if
-                 (List.length changed_zone_list
-                  <>
-                    List.length zone_list_array.(tree_element)
+             if
+               (List.length changed_zone_list
+                <>
+                  List.length zone_list_array.(tree_element)
+               )
+               &&
+                 (List.for_all
+                    ((<>) tree_element)
+                    !queueref
                  )
-                   &&
-                   (List.for_all
-                      ((<>) tree_element)
-                      !queueref
-                   )
-               then
-                 (Printf.printf "enqueue %s\n\n" (string_of_int
-                                                    tree_element);
-                  flush stdout;
-                  tree_element::(!queueref))
-               else
-                 (!queueref)
+             then
+               (Printf.printf "enqueue %s\n\n" (string_of_int
+                                                  tree_element);
+                flush stdout;
+                tree_element::(!queueref))
+             else
+               (!queueref)
            ;
            zone_list_array.(tree_element) <-
              changed_zone_list
@@ -203,23 +200,23 @@ let dequeue ta (queue, zone_list_array, tree_array) =
              )
            in
            queueref :=
-               if
-                 (List.length changed_zone_list
-                  <>
-                    List.length zone_list_array.(successor)
+             if
+               (List.length changed_zone_list
+                <>
+                  List.length zone_list_array.(successor)
+               )
+               &&
+                 (List.for_all
+                    ((<>) successor)
+                    !queueref
                  )
-                   &&
-                   (List.for_all
-                      ((<>) successor)
-                      !queueref
-                   )
-               then
-                 (Printf.printf "enqueue successor %s\n\n"
-                    (string_of_int successor);
-                  flush stdout;
-                  successor::(!queueref))
-               else
-                 (!queueref)
+             then
+               (Printf.printf "enqueue successor %s\n\n"
+                  (string_of_int successor);
+                flush stdout;
+                successor::(!queueref))
+             else
+               (!queueref)
            ;
            zone_list_array.(successor) <-
              changed_zone_list;
@@ -287,16 +284,16 @@ let generate_zone_valuation_graph ta =
                 next_location = zone.zone_location
                } (*This one is a time transition.*)
                ::
-               (List.filter
-                 (function departure ->
-                   clock_constraint_haveIntersection
-                     ta.clock_names
-                     zone.zone_constraint
-                     departure.condition
+                 (List.filter
+                    (function departure ->
+                      clock_constraint_haveIntersection
+                        ta.clock_names
+                        zone.zone_constraint
+                        departure.condition
+                    )
+                    (Array.to_list
+                       ta.locations.(zone.zone_location).departures)
                  )
-                 (Array.to_list
-                    ta.locations.(zone.zone_location).departures)
-               )
              in
              List.map
                (function departure ->
@@ -340,17 +337,17 @@ let generate_zone_valuation_graph ta =
                                  src
                                  (1 + Array.length ta.clock_names))
                            )
+                        )
+                         zone_list_array.(departure.next_location)
                        )
-                       zone_list_array.(departure.next_location)
                     )
                  )
+                   departures
                )
-               departures
             )
+              zone_list
           )
-          zone_list
-      )
-      zone_list_array
-  in
-  graph
+          zone_list_array
+       in
+      graph
 
