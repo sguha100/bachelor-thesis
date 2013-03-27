@@ -8,14 +8,7 @@ open ZVG_modules
 
 let _ =
   let result = parse_timed_automaton stdin in
-  let
-      unit = (Printf.printf "Timed automaton parsed successfully!\n");
-    (flush stdout)
-  in
   let g = generate_zone_valuation_graph result in
-  let
-      unit = Printf.printf "Zone-valuation graph generated successfully!\n"
-  in
   Printf.printf "#locations %s\n" (string_of_int result.numlocations);
   Printf.printf "#trans %s\n" (string_of_int result.numtrans);
   Printf.printf "#clocks %s\n" (string_of_int result.numclocks);
@@ -23,14 +16,6 @@ let _ =
   Printf.printf "#init %s\n" (string_of_int result.numinit);
   let len = (Array.length g) in
   for i = 0 to len - 1 do
-    (* Printf.printf *)
-    (*   "i = %s, %s\n" *)
-    (*   (string_of_int *)
-    (*      i) *)
-    (*   (string_of_int *)
-    (*      (List.length *)
-    (*         g.(i) *)
-    (*      )); *)
     List.iter
       (function (zone, edges_of_zone) ->
         Printf.printf "\nlocation: %s\n" (string_of_int i);
