@@ -1,4 +1,5 @@
 open Grammar_types
+open Clock_constraint_utilities
 open Graph_functions
 open Fernandez_modules
 

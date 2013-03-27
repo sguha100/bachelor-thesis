@@ -1,5 +1,6 @@
 (* File calc.ml *)
 open Parse_timed_automaton
+open Clock_constraint_utilities
 open Graph_functions
 open Grammar_types
 open UDBM_utilities

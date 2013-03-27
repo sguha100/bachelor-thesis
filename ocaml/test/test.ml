@@ -1,4 +1,5 @@
 open Grammar_types
+open Clock_constraint_utilities
 open Graph_functions
 open Unit_constraint_intersection
 open Zone_stubs
