@@ -167,13 +167,11 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     flush stdout;
     (Printf.printf "Starting with successors of qhd.\n");
     flush stdout;
-    (List.fold_left
-       (function this_must_be_a_unit ->
-         function departure ->
+    (List.iter
+       (function departure ->
            let successor = departure.next_location in
            Printf.printf "Successor=%s arrived.\n" (string_of_int successor);
            flush stdout;
-           this_must_be_a_unit;
            let
                constraint_list = (List.map
                                     (function zone ->
@@ -231,7 +229,6 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 qhd::tree_array.(successor)
              );
        )
-       ()
        (Array.to_list ta.locations.(qhd).departures)
     );
     (Printf.printf "Done with the successors of qhd.\n");
