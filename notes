@@ -60,3 +60,7 @@ Other things
 -initial slide explaining what i've done since december.
 -conclude with what will we have at the end. (including time-abstracted bisimulation of some kind.)
 -comment code (later)
+
+27 March
+Implement the check on T(l_j) - T(l) and ditto on T(l) - T(l_i)
+Reverse the directions from what is given in the paper.
