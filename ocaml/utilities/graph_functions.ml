@@ -128,9 +128,9 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           in
           queueref :=
             if
-              (List.length changed_zone_list
-               <>
-                 List.length zone_list_array.(tree_element)
+              (List.exists
+                 (function l -> List.for_all ((<>) l) tree_array.(tree_element))
+                 tree_array.(qhd)
               )
             then
               (enqueue_without_repetition !queueref tree_element)
@@ -189,9 +189,9 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           in
           queueref :=
             if
-              (List.length changed_zone_list
-               <>
-                 List.length zone_list_array.(successor)
+              (List.exists
+                 (function l -> List.for_all ((<>) l) tree_array.(successor))
+                 tree_array.(qhd)
               )
             then
               (enqueue_without_repetition queue successor)
