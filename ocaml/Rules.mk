@@ -66,6 +66,7 @@ myocamlbuild.ml
 
 test.native: \
 $(grammar_types) \
+utilities/Clock_constraint_utilities.ml \
 utilities/graph_functions.ml \
 utilities/UDBM_utilities.ml \
 test/test.ml \

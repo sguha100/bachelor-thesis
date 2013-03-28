@@ -16,6 +16,21 @@ let init_tree_array ta =
      (function i -> [])
   )
 
+let enqueue_without_repetition queue location =
+  if
+    (List.exists
+       ((=) location)
+       queue
+    )
+  then
+    queue
+  else
+    (Printf.printf "enqueue %s\n\n" (string_of_int
+                                       location);
+     flush stdout;
+     location::queue
+    )
+
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
   match !queueref with
@@ -133,16 +148,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
               <>
                 List.length zone_list_array.(tree_element)
              )
-             &&
-               (List.for_all
-                  ((<>) tree_element)
-                  !queueref
-               )
            then
-             (Printf.printf "enqueue %s\n\n" (string_of_int
-                                                tree_element);
-              flush stdout;
-              tree_element::(!queueref))
+             (enqueue_without_repetition !queueref tree_element)
            else
              (!queueref)
          ;
@@ -200,16 +207,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 <>
                   List.length zone_list_array.(successor)
                )
-               &&
-                 (List.for_all
-                    ((<>) successor)
-                    !queueref
-                 )
              then
-               (Printf.printf "enqueue successor %s\n\n"
-                  (string_of_int successor);
-                flush stdout;
-                successor::(!queueref))
+                (enqueue_without_repetition queue successor)
              else
                (!queueref)
            ;
