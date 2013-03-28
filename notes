@@ -64,3 +64,12 @@ Other things
 27 March
 Implement the check on T(l_j) - T(l) and ditto on T(l) - T(l_i)
 Reverse the directions from what is given in the paper.
+
+28 March
+Note: when processing the successor of a location, after splitting this successor, we should be sure to add all the elements of the tree of this location to the tree of the successor, as well.
+Add this to the report.
+Claim for the correctness: All zones will be stable.
+Make a modified latex doc for the modified document.
+Modify our version of fernandez' algorithm so that the initial partition CAN be something other than one block with all the nodes.
+Also, account for reachability.
+
