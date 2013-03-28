@@ -99,6 +99,126 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         (string_of_int qhd)
         (string_of_int (List.length zone_list_array.(qhd)))))
   in
+  let process_tree qhd =
+    ((Printf.printf
+        "Starting with the tree of qhd = [%s].\n"
+        (String.concat "; " (List.map string_of_int tree_array.(qhd))));
+     flush stdout;
+     (List.iter
+        (function tree_element ->
+          (Printf.printf "constraint_list length = %s\n"
+             (string_of_int (List.length zone_list_array.(qhd))));
+          flush stdout;
+          let
+              constraint_list =
+            (List.map
+               (function zone ->
+                 zone.zone_constraint
+               )
+               zone_list_array.(qhd)
+            )
+          in
+          let
+              changed_zone_list =
+            (split_zone_list_on_constraint_list
+               zone_list_array.(tree_element)
+               constraint_list
+               ta
+            )
+          in
+          queueref :=
+            if
+              (List.length changed_zone_list
+               <>
+                 List.length zone_list_array.(tree_element)
+              )
+            then
+              (enqueue_without_repetition !queueref tree_element)
+            else
+              (!queueref)
+          ;
+          zone_list_array.(tree_element) <-
+            changed_zone_list
+          ;
+          if
+            (List.exists
+               ((=) qhd)
+               tree_array.(tree_element)
+            )
+          then
+            ()
+          else
+            (tree_array.(tree_element) <-
+               qhd::tree_array.(tree_element)
+            );
+        )
+        tree_array.(qhd)
+     );
+     (Printf.printf "Done with elements of the tree of qhd.\n");
+     flush stdout)
+  in
+  let process_successors qhd =
+    ((Printf.printf "Starting with successors of qhd.\n");
+     flush stdout;
+     (List.iter
+        (function departure ->
+          let successor = departure.next_location in
+          Printf.printf "Successor=%s arrived.\n" (string_of_int successor);
+          flush stdout;
+          let
+              constraint_list = (List.map
+                                   (function zone ->
+                                     clock_constraint_after_clock_resets
+                                       zone.zone_constraint
+                                       departure.clock_resets
+                                   )
+                                   zone_list_array.(qhd)
+          )
+          in
+          Printf.printf
+            "constraint_list length = %s\n"
+            (string_of_int (List.length constraint_list));
+          flush stdout;
+          let
+              changed_zone_list =
+            (split_zone_list_on_constraint_list
+               zone_list_array.(successor)
+               constraint_list
+               ta
+            )
+          in
+          queueref :=
+            if
+              (List.length changed_zone_list
+               <>
+                 List.length zone_list_array.(successor)
+              )
+            then
+              (enqueue_without_repetition queue successor)
+            else
+              (!queueref)
+          ;
+          zone_list_array.(successor) <-
+            changed_zone_list;
+          Printf.printf "Successor=%s left.\n" (string_of_int successor);
+          flush stdout;
+          if
+            (List.exists
+               ((=) qhd)
+               tree_array.(successor)
+            )
+          then
+            ()
+          else
+            (tree_array.(successor) <-
+               qhd::tree_array.(successor)
+            );
+        )
+        (Array.to_list ta.locations.(qhd).departures)
+     );
+     (Printf.printf "Done with the successors of qhd.\n");
+     (flush stdout))
+  in
   match !queueref with
     [] -> (!queueref, zone_list_array, tree_array)
   | qhd::qtl ->
@@ -122,122 +242,8 @@ let dequeue ta (queue, zone_list_array, tree_array) =
      else
         () 
     );
-    (Printf.printf
-       "Starting with the tree of qhd = [%s].\n"
-       (String.concat "; " (List.map string_of_int tree_array.(qhd))));
-    flush stdout;
-    (List.iter
-       (function tree_element ->
-         (Printf.printf "constraint_list length = %s\n"
-            (string_of_int (List.length zone_list_array.(qhd))));
-         flush stdout;
-         let
-             constraint_list =
-           (List.map
-              (function zone ->
-                zone.zone_constraint
-              )
-              zone_list_array.(qhd)
-           )
-         in
-         let
-             changed_zone_list =
-           (split_zone_list_on_constraint_list
-              zone_list_array.(tree_element)
-              constraint_list
-              ta
-           )
-         in
-         queueref :=
-           if
-             (List.length changed_zone_list
-              <>
-                List.length zone_list_array.(tree_element)
-             )
-           then
-             (enqueue_without_repetition !queueref tree_element)
-           else
-             (!queueref)
-         ;
-         zone_list_array.(tree_element) <-
-           changed_zone_list
-         ;
-         if
-           (List.exists
-              ((=) qhd)
-              tree_array.(tree_element)
-           )
-         then
-           ()
-         else
-           (tree_array.(tree_element) <-
-              qhd::tree_array.(tree_element)
-           );
-       )
-       tree_array.(qhd)
-    );
-    (Printf.printf "Done with elements of the tree of qhd.\n");
-    flush stdout;
-    (Printf.printf "Starting with successors of qhd.\n");
-    flush stdout;
-    (List.iter
-       (function departure ->
-         let successor = departure.next_location in
-         Printf.printf "Successor=%s arrived.\n" (string_of_int successor);
-         flush stdout;
-         let
-             constraint_list = (List.map
-                                  (function zone ->
-                                    clock_constraint_after_clock_resets
-                                      zone.zone_constraint
-                                      departure.clock_resets
-                                  )
-                                  zone_list_array.(qhd)
-         )
-         in
-         Printf.printf
-           "constraint_list length = %s\n"
-           (string_of_int (List.length constraint_list));
-         flush stdout;
-         let
-             changed_zone_list =
-           (split_zone_list_on_constraint_list
-              zone_list_array.(successor)
-              constraint_list
-              ta
-           )
-         in
-         queueref :=
-           if
-             (List.length changed_zone_list
-              <>
-                List.length zone_list_array.(successor)
-             )
-           then
-             (enqueue_without_repetition queue successor)
-           else
-             (!queueref)
-         ;
-         zone_list_array.(successor) <-
-           changed_zone_list;
-         Printf.printf "Successor=%s left.\n" (string_of_int successor);
-         flush stdout;
-         if
-           (List.exists
-              ((=) qhd)
-              tree_array.(successor)
-           )
-         then
-           ()
-         else
-           (tree_array.(successor) <-
-              qhd::tree_array.(successor)
-           );
-       )
-       (Array.to_list ta.locations.(qhd).departures)
-    );
-    (Printf.printf "Done with the successors of qhd.\n");
-    (flush stdout);
+    process_tree qhd;
+    process_successors qhd;
     Printf.printf "queue now = [%s]\n" (String.concat "; " (List.map string_of_int queue));
     flush stdout;
     (!queueref,
