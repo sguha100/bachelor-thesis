@@ -33,6 +33,31 @@ let enqueue_without_repetition queue location =
 
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
+  let split_using_parent qhd thd =
+    ((zone_list_array.(qhd) <- (
+      Printf.printf
+        "qhd = %s, zone_list length = %s before split\n"
+        (string_of_int qhd)
+        (string_of_int (List.length zone_list_array.(qhd)));
+      (Printf.printf
+         "Tree top is %s, constraint_list length = %s\n"
+         (string_of_int thd)
+         (string_of_int (List.length zone_list_array.(thd)))
+      );
+      flush stdout;
+      (split_zone_list_on_constraint_list
+         zone_list_array.(qhd)
+         (List.map
+            (function zone -> zone.zone_constraint)
+            zone_list_array.(thd)
+         )
+         ta)
+      ));
+     Printf.printf
+       "qhd = %s, zone_list length = %s after split\n"
+       (string_of_int qhd)
+       (string_of_int (List.length zone_list_array.(qhd))))
+  in
   let self_split qhd =
     (let
         constraint_list =
@@ -87,29 +112,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
       with
         [] -> ()
       | thd::ttl ->
-        zone_list_array.(qhd) <- (
-          Printf.printf
-            "qhd = %s, zone_list length = %s before split\n"
-            (string_of_int qhd)
-            (string_of_int (List.length zone_list_array.(qhd)));
-          (Printf.printf
-             "Tree top is %s, constraint_list length = %s\n"
-             (string_of_int thd)
-             (string_of_int (List.length zone_list_array.(thd)))
-          );
-          flush stdout;
-          (split_zone_list_on_constraint_list
-             zone_list_array.(qhd)
-             (List.map
-                (function zone -> zone.zone_constraint)
-                zone_list_array.(thd)
-             )
-             ta)
-        );
-        Printf.printf
-          "qhd = %s, zone_list length = %s after split\n"
-          (string_of_int qhd)
-          (string_of_int (List.length zone_list_array.(qhd)))
+        (split_using_parent qhd thd)
     ) ;
     flush stdout
     ;
