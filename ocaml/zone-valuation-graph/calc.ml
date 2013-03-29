@@ -10,24 +10,26 @@ open ZVG_modules
 let _ =
   let result = parse_timed_automaton stdin in
   let g = generate_zone_valuation_graph result in
-  Printf.printf "#locations %s\n" (string_of_int result.numlocations);
-  Printf.printf "#trans %s\n" (string_of_int result.numtrans);
-  Printf.printf "#clocks %s\n" (string_of_int result.numclocks);
-  Printf.printf "#actions %s\n" (string_of_int result.numactions);
-  Printf.printf "#init %s\n" (string_of_int result.numinit);
+  let txt_out = open_out "/tmp/lts.txt" in
+  Printf.fprintf txt_out "#locations %s\n" (string_of_int result.numlocations);
+  Printf.fprintf txt_out "#trans %s\n" (string_of_int result.numtrans);
+  Printf.fprintf txt_out "#clocks %s\n" (string_of_int result.numclocks);
+  Printf.fprintf txt_out "#actions %s\n" (string_of_int result.numactions);
+  Printf.fprintf txt_out "#init %s\n" (string_of_int result.numinit);
   let len = (Array.length g) in
   for i = 0 to len - 1 do
     List.iter
       (function (zone, edges_of_zone) ->
-        Printf.printf "\nlocation: %s\n" (string_of_int i);
-        Printf.printf
+        Printf.fprintf txt_out "\nlocation: %s\n" (string_of_int i);
+        Printf.fprintf txt_out
           "invar: %s\n"
           (string_of_clock_constraint zone.zone_constraint)
         ;
-        Printf.printf "trans:\n";
+        Printf.fprintf txt_out "trans:\n";
         List.iter
           (function (departure, _) ->
-            Printf.printf
+            Printf.fprintf
+              txt_out
               "ACT %s; RESET { %s }; goto %s\n"
               (string_of_int departure.action)
               (String.concat
@@ -41,8 +43,9 @@ let _ =
       g.(i)
     ;
   done;
-  flush stdout;
+  flush txt_out;
+  close_out txt_out;
   let l = lts_of_zone_valuation_graph result in
-  (ZVGLTS.print_dot l (ZVGLTS.fernandez l) "/tmp/something.dot");
+  (ZVGLTS.print_dot l (ZVGLTS.fernandez l) "/tmp/lts.dot");
   exit 0
 
