@@ -7,15 +7,13 @@ open UDBM_utilities
 open Zone_stubs
 open ZVG_modules
 
-let _ =
-  let result = parse_timed_automaton stdin in
-  let g = generate_zone_valuation_graph result in
+let text_dump ta g = 
   let txt_out = open_out "/tmp/lts.txt" in
-  Printf.fprintf txt_out "#locations %s\n" (string_of_int result.numlocations);
-  Printf.fprintf txt_out "#trans %s\n" (string_of_int result.numtrans);
-  Printf.fprintf txt_out "#clocks %s\n" (string_of_int result.numclocks);
-  Printf.fprintf txt_out "#actions %s\n" (string_of_int result.numactions);
-  Printf.fprintf txt_out "#init %s\n" (string_of_int result.numinit);
+  Printf.fprintf txt_out "#locations %s\n" (string_of_int ta.numlocations);
+  Printf.fprintf txt_out "#trans %s\n" (string_of_int ta.numtrans);
+  Printf.fprintf txt_out "#clocks %s\n" (string_of_int ta.numclocks);
+  Printf.fprintf txt_out "#actions %s\n" (string_of_int ta.numactions);
+  Printf.fprintf txt_out "#init %s\n" (string_of_int ta.numinit);
   let len = (Array.length g) in
   for i = 0 to len - 1 do
     List.iter
@@ -44,7 +42,12 @@ let _ =
     ;
   done;
   flush txt_out;
-  close_out txt_out;
+  close_out txt_out
+
+let _ =
+  let result = parse_timed_automaton stdin in
+  let g = generate_zone_valuation_graph result in
+  text_dump result g;
   let l = lts_of_zone_valuation_graph result in
   (ZVGLTS.print_dot l (ZVGLTS.fernandez l) "/tmp/lts.dot");
   exit 0
