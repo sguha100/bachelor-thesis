@@ -98,6 +98,20 @@ let minimise_clock_constraint clock_constraint clock_name_list =
   in
   let
       phase3 clock_constraint =
+      List.concat
+        (List.map
+           (function unit_clock_constraint ->
+             match
+               unit_clock_constraint
+             with
+             | Eq (cn, c) -> [Le (cn, c); Ge (cn, c)]
+             | _ -> [unit_clock_constraint]
+           )
+           clock_constraint
+        )
+  in
+  let
+      phase4 clock_constraint =
     List.fold_left
       (function clock_constraint ->
         function cn ->
@@ -134,7 +148,7 @@ let minimise_clock_constraint clock_constraint clock_name_list =
       clock_name_list
   in
   let
-      phase4 clock_constraint =
+      phase5 clock_constraint =
     List.fold_left
       (function clock_constraint ->
         function cn ->
@@ -171,7 +185,7 @@ let minimise_clock_constraint clock_constraint clock_name_list =
       clock_name_list
   in
   let
-      phase5 clock_constraint =
+      phase6 clock_constraint =
     List.fold_left
       (function clock_constraint ->
         function cn ->
@@ -208,7 +222,7 @@ let minimise_clock_constraint clock_constraint clock_name_list =
       clock_name_list
   in
   let
-      phase6 clock_constraint =
+      phase7 clock_constraint =
     List.fold_left
       (function clock_constraint ->
         function cn ->
@@ -244,7 +258,7 @@ let minimise_clock_constraint clock_constraint clock_name_list =
       clock_constraint
       clock_name_list
   in
-  phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint)))))
+  phase7 (phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint))))))
 
 let split_zone_on_clock_constraint zone clock_constraint clock_names=
   List.fold_left (*This is where we split by each of the constituents
