@@ -40,6 +40,7 @@ c/zone_stubs.c
 calc.native: \
 zone-valuation-graph/calc.ml \
 zone-valuation-graph/ZVG_modules.ml \
+zone-valuation-graph/ZVG_tree.ml \
 $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
