@@ -8,6 +8,19 @@ let get_parent_with_edge tree = tree.parent_with_edge
 
 let get_elements tree = tree.elements
 
+let string_of_tree tree =
+  "["
+  ^
+    (String.concat
+       "; "
+       (List.map
+          string_of_int
+          tree.elements
+       )
+    )
+  ^
+    "]"
+
 let add_element_to_tree tree element =
   {parent_with_edge = tree.parent_with_edge;
    elements =

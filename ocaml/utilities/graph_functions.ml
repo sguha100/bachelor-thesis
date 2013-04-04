@@ -139,9 +139,9 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         (string_of_int (List.length zone_list_array.(qhd)))))
   in
   let process_tree qhd =
-    ((Printf.printf
-        "Starting with the tree of qhd = [%s].\n"
-        (string_of_queue (get_elements tree_array.(qhd))));
+    (Printf.printf
+       "Starting with the tree of qhd = %s.\n"
+       (string_of_tree tree_array.(qhd));
      flush stdout;
      (List.iter
         (function tree_element ->
@@ -166,24 +166,12 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             )
           in
           Printf.printf
-            "tree_array.(tree_element) = [%s]\n"
-            (String.concat
-               "; "
-               (List.map
-                  string_of_int
-                  (get_elements tree_array.(tree_element))
-               )
-            )
+            "tree_array.(tree_element) = %s\n"
+            (string_of_tree tree_array.(tree_element))
           ;
           Printf.printf
-            "tree_array.(qhd) = [%s]\n"
-            (String.concat
-               "; "
-               (List.map
-                  string_of_int
-                  (get_elements tree_array.(qhd))
-               )
-            )
+            "tree_array.(qhd) = %s\n"
+            (string_of_tree tree_array.(qhd))
           ;
           queueref :=
             if
@@ -215,24 +203,12 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           let successor = departure.next_location in
           Printf.printf "Successor=%s arrived.\n" (string_of_int successor);
           Printf.printf
-            "tree_array.(successor) = [%s]\n"
-            (String.concat
-               "; "
-               (List.map
-                  string_of_int
-                  (get_elements tree_array.(successor))
-               )
-            )
+            "tree_array.(successor) = %s\n"
+            (string_of_tree tree_array.(successor))
           ;
           Printf.printf
-            "tree_array.(qhd) = [%s]\n"
-            (String.concat
-               "; "
-               (List.map
-                  string_of_int
-                  (get_elements tree_array.(qhd))
-               )
-            )
+            "tree_array.(qhd) = %s\n"
+            (string_of_tree tree_array.(qhd))
           ;
           flush stdout;
           queueref :=
@@ -282,7 +258,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     process_tree qhd;
     process_successors qhd;
-    Printf.printf "queue now = [%s]\n" (String.concat "; " (List.map string_of_int !queueref));
+    Printf.printf "queue now = %s\n" (string_of_queue !queueref);
     flush stdout;
     (!queueref,
      zone_list_array,

@@ -367,6 +367,16 @@ Methods
     | whead::wtail -> emptyqueue l (dequeue l (w, pi))
 
 @ 
+\item This function splits the LTS $l$ starting with partition $pi$
+  using Fernandez' algorithm.
+<<Fernandez_modules.ml>>=
+  let fernandez_specifying_partition l pi =
+    let
+        (_, pi) = emptyqueue l ((List.map (function block -> Simple block) pi), pi)
+    in
+    pi
+
+@ 
 \item This function splits the LTS $l$ using Fernandez' algorithm.
 <<Fernandez_modules.ml>>=
   let fernandez l =
@@ -375,7 +385,6 @@ Methods
     in
     let
         (_, pi) = emptyqueue l ([Simple llistblock], [llistblock])
-        (* (_, pi) = dequeue l ([Simple llistblock], [llistblock]) *)
     in
     pi
 
