@@ -14,7 +14,7 @@ let init_zone_list_array ta =
 let init_tree_array ta = 
   (Array.init
      ta.numlocations
-     (function i -> [])
+     (function i -> init_tree ())
   )
 
 let string_of_queue queue =
@@ -49,7 +49,7 @@ let enqueue_without_repetition queue location =
 
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
-  let split_using_parent qhd thd =
+  let split_using_parent qhd (parent, edge) =
     ((zone_list_array.(qhd) <- (
       Printf.printf
         "qhd = %s, zone_list length = %s before split\n"
@@ -57,15 +57,19 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         (string_of_int (List.length zone_list_array.(qhd)));
       (Printf.printf
          "Tree top is %s, constraint_list length = %s\n"
-         (string_of_int thd)
-         (string_of_int (List.length zone_list_array.(thd)))
+         (string_of_int parent)
+         (string_of_int (List.length zone_list_array.(parent)))
       );
       flush stdout;
       (split_zone_list_on_constraint_list
          zone_list_array.(qhd)
          (List.map
-            (function zone -> zone.zone_constraint)
-            zone_list_array.(thd)
+            (function zone ->
+              clock_constraint_after_clock_resets
+                zone.zone_constraint
+                edge.clock_resets
+            )
+            zone_list_array.(parent)
          )
          ta)
       ));
@@ -111,11 +115,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
            ta)
      );
      (tree_array.(qhd) <-
-        if (List.mem qhd tree_array.(qhd))
-        then
-          tree_array.(qhd)
-        else
-          qhd::tree_array.(qhd)
+        add_element_to_tree tree_array.(qhd) qhd
      );
      (Printf.printf
         "qhd = %s, zone_list length = %s after split\n"
@@ -125,7 +125,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   let process_tree qhd =
     ((Printf.printf
         "Starting with the tree of qhd = [%s].\n"
-        (string_of_queue tree_array.(qhd)));
+        (string_of_queue (get_elements tree_array.(qhd))));
      flush stdout;
      (List.iter
         (function tree_element ->
@@ -155,7 +155,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                "; "
                (List.map
                   string_of_int
-                  tree_array.(tree_element)
+                  (get_elements tree_array.(tree_element))
                )
             )
           ;
@@ -165,15 +165,15 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                "; "
                (List.map
                   string_of_int
-                  tree_array.(qhd)
+                  (get_elements tree_array.(qhd))
                )
             )
           ;
           queueref :=
             if
-              (List.exists
-                 (function l -> List.for_all ((<>) l) tree_array.(tree_element))
+              (tree_element_difference
                  tree_array.(qhd)
+                 tree_array.(tree_element)
               )
             then
               (enqueue_without_repetition !queueref tree_element)
@@ -183,19 +183,10 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           zone_list_array.(tree_element) <-
             changed_zone_list
           ;
-          if
-            (List.exists
-               ((=) qhd)
-               tree_array.(tree_element)
-            )
-          then
-            ()
-          else
-            (tree_array.(tree_element) <-
-               qhd::tree_array.(tree_element)
-            );
+          tree_array.(tree_element) <-
+            add_element_to_tree tree_array.(tree_element) qhd;
         )
-        tree_array.(qhd)
+        (get_elements tree_array.(qhd))
      );
      (Printf.printf "Done with elements of the tree of qhd.\n");
      flush stdout)
@@ -213,7 +204,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                "; "
                (List.map
                   string_of_int
-                  tree_array.(successor)
+                  (get_elements tree_array.(successor))
                )
             )
           ;
@@ -223,17 +214,14 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                "; "
                (List.map
                   string_of_int
-                  tree_array.(qhd)
+                  (get_elements tree_array.(qhd))
                )
             )
           ;
           flush stdout;
           queueref :=
             if
-              (List.exists
-                 (function l -> List.for_all ((<>) l) tree_array.(successor))
-                 tree_array.(qhd)
-              )
+              tree_element_difference tree_array.(qhd) tree_array.(successor)
             then
               (enqueue_without_repetition !queueref successor)
             else
@@ -241,16 +229,11 @@ let dequeue ta (queue, zone_list_array, tree_array) =
           ;
           Printf.printf "Successor=%s left.\n" (string_of_int successor);
           flush stdout;
-          if
-            (List.exists
-               ((=) qhd)
+          tree_array.(successor) <-
+            (add_parent_with_edge_to_tree
                tree_array.(successor)
-            )
-          then
-            ()
-          else
-            (tree_array.(successor) <-
-               qhd::tree_array.(successor)
+               qhd
+               departure
             );
         )
         (Array.to_list ta.locations.(qhd).departures)
@@ -267,15 +250,15 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     flush stdout;
     (
       match
-        tree_array.(qhd)
+        get_parent_with_edge tree_array.(qhd)
       with
-        [] -> ()
-      | thd::ttl ->
-        (split_using_parent qhd thd)
+        None -> ()
+      | Some (parent, edge) ->
+        (split_using_parent qhd (parent, edge))
     ) ;
     flush stdout
     ;
-    (if (not (List.mem qhd tree_array.(qhd)))
+    (if (not (List.mem qhd (get_elements tree_array.(qhd))))
      then
         (self_split qhd)
      else

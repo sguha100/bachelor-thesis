@@ -2,6 +2,12 @@ open Grammar_types
 type tree = {parent_with_edge: (int * transition) option; elements:
   int list}
 
+let init_tree unit = {parent_with_edge = None; elements = []}
+
+let get_parent_with_edge tree = tree.parent_with_edge
+
+let get_elements tree = tree.elements
+
 let add_element_to_tree tree element =
   {parent_with_edge = tree.parent_with_edge;
    elements =
