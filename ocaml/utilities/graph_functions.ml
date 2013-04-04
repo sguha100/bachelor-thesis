@@ -50,28 +50,44 @@ let enqueue_without_repetition queue location =
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
   let split_using_parent qhd (parent, edge) =
-    ((zone_list_array.(qhd) <- (
-      Printf.printf
-        "qhd = %s, zone_list length = %s before split\n"
-        (string_of_int qhd)
-        (string_of_int (List.length zone_list_array.(qhd)));
-      (Printf.printf
-         "Tree top is %s, constraint_list length = %s\n"
-         (string_of_int parent)
-         (string_of_int (List.length zone_list_array.(parent)))
-      );
-      flush stdout;
-      (split_zone_list_on_constraint_list
-         zone_list_array.(qhd)
-         (List.map
-            (function zone ->
-              clock_constraint_after_clock_resets
-                zone.zone_constraint
-                edge.clock_resets
-            )
-            zone_list_array.(parent)
-         )
-         ta)
+    (let
+        constraint_list =
+       (List.map
+          (function zone ->
+            clock_constraint_after_clock_resets
+              zone.zone_constraint
+              edge.clock_resets
+          ) (*Why reset the clocks on the parent's zones? In order
+              to ensure that the zones in this location are made
+              correctly.*)
+          (List.filter
+             (function zone ->
+               (clock_constraint_haveIntersection
+                  ta.clock_names
+                  zone.zone_constraint
+                  edge.condition
+               )
+             )
+             zone_list_array.(parent)
+          ) (*Why filter? To make sure we don't unncessarily split
+              states when stability does not require us to do so.*)
+       )
+     in
+     (zone_list_array.(qhd) <- (
+       Printf.printf
+         "qhd = %s, zone_list length = %s before split\n"
+         (string_of_int qhd)
+         (string_of_int (List.length zone_list_array.(qhd)));
+       (Printf.printf
+          "Tree top is %s, constraint_list length = %s\n"
+          (string_of_int parent)
+          (string_of_int (List.length zone_list_array.(parent)))
+       );
+       flush stdout;
+       (split_zone_list_on_constraint_list
+          zone_list_array.(qhd)
+          constraint_list
+          ta)
       ));
      Printf.printf
        "qhd = %s, zone_list length = %s after split\n"
