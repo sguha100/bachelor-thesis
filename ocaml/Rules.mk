@@ -59,7 +59,7 @@ utilities/parse_timed_automaton.ml \
 $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
-utilities/graph_functions.ml \
+zone-valuation-graph/graph_functions.ml \
 utilities/UDBM_utilities.ml \
 Rules.mk \
 _tags\
@@ -68,7 +68,7 @@ myocamlbuild.ml
 test.native: \
 $(grammar_types) \
 utilities/Clock_constraint_utilities.ml \
-utilities/graph_functions.ml \
+zone-valuation-graph/graph_functions.ml \
 utilities/UDBM_utilities.ml \
 test/test.ml \
 Rules.mk \
