@@ -72,7 +72,7 @@ _tags\
 myocamlbuild.ml
 
 %.native:
-	$(OCAMLBUILD) $(OCAMLCFLAGS) $(OCAMLLFLAGS) \
+	$(OCAMLBUILD)  \
 	next_step/next_step.native \
 	zone-valuation-graph/calc.native \
 	test/test.native
