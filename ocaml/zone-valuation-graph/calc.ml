@@ -51,18 +51,8 @@ let _ =
   let l = lts_of_zone_valuation_graph result in
   (ZVGLTS.print_dot
      l
-     (ZVGLTS.fernandez_specifying_partition
+     (ZVGLTS.fernandez
         l
-        (List.map
-           (function ll ->
-             ZVGLTS.get_block_from_node_refs
-               l
-               (List.map (function (zone, _) -> zone) ll)
-           )
-           (Array.to_list
-              g
-           )
-        )
      )
      "/tmp/lts.dot");
   exit 0
