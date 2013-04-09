@@ -26,7 +26,7 @@ dispatch begin function
   
   (* When one compiles C code using the udbm library *)
   flag ["c"; "compile"; "include_udbm"]
-    (S[A"-ccopt"; A udbm_include; A"-ccopt"; A have_udbm]);
+    (S[A"-cc"; A"g++"; A"-ccopt"; A udbm_include; A"-ccopt"; A have_udbm]);
   
   flag ["link"; "ocaml"; "library"; "use_udbm"]
     (S[A"-ccopt"; A udbm_libdir; A"-cclib"; A udbm_lib]);

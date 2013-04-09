@@ -1,16 +1,17 @@
+/* This stuff is courtesy the UPPAAL DBM library. */
+#include <dbm/constraints.h>
+#include <dbm/dbm.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
 #include <caml/custom.h>
 
-/* This stuff is courtesy the UPPAAL DBM library. */
-#ifdef __cplusplus
-
-#endif
-#include <dbm/constraints.h>
-#include <dbm/dbm.h>
-
-/* Encapsulation of opaque window handles (of type RAW_T *)
+/* Encapsulation of opaque handles (of type RAW_T *)
    as Caml custom blocks. */
 static struct custom_operations udbm_raw_t_ops = {
   "fr.inria.caml.udbm_raw_t",
@@ -21,18 +22,7 @@ static struct custom_operations udbm_raw_t_ops = {
   custom_deserialize_default
 };
 
-/* Accessing the RAW_T * part of a Caml custom block */
-#define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
-
-/* Allocating a Caml custom block to hold the given RAW_T * */
-static value alloc_raw_t(raw_t * w)
-{
-  value v = alloc_custom(&udbm_raw_t_ops, sizeof(raw_t *), 0, 1);
-  raw_t_val(v) = w;
-  return v;
-}
-
-/* Encapsulation of opaque window handles (of type CONSTRAINT_T *)
+/* Encapsulation of opaque handles (of type CONSTRAINT_T *)
    as Caml custom blocks. */
 static struct custom_operations udbm_constraint_t_ops = {
   "fr.inria.caml.udbm_constraint_t",
@@ -43,8 +33,19 @@ static struct custom_operations udbm_constraint_t_ops = {
   custom_deserialize_default
 };
 
+/* Accessing the RAW_T * part of a Caml custom block */
+#define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
+
 /* Accessing the CONSTRAINT_T * part of a Caml custom block */
 #define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
+
+/* Allocating a Caml custom block to hold the given RAW_T * */
+static value alloc_raw_t(raw_t * w)
+{
+  value v = alloc_custom(&udbm_raw_t_ops, sizeof(raw_t *), 0, 1);
+  raw_t_val(v) = w;
+  return v;
+}
 
 /* Allocating a Caml custom block to hold the given CONSTRAINT_T * */
 static value alloc_constraint_t(constraint_t * w)
@@ -130,3 +131,7 @@ CAMLprim value zone_dbm_up(value dbm, value dim) {
   dbm_up(raw_t_val(dbm), Int_val(dim));
   CAMLreturn (dbm);
 }
+
+#ifdef __cplusplus
+}
+#endif
