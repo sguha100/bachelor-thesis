@@ -275,6 +275,12 @@ extern "C" {
     CAMLreturn (caml_copy_string(dbm_toString(raw_t_val(dbm), Int_val(dim))));
   }
 
+  CAMLprim value zone_dbm_zero(value dbm, value dim) {
+    CAMLparam2(dbm, dim);
+    dbm_zero(raw_t_val(dbm), Int_val(dim));
+    CAMLreturn (dbm);
+  }
+
 #ifdef __cplusplus
 }
 #endif
