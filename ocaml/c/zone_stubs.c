@@ -17,7 +17,7 @@ std::string getClockName(cindex_t index)
   return std::string(str1);
 }
 
-const char *raw_t_to_string(raw_t *dbm, cindex_t dim) 
+const char *dbm_toString(raw_t *dbm, cindex_t dim) 
 {
   if (dbm_isEmpty(dbm, dim))
     {
@@ -268,6 +268,11 @@ extern "C" {
     CAMLparam2(dbm, dim);
     dbm_up(raw_t_val(dbm), Int_val(dim));
     CAMLreturn (dbm);
+  }
+
+  CAMLprim value zone_dbm_toString(value dbm, value dim) {
+    CAMLparam2(dbm, dim);
+    CAMLreturn (caml_copy_string(dbm_toString(raw_t_val(dbm), Int_val(dim))));
   }
 
 #ifdef __cplusplus

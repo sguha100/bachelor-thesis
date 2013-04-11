@@ -14,4 +14,4 @@ external dbm_freeClock: raw_t -> int -> int -> raw_t =
 external dbm_updateValue: raw_t -> int -> int -> int -> raw_t =
   "zone_dbm_updateValue"
 external dbm_up: raw_t -> int -> raw_t = "zone_dbm_up"
-  
+external dbm_toString: raw_t -> int -> string = "zone_dbm_toString"  
