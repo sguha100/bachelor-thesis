@@ -12,8 +12,8 @@ struct
                 action_count: int}
   let node_name =
     function l -> function zone -> ((string_of_int
-                                       zone.zone_location) ^ " " ^
-                                       (string_of_clock_constraint zone.zone_constraint) )
+                                       zone.zone_location1) ^ " " ^
+                                       (string_of_clock_constraint zone.zone_constraint1) )
   let expand_action = function l -> function a -> string_of_int a
   let nodes =
     function l ->

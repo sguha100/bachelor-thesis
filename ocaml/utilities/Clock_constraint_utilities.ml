@@ -276,17 +276,17 @@ let split_zone_on_clock_constraint zone clock_constraint clock_names=
               (List.filter
                  (function zone ->
                    match
-                     (clock_constraint_to_raw_t_option clock_names zone.zone_constraint)
+                     (clock_constraint_to_raw_t_option clock_names zone.zone_constraint1)
                    with
                      None -> false
                    | _ -> true
                  )
                  (List.map
                     (function unit_clock_constraint -> (*Yep, variable overuse.*)
-                      {zone_location = zone.zone_location;
-                       zone_constraint =
+                      {zone_location1 = zone.zone_location1;
+                       zone_constraint1 =
                           (unit_clock_constraint ::
-                             zone.zone_constraint)
+                             zone.zone_constraint1)
                       }
                     )
                     (split_on_unit_clock_constraint unit_clock_constraint)
@@ -340,10 +340,10 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
             function zone ->
               (List.map
                  (function zone ->
-                   {zone_location = zone.zone_location;
-                    zone_constraint =
+                   {zone_location1 = zone.zone_location1;
+                    zone_constraint1 =
                        (minimise_clock_constraint
-                          zone.zone_constraint
+                          zone.zone_constraint1
                           clock_name_list)
                    }
                  )

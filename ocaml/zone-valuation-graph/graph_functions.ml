@@ -8,7 +8,7 @@ open ZVG_tree
 let init_zone_list_array ta =
   (Array.init
      ta.numlocations
-     (function i -> [{zone_location = i; zone_constraint = [True]}])
+     (function i -> [{zone_location1 = i; zone_constraint1 = [True]}])
   )
 
 let init_tree_array ta = 
@@ -55,7 +55,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
        (List.map
           (function zone ->
             clock_constraint_after_clock_resets
-              zone.zone_constraint
+              zone.zone_constraint1
               edge.clock_resets
           ) (*Why reset the clocks on the parent's zones? In order
               to ensure that the zones in this location are made
@@ -64,7 +64,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
              (function zone ->
                (clock_constraint_haveIntersection
                   ta.clock_names
-                  zone.zone_constraint
+                  zone.zone_constraint1
                   edge.condition
                )
              )
@@ -152,7 +152,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
               constraint_list =
             (List.map
                (function zone ->
-                 zone.zone_constraint
+                 zone.zone_constraint1
                )
                zone_list_array.(qhd)
             )
@@ -300,18 +300,18 @@ let generate_zone_valuation_graph ta =
                {action = -1;
                 condition = [True];
                 clock_resets = [||];
-                next_location = zone.zone_location
+                next_location = zone.zone_location1
                } (*This one is a time transition.*)
                ::
                  (List.filter
                     (function departure ->
                       clock_constraint_haveIntersection
                         ta.clock_names
-                        zone.zone_constraint
+                        zone.zone_constraint1
                         departure.condition
                     )
                     (Array.to_list
-                       ta.locations.(zone.zone_location).departures)
+                       ta.locations.(zone.zone_location1).departures)
                  )
              in
              List.map
@@ -323,10 +323,10 @@ let generate_zone_valuation_graph ta =
                          clock_constraint_haveIntersection
                            ta.clock_names
                            (clock_constraint_after_clock_resets
-                              zone.zone_constraint
+                              zone.zone_constraint1
                               departure.clock_resets
                            )
-                           arrival_zone.zone_constraint
+                           arrival_zone.zone_constraint1
                        )
                        zone_list_array.(departure.next_location)
                     )
@@ -335,19 +335,19 @@ let generate_zone_valuation_graph ta =
                        (function arrival_zone ->
                          (* clock_constraint_haveIntersection *)
                          (*   ta.clock_names *)
-                         (*   zone.zone_constraint (\*TODO: make this upward unbounded!*\) *)
-                         (*   arrival_zone.zone_constraint *)
+                         (*   zone.zone_constraint1 (\*TODO: make this upward unbounded!*\) *)
+                         (*   arrival_zone.zone_constraint1 *)
                          match
                            (clock_constraint_to_raw_t_option
                               ta.clock_names
-                              zone.zone_constraint)
+                              zone.zone_constraint1)
                          with
                            None -> false
                          | Some dst ->
                            (match
                                (clock_constraint_to_raw_t_option
                                   ta.clock_names
-                                  arrival_zone.zone_constraint)
+                                  arrival_zone.zone_constraint1)
                             with
                               None -> false
                             | Some src ->

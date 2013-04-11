@@ -87,8 +87,8 @@ let test5 =
 let test6 =
   let a = 
     split_zone_on_clock_constraint
-      {zone_location = 0;
-       zone_constraint = [Le ("X", 8); Ge ("X", 2)]
+      {zone_location1 = 0;
+       zone_constraint1 = [Le ("X", 8); Ge ("X", 2)]
       }
       [Le ("X", 6); Ge ("X", 4)]
       [|"X"|]

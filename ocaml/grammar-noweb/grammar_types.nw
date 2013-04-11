@@ -1,7 +1,11 @@
 <<grammar_types.mli>>=
+open Zone_stubs
+
 module Valuation: Map.S with type key=string
 
 <<grammar_types.ml>>=
+open Zone_stubs
+
 module Valuation = Map.Make (String)
 
 <<grammar_types.mli>>=
@@ -104,12 +108,12 @@ type lbound =
 
 <<grammar_types.ml>>=
 type zone_using_list = {
-  zone_location: int;
-  zone_constraint: clock_constraint
+  zone_location1: int;
+  zone_constraint1: clock_constraint
 }
 
 <<grammar_types.mli>>=
 type zone_using_list = {
-  zone_location: int;
-  zone_constraint: clock_constraint
+  zone_location1: int;
+  zone_constraint1: clock_constraint
 }
