@@ -207,6 +207,13 @@ let test19 =
   else
     "test19 failed"
 
+let test20 =
+  let
+      ta = {numlocations = 5; numtrans = 0; numclocks = 2; numactions
+        = 1; numinit = 0; clock_names = [|"X1"; "X2"|]; locations = [||]}
+  in
+  "test20: " ^ (raw_t_to_string ta (dbm_zero (dbm_init 3) 3))
+
 let _ =
   print_string test2;
   print_newline ();
@@ -242,5 +249,7 @@ let _ =
   print_string test18;
   print_newline ();
   print_string test19;
+  print_newline ();
+  print_string test20;
   print_newline ();
   exit 0

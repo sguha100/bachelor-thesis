@@ -121,11 +121,11 @@ type zone_using_list = {
 <<grammar_types.ml>>=
 type zone_using_raw_t = {
   zone_location2: int;
-  zone_constraint2: clock_constraint
+  zone_constraint2: raw_t
 }
 
 <<grammar_types.mli>>=
 type zone_using_raw_t = {
   zone_location2: int;
-  zone_constraint2: clock_constraint
+  zone_constraint2: raw_t
 }

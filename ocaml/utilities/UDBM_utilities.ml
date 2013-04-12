@@ -15,6 +15,21 @@ let clock_name_to_index cn clock_names =
   in
   f 0 cn (Array.to_list clock_names)
 
+let raw_t_after_clock_resets clock_names clock_resets raw_t =
+  let
+      dim = 1 + (Array.length clock_names)
+  in
+  List.fold_left
+    (function raw_t -> function cn ->
+      dbm_updateValue
+        raw_t
+        dim
+        (1 + (clock_name_to_index cn clock_names))
+        0
+    )
+    raw_t
+    (Array.to_list clock_resets)
+
 let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names
     unit_clock_constraint =
@@ -157,3 +172,21 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
          None -> false
        | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
       )
+
+let raw_t_to_string ta raw_t =
+  let
+      clock_names = Array.of_list ("0"::(Array.to_list ta.clock_names))
+  in
+  let
+      dim = Array.length clock_names
+  in
+  String.concat
+    " && "
+    (List.map
+       (function (i, j, raw_t) ->
+         (clock_names.(i)) ^ " - " ^
+           (clock_names.(j)) ^ " < " ^ (*I know this is wrong!*)
+           (string_of_int (dbm_raw2bound raw_t))
+       )
+       (dbm_toConstraintList raw_t dim)
+    )

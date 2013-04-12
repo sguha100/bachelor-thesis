@@ -16,3 +16,5 @@ external dbm_updateValue: raw_t -> int -> int -> int -> raw_t =
 external dbm_up: raw_t -> int -> raw_t = "zone_dbm_up"
 external dbm_toString: raw_t -> int -> string = "zone_dbm_toString"
 external dbm_zero: raw_t -> int -> raw_t = "zone_dbm_zero"
+external dbm_toConstraintList: raw_t -> int -> ((int * int * raw_t) list) = "zone_dbm_toConstraintList"
+external dbm_raw2bound: raw_t -> int = "zone_dbm_raw2bound"

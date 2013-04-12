@@ -281,6 +281,55 @@ extern "C" {
     CAMLreturn (dbm);
   }
 
+  CAMLprim value zone_dbm_raw2bound(value raw) {
+    CAMLparam1(raw);
+    CAMLreturn(Int_val(dbm_raw2bound(*(raw_t_val(raw)))));
+  }
+
+  CAMLprim value zone_dbm_toConstraintList(value dbm_value, value dim_value) 
+  {
+    CAMLparam2(dbm_value, dim_value);
+    raw_t *dbm = raw_t_val(dbm_value);
+    cindex_t dim = Int_val(dim_value);
+    assert (!dbm_isEmpty(dbm, dim));
+      
+    uint32_t mingraph[bits2intsize(dim*dim)];
+    size_t n = dbm_cleanBitMatrix(dbm, dim, mingraph,
+                                  dbm_analyzeForMinDBM(dbm, dim, mingraph));
+    if (n == 0)
+      {
+        //This is the "true" constraint, so we just let it be an empty list.
+        CAMLreturn(Val_int(0)); 
+      }
+
+    /* This allocates an empty OCAML list. */
+    CAMLlocal1 (current);
+    current = Val_int(0); 
+
+    /* str += "("; */
+    for(cindex_t i = 0; i < dim; ++i)
+      {
+        for(cindex_t j = 0; j < dim; ++j)
+          {
+            if (base_readOneBit(mingraph, i*dim+j))
+              {
+                CAMLlocal1(hd);
+                hd = caml_alloc_tuple(3);
+                Store_field(hd, 0, i);
+                Store_field(hd, 1, j);
+                Store_field(hd, 2, alloc_raw_t(dbm + i*dim + j));
+                CAMLlocal1(temp);
+                temp = caml_alloc(2, 0);
+                Store_field(temp, 0, hd);
+                Store_field(temp, 1, current);
+                current = temp;
+              }
+          }
+      }
+  stop_loops:
+    CAMLreturn(current);
+  }
+
 #ifdef __cplusplus
 }
 #endif
