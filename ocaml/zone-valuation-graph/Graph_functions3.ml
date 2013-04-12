@@ -54,6 +54,22 @@ let enqueue_without_repetition queue location =
      location::queue
     )
 
+let pseudo_future clock_constraint =
+  List.concat
+    (List.map
+       (function unit_clock_constraint ->
+         match unit_clock_constraint with
+         | True
+         | False
+         | Lt _
+         | Le _ -> [unit_clock_constraint]
+         | Eq (cn, n) -> [Ge (cn, n)]
+         | Ge _
+         | Gt _ -> []
+       )
+       clock_constraint
+    )
+
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
   (* let split_using_parent qhd (parent, edge) = *)
@@ -218,6 +234,96 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             (string_of_tree tree_array.(qhd))
           ;
           flush stdout;
+          (* let *)
+          (*     futures_of_these_zones = *)
+          (*   List.map *)
+          (*     (function zone -> *)
+          (*       pseudo_future zone.zone_constraint1 *)
+          (*     ) *)
+          (*     zone_list_array.(qhd) *)
+          (* in *)
+          (* let *)
+          (*     possible_zones_for_successors = *)
+          (*   List.filter *)
+          (*     (function z1 -> *)
+          (*       clock_constraint_haveIntersection *)
+          (*         ta.clock_names *)
+          (*         z1 *)
+          (*         departure.condition *)
+          (*     ) *)
+          (*     futures_of_these_zones *)
+          (* in *)
+          (* let *)
+          (*     possible_zones_for_successors_after_resets = *)
+          (*   List.map *)
+          (*     (function z1 -> *)
+          (*       clock_constraint_after_clock_resets *)
+          (*         z1 *)
+          (*         departure.clock_resets *)
+          (*     ) *)
+          (*     possible_zones_for_successors *)
+          (* in *)
+          (* let *)
+          (*     possible_zones_for_successors_after_futures = *)
+          (*   List.map *)
+          (*     (function z1 -> *)
+          (*       {zone_location1 = successor, zone_constraint1 = *)
+          (*         (pseudo_future z1)}) *)
+          (*     possible_zones_for_successors_after_resets *)
+          (* in *)
+          (* let *)
+          (*     possible_new_zones_for_successors = *)
+          (*   let (l1, l2) =  *)
+          (*     List.partition *)
+          (*       (function z1 -> *)
+          (*         List.for_all *)
+          (*           (function z2 -> *)
+          (*             clock_constraint_haveIntersection *)
+          (*               ta.clock_names *)
+          (*               z1.zone_constraint1 *)
+          (*               z2.zone_constraint1 *)
+          (*           ) *)
+          (*           zone_list_array.(successor) *)
+          (*       ) *)
+          (*       possible_zones_for_successors_after_resets *)
+          (*   in *)
+          (*   let *)
+          (*       l3 = *)
+          (*     split_zone_list_on_constraint_list *)
+          (*       l1 *)
+          (*       (List.map *)
+          (*          (function zone -> zone.constraint1) *)
+          (*          zone_list_array.(successor) *)
+          (*       ) *)
+          (*       ta *)
+          (*   in *)
+          (*   let *)
+          (*       l4 =  *)
+          (*     List.filter *)
+          (*       (function z1 -> *)
+          (*         List.for_all *)
+          (*           (function z2 -> *)
+          (*             not (clock_constraint_haveIntersection *)
+          (*               ta.clock_names *)
+          (*               z1.zone_constraint1 *)
+          (*               z2.zone_constraint1) *)
+          (*           ) *)
+          (*           zone_list_array.(successor) *)
+          (*       ) *)
+          (*       l3 *)
+          (*   in *)
+          (*   let *)
+          (*       l5 = *)
+          (*       split_zone_list_on_constraint_list *)
+          (*         zone_list_array.(successor) *)
+          (*         (List.map *)
+          (*            (function zone -> zone.zone_constraint1) *)
+          (*            l1 *)
+          (*         ) *)
+          (*         ta *)
+          (*   in *)
+          (*   zone_list_array.(successor) <- l4 @ l5 *)
+          (* ; *)
           queueref :=
             if
               tree_element_difference tree_array.(qhd) tree_array.(successor)
@@ -239,6 +345,49 @@ let dequeue ta (queue, zone_list_array, tree_array) =
      );
      (Printf.printf "Done with the successors of qhd.\n");
      (flush stdout))
+  in
+  let rec
+      backward_propagate () =
+    let
+        new_zone = ref false
+    in
+    Array.iter
+      (function l1 ->
+        Array.iter
+          (function departure ->
+            let
+                changed_zone_list =
+              split_zone_list_on_constraint_list
+                zone_list_array.(l1.location_index)
+                (List.map
+                   (function zone -> zone.zone_constraint1)
+                   zone_list_array.(departure.next_location)
+                )
+                ta
+            in
+            (if
+                (List.length changed_zone_list >
+                   List.length zone_list_array.(l1.location_index)
+                )
+             then
+                (new_zone := true;
+                 zone_list_array.(l1.location_index) <- changed_zone_list
+                )
+             else
+              ()
+           )
+        ;
+       )
+          l1.departures
+      )
+      (ta.locations)
+    ;
+    if
+      !new_zone
+    then
+      backward_propagate ()
+    else
+      ()
   in
   match !queueref with
     [] -> (!queueref, zone_list_array, tree_array)
@@ -265,6 +414,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     );
     (* process_tree qhd; *)
     process_successors qhd;
+    backward_propagate ();
     Printf.printf "queue now = %s\n" (string_of_queue !queueref);
     flush stdout;
     (!queueref,
