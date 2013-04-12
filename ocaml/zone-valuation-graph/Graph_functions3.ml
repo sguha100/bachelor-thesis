@@ -56,51 +56,51 @@ let enqueue_without_repetition queue location =
 
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
-  let split_using_parent qhd (parent, edge) =
-    (let
-        constraint_list =
-       (List.map
-          (function zone ->
-            clock_constraint_after_clock_resets
-              zone.zone_constraint1
-              edge.clock_resets
-          ) (*Why reset the clocks on the parent's zones? In order
-              to ensure that the zones in this location are made
-              correctly.*)
-          (List.filter
-             (function zone ->
-               (clock_constraint_haveIntersection
-                  ta.clock_names
-                  zone.zone_constraint1
-                  edge.condition
-               )
-             )
-             zone_list_array.(parent)
-          ) (*Why filter? To make sure we don't unncessarily split
-              states when stability does not require us to do so.*)
-       )
-     in
-     (zone_list_array.(qhd) <- (
-       Printf.printf
-         "qhd = %s, zone_list length = %s before split\n"
-         (string_of_int qhd)
-         (string_of_int (List.length zone_list_array.(qhd)));
-       (Printf.printf
-          "Tree top is %s, constraint_list length = %s\n"
-          (string_of_int parent)
-          (string_of_int (List.length zone_list_array.(parent)))
-       );
-       flush stdout;
-       (split_zone_list_on_constraint_list
-          zone_list_array.(qhd)
-          constraint_list
-          ta)
-      ));
-     Printf.printf
-       "qhd = %s, zone_list length = %s after split\n"
-       (string_of_int qhd)
-       (string_of_int (List.length zone_list_array.(qhd))))
-  in
+  (* let split_using_parent qhd (parent, edge) = *)
+  (*   (let *)
+  (*       constraint_list = *)
+  (*      (List.map *)
+  (*         (function zone -> *)
+  (*           clock_constraint_after_clock_resets *)
+  (*             zone.zone_constraint1 *)
+  (*             edge.clock_resets *)
+  (*         ) (\*Why reset the clocks on the parent's zones? In order *)
+  (*             to ensure that the zones in this location are made *)
+  (*             correctly.*\) *)
+  (*         (List.filter *)
+  (*            (function zone -> *)
+  (*              (clock_constraint_haveIntersection *)
+  (*                 ta.clock_names *)
+  (*                 zone.zone_constraint1 *)
+  (*                 edge.condition *)
+  (*              ) *)
+  (*            ) *)
+  (*            zone_list_array.(parent) *)
+  (*         ) (\*Why filter? To make sure we don't unncessarily split *)
+  (*             states when stability does not require us to do so.*\) *)
+  (*      ) *)
+  (*    in *)
+  (*    (zone_list_array.(qhd) <- ( *)
+  (*      Printf.printf *)
+  (*        "qhd = %s, zone_list length = %s before split\n" *)
+  (*        (string_of_int qhd) *)
+  (*        (string_of_int (List.length zone_list_array.(qhd))); *)
+  (*      (Printf.printf *)
+  (*         "Tree top is %s, constraint_list length = %s\n" *)
+  (*         (string_of_int parent) *)
+  (*         (string_of_int (List.length zone_list_array.(parent))) *)
+  (*      ); *)
+  (*      flush stdout; *)
+  (*      (split_zone_list_on_constraint_list *)
+  (*         zone_list_array.(qhd) *)
+  (*         constraint_list *)
+  (*         ta) *)
+  (*     )); *)
+  (*    Printf.printf *)
+  (*      "qhd = %s, zone_list length = %s after split\n" *)
+  (*      (string_of_int qhd) *)
+  (*      (string_of_int (List.length zone_list_array.(qhd)))) *)
+  (* in *)
   let self_split qhd =
     (let
         constraint_list =
@@ -145,63 +145,63 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         (string_of_int qhd)
         (string_of_int (List.length zone_list_array.(qhd)))))
   in
-  let process_tree qhd =
-    (Printf.printf
-       "Starting with the tree of qhd = %s.\n"
-       (string_of_tree tree_array.(qhd));
-     flush stdout;
-     (List.iter
-        (function tree_element ->
-          (Printf.printf "constraint_list length = %s\n"
-             (string_of_int (List.length zone_list_array.(qhd))));
-          flush stdout;
-          let
-              constraint_list =
-            (List.map
-               (function zone ->
-                 zone.zone_constraint1
-               )
-               zone_list_array.(qhd)
-            )
-          in
-          let
-              changed_zone_list =
-            (split_zone_list_on_constraint_list
-               zone_list_array.(tree_element)
-               constraint_list
-               ta
-            )
-          in
-          Printf.printf
-            "tree_array.(tree_element) = %s\n"
-            (string_of_tree tree_array.(tree_element))
-          ;
-          Printf.printf
-            "tree_array.(qhd) = %s\n"
-            (string_of_tree tree_array.(qhd))
-          ;
-          queueref :=
-            if
-              (tree_element_difference
-                 tree_array.(qhd)
-                 tree_array.(tree_element)
-              )
-            then
-              (enqueue_without_repetition !queueref tree_element)
-            else
-              (!queueref)
-          ;
-          zone_list_array.(tree_element) <-
-            changed_zone_list
-          ;
-          tree_array.(tree_element) <-
-            add_element_to_tree tree_array.(tree_element) qhd;
-        )
-        (get_elements tree_array.(qhd))
-     );
-     (Printf.printf "Done with elements of the tree of qhd.\n");
-     flush stdout)
-  in
+  (* let process_tree qhd = *)
+  (*   (Printf.printf *)
+  (*      "Starting with the tree of qhd = %s.\n" *)
+  (*      (string_of_tree tree_array.(qhd)); *)
+  (*    flush stdout; *)
+  (*    (List.iter *)
+  (*       (function tree_element -> *)
+  (*         (Printf.printf "constraint_list length = %s\n" *)
+  (*            (string_of_int (List.length zone_list_array.(qhd)))); *)
+  (*         flush stdout; *)
+  (*         let *)
+  (*             constraint_list = *)
+  (*           (List.map *)
+  (*              (function zone -> *)
+  (*                zone.zone_constraint1 *)
+  (*              ) *)
+  (*              zone_list_array.(qhd) *)
+  (*           ) *)
+  (*         in *)
+  (*         let *)
+  (*             changed_zone_list = *)
+  (*           (split_zone_list_on_constraint_list *)
+  (*              zone_list_array.(tree_element) *)
+  (*              constraint_list *)
+  (*              ta *)
+  (*           ) *)
+  (*         in *)
+  (*         Printf.printf *)
+  (*           "tree_array.(tree_element) = %s\n" *)
+  (*           (string_of_tree tree_array.(tree_element)) *)
+  (*         ; *)
+  (*         Printf.printf *)
+  (*           "tree_array.(qhd) = %s\n" *)
+  (*           (string_of_tree tree_array.(qhd)) *)
+  (*         ; *)
+  (*         queueref := *)
+  (*           if *)
+  (*             (tree_element_difference *)
+  (*                tree_array.(qhd) *)
+  (*                tree_array.(tree_element) *)
+  (*             ) *)
+  (*           then *)
+  (*             (enqueue_without_repetition !queueref tree_element) *)
+  (*           else *)
+  (*             (!queueref) *)
+  (*         ; *)
+  (*         zone_list_array.(tree_element) <- *)
+  (*           changed_zone_list *)
+  (*         ; *)
+  (*         tree_array.(tree_element) <- *)
+  (*           add_element_to_tree tree_array.(tree_element) qhd; *)
+  (*       ) *)
+  (*       (get_elements tree_array.(qhd)) *)
+  (*    ); *)
+  (*    (Printf.printf "Done with elements of the tree of qhd.\n"); *)
+  (*    flush stdout) *)
+  (* in *)
   let process_successors qhd =
     ((Printf.printf "Starting with successors of qhd.\n");
      flush stdout;
@@ -247,23 +247,23 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     flush stdout;
     queueref := qtl;
     flush stdout;
-    (
-      match
-        get_parent_with_edge tree_array.(qhd)
-      with
-        None -> ()
-      | Some (parent, edge) ->
-        (split_using_parent qhd (parent, edge))
-    ) ;
-    flush stdout
-    ;
+    (* ( *)
+    (*   match *)
+    (*     get_parent_with_edge tree_array.(qhd) *)
+    (*   with *)
+    (*     None -> () *)
+    (*   | Some (parent, edge) -> *)
+    (*     (split_using_parent qhd (parent, edge)) *)
+    (* ) ; *)
+    (* flush stdout *)
+    (* ; *)
     (if (not (List.mem qhd (get_elements tree_array.(qhd))))
      then
         (self_split qhd)
      else
         () 
     );
-    process_tree qhd;
+    (* process_tree qhd; *)
     process_successors qhd;
     Printf.printf "queue now = %s\n" (string_of_queue !queueref);
     flush stdout;
