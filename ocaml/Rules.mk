@@ -56,6 +56,7 @@ $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
 zone-valuation-graph/graph_functions.ml \
+zone-valuation-graph/Graph_functions3.ml \
 utilities/UDBM_utilities.ml \
 Rules.mk \
 _tags\
