@@ -526,7 +526,7 @@ let test37 =
   in
   let
       expected =
-    [[Gt ("X", 2)]; [Gt ("X", 5)]]
+    [[Gt ("X", 5)]; [Gt ("X", 5)]]
   in
   if
     test28 found expected
@@ -554,6 +554,35 @@ let test38 =
     "test38 passed"
   else
     "test38 failed"
+
+let test39 =
+  let
+      found =
+    new_successor_zones
+      test22
+      test29
+      {clock_resets = [||]; condition = [Gt ("X", 2)]; action = 0;
+       next_location = 1}
+      test30
+  in
+  let
+      expected =
+    [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
+  in
+  if
+    test28 found expected
+  then
+    "test39 passed"
+  else
+    ("test39 failed, clock constraints are " ^
+        (String.concat
+           " and "
+           (List.map
+              (function zone -> string_of_clock_constraint zone.zone_constraint1)
+              found
+           )
+        )
+    )
 
 let _ =
   print_string test2;
@@ -616,5 +645,7 @@ let _ =
   print_string test37;
   print_newline ();
   print_string test38;
+  print_newline ();
+  print_string test39;
   print_newline ();
  exit 0
