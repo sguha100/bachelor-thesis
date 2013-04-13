@@ -90,6 +90,37 @@ let useful_predecessor_zones
     )
     predecessor_zone_list
 
+let self_split ta location zone_list =
+  let
+      constraint_list =
+    (ta.locations.(location).invariant
+     ::
+       (List.concat
+          (List.map
+             (function departure ->
+               [departure.condition
+               ;
+                (clock_constraint_without_reset_clocks
+                   ta.locations.(departure.next_location).invariant
+                   departure.clock_resets
+                )
+               ]
+             )
+             (Array.to_list ta.locations.(location).departures)
+          )
+       )
+    )
+  in
+  (Printf.printf
+     "Self-splitting, constraint_list length = %s\n"
+     (string_of_int (List.length constraint_list))
+  );
+  flush stdout;
+  (split_zone_list_on_constraint_list
+     zone_list
+     constraint_list
+     ta)
+    
 let dequeue ta (queue, zone_list_array, tree_array) =
   let queueref = ref queue in
   (* let split_using_parent qhd (parent, edge) = *)
@@ -137,50 +168,6 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   (*      (string_of_int qhd) *)
   (*      (string_of_int (List.length zone_list_array.(qhd)))) *)
   (* in *)
-  let self_split qhd =
-    (let
-        constraint_list =
-       (ta.locations.(qhd).invariant
-        ::
-          (List.concat
-             (List.map
-                (function departure ->
-                  [departure.condition
-                  ;
-                   (clock_constraint_without_reset_clocks
-                      ta.locations.(departure.next_location).invariant
-                      departure.clock_resets
-                   )
-                  ]
-                )
-                (Array.to_list ta.locations.(qhd).departures)
-             )
-          )
-       )
-     in
-     (Printf.printf
-        "qhd = %s, zone_list length = %s before split\n"
-        (string_of_int qhd)
-        (string_of_int (List.length zone_list_array.(qhd))));
-     (Printf.printf
-        "Self-splitting, constraint_list length = %s\n"
-        (string_of_int (List.length constraint_list))
-     );
-     flush stdout;
-     (zone_list_array.(qhd) <-
-        (split_zone_list_on_constraint_list
-           zone_list_array.(qhd)
-           constraint_list
-           ta)
-     );
-     (tree_array.(qhd) <-
-        add_element_to_tree tree_array.(qhd) qhd
-     );
-     (Printf.printf
-        "qhd = %s, zone_list length = %s after split\n"
-        (string_of_int qhd)
-        (string_of_int (List.length zone_list_array.(qhd)))))
-  in
   (* let process_tree qhd = *)
   (*   (Printf.printf *)
   (*      "Starting with the tree of qhd = %s.\n" *)
@@ -444,9 +431,22 @@ let dequeue ta (queue, zone_list_array, tree_array) =
     (* ; *)
     (if (not (List.mem qhd (get_elements tree_array.(qhd))))
      then
-        (self_split qhd)
+        (Printf.printf
+           "location = %s, zone_list length = %s before split\n"
+           (string_of_int qhd)
+           (string_of_int (List.length zone_list_array.(qhd)))
+        ; 
+         zone_list_array.(qhd) <-
+           (self_split ta qhd zone_list_array.(qhd));
+         Printf.printf
+            "location = %s, zone_list length = %s after split\n"
+            (string_of_int qhd)
+            (string_of_int (List.length zone_list_array.(qhd)));
+         tree_array.(qhd) <-
+           (add_element_to_tree tree_array.(qhd) qhd)
+        )
      else
-        () 
+        ()
     );
     (* process_tree qhd; *)
     process_successors qhd;
