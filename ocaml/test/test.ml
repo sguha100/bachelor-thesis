@@ -8,9 +8,12 @@ open UDBM_utilities
 let test1 found expected =
   (List.for_all
      (function expectedelem ->
-       List.exists
+       (List.exists
          ((=) expectedelem)
          found
+       )
+     ||
+         (expectedelem = True)
      )
      expected
   )
@@ -375,7 +378,12 @@ let test28 found expected =
           )
        )
        =
-         1
+         (List.length
+            (List.filter
+               (test1 c1)
+               expected
+            )
+         )
      )
      expected
   )
@@ -487,6 +495,66 @@ let test35 =
   else
     "test35 failed"
 
+let test36 =
+  let
+      found =
+    successor_zones_from_predecessor
+      test22
+      test30
+      {clock_resets = [||]; condition = [Le ("X", 5)]; action = 0;
+       next_location = 1}
+  in
+  let
+      expected =
+    [[Gt ("X", 2)]]
+  in
+  if
+    test28 found expected
+  then
+    "test36 passed"
+  else
+    "test36 failed"
+
+let test37 =
+  let
+      found =
+    successor_zones_from_predecessor
+      test22
+      test30
+      {clock_resets = [||]; condition = [Gt ("X", 5)]; action = 0;
+       next_location = 1}
+  in
+  let
+      expected =
+    [[Gt ("X", 2)]; [Gt ("X", 5)]]
+  in
+  if
+    test28 found expected
+  then
+    "test37 passed"
+  else
+    "test37 failed"
+
+let test38 =
+  let
+      found =
+    successor_zones_from_predecessor
+      test22
+      test30
+      {clock_resets = [|"X"|]; condition = [Gt ("X", 5)]; action = 0;
+       next_location = 1}
+  in
+  let
+      expected =
+    [[Ge ("X", 0)]; [Ge ("X", 0)]]
+  in
+  if
+    test28 found expected
+  then
+    "test38 passed"
+  else
+    "test38 failed"
+
 let _ =
   print_string test2;
   print_newline ();
@@ -542,5 +610,11 @@ let _ =
   print_string test34;
   print_newline ();
   print_string test35;
+  print_newline ();
+  print_string test36;
+  print_newline ();
+  print_string test37;
+  print_newline ();
+  print_string test38;
   print_newline ();
  exit 0

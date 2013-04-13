@@ -93,18 +93,44 @@ let useful_predecessor_zones
 let successor_zones_from_predecessor
     ta
     predecessor_zone_list
-    edge_condition
-    successor =
+    edge =
   List.map
     (function zone ->
-      {zone_location1 = successor;
-       zone_constraint1 = pseudo_future zone.zone_constraint1
+      {zone_location1 = edge.next_location;
+       zone_constraint1 =
+          pseudo_future
+            (clock_constraint_after_clock_resets
+               (pseudo_future zone.zone_constraint1)
+               edge.clock_resets
+            )
       }
     )
     (useful_predecessor_zones
        ta
        predecessor_zone_list
-       edge_condition
+       edge.condition
+    )
+
+let uncut_successor_zones_from_predecessor
+    ta
+    predecessor_zone_list
+    edge
+    successor_zone_list =
+  List.filter
+    (function z1 ->
+      List.for_all
+        (function z2 -> not
+          (clock_constraint_haveIntersection
+             ta.clock_names
+             z1.zone_constraint1
+             z2.zone_constraint1
+          ))
+        successor_zone_list
+    )
+    (successor_zones_from_predecessor
+       ta
+       predecessor_zone_list
+       edge
     )
 
 let self_split ta location zone_list =
