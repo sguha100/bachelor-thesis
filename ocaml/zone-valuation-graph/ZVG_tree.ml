@@ -43,6 +43,14 @@ let add_parent_with_edge_to_tree tree parent edge =
      parent
   )
 
+let augment_tree_with_tree tree1 tree2 =
+  List.fold_left
+    (function tree1 -> function element ->
+      add_element_to_tree tree1 element
+    )
+    tree1
+    (get_elements tree2)
+
 let tree_element_difference tree1 tree2 =
   List.exists
     (function l1 -> List.for_all ((<>) l1) tree2.elements)
