@@ -85,10 +85,27 @@ let useful_predecessor_zones
     (function zone ->
       clock_constraint_haveIntersection
         ta.clock_names
-        zone.zone_constraint1
+        (pseudo_future zone.zone_constraint1)
         edge_condition
     )
     predecessor_zone_list
+
+let successor_zones_from_predecessor
+    ta
+    predecessor_zone_list
+    edge_condition
+    successor =
+  List.map
+    (function zone ->
+      {zone_location1 = successor;
+       zone_constraint1 = pseudo_future zone.zone_constraint1
+      }
+    )
+    (useful_predecessor_zones
+       ta
+       predecessor_zone_list
+       edge_condition
+    )
 
 let self_split ta location zone_list =
   let
