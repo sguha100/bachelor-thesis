@@ -1,6 +1,6 @@
 open Grammar_types
 open Clock_constraint_utilities
-open Graph_functions
+open Graph_functions3
 open Fernandez_modules
 
 module ZVGLT =
