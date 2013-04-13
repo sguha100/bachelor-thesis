@@ -111,22 +111,92 @@ let successor_zones_from_predecessor
        edge.condition
     )
 
-let uncut_successor_zones_from_predecessor
+(*We earlier thought that uncut zones cannot exist, but here's an
+  example to prove that they do: the successor having one zone, the
+  future of x=2 and y=0, and the predecessor having one zone, the
+  future of x=0 and y=0*)
+let cut_and_uncut_successor_zones_from_predecessor
     ta
     predecessor_zone_list
     edge
     successor_zone_list =
-  List.filter
+  List.partition
     (function z1 ->
       List.for_all
-        (function z2 -> not
-          (clock_constraint_haveIntersection
-             ta.clock_names
-             z1.zone_constraint1
-             z2.zone_constraint1
-          ))
+        (function z2 ->
+          clock_constraint_haveIntersection
+            ta.clock_names
+            z1.zone_constraint1
+            z2.zone_constraint1
+        )
         successor_zone_list
     )
+    (successor_zones_from_predecessor
+       ta
+       predecessor_zone_list
+       edge
+    )
+
+let new_successor_zones_from_predecessor
+    ta
+    predecessor_zone_list
+    edge
+    successor_zone_list
+    (cut, uncut) =
+  (List.filter
+     (function z1 ->
+       List.for_all
+         (function z2 ->
+           not (clock_constraint_haveIntersection
+                  ta.clock_names
+                  z1.zone_constraint1
+                  z2.zone_constraint1
+           )
+         )
+         successor_zone_list
+     )
+     (split_zone_list_on_constraint_list
+        cut
+        (List.map
+           (function zone -> zone.zone_constraint1)
+           successor_zone_list
+        )
+        ta
+     )
+     , uncut)
+    
+let new_successor_zones
+    ta
+    predecessor_zone_list
+    edge
+    successor_zone_list =
+  List.fold_left
+    (function successor_zone_list -> function z1 ->
+      (List.filter
+         (function z1 ->
+           List.for_all
+             (function z2 -> not
+               (clock_constraint_haveIntersection
+                  ta.clock_names
+                  z1.zone_constraint1
+                  z2.zone_constraint1
+               )
+             )
+             successor_zone_list
+         )
+         (split_zone_list_on_constraint_list
+            [z1]
+            (List.map
+               (function z2 -> z2.zone_constraint1)
+               successor_zone_list
+            )
+            ta
+         )
+      )
+        @
+        successor_zone_list
+    )
+    successor_zone_list
     (successor_zones_from_predecessor
        ta
        predecessor_zone_list
@@ -284,106 +354,13 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             (string_of_tree tree_array.(qhd))
           ;
           flush stdout;
-          let
-              futures_of_these_zones =
-            List.map
-              (function zone ->
-                pseudo_future zone.zone_constraint1
-              )
-              zone_list_array.(qhd)
-          in
-          let
-              possible_zones_for_successors =
-            List.filter
-              (function z1 ->
-                clock_constraint_haveIntersection
-                  ta.clock_names
-                  z1
-                  departure.condition
-              )
-              futures_of_these_zones
-          in
-          let
-              possible_zones_for_successors_after_resets =
-            List.map
-              (function z1 ->
-                clock_constraint_after_clock_resets
-                  z1
-                  departure.clock_resets
-              )
-              possible_zones_for_successors
-          in
-          let
-              possible_zones_for_successors_after_futures =
-            List.map
-              (function z1 ->
-                {zone_location1 = successor; zone_constraint1 =
-                  (pseudo_future z1)})
-              possible_zones_for_successors_after_resets
-          in
-          let (l1, l2) =
-            List.partition
-              (function z1 ->
-                List.for_all
-                  (function z2 ->
-                    clock_constraint_haveIntersection
-                      ta.clock_names
-                      z1.zone_constraint1
-                      z2.zone_constraint1
-                  )
-                  zone_list_array.(successor)
-              )
-              possible_zones_for_successors_after_futures
-          in
-          let
-              l3 =
-            split_zone_list_on_constraint_list
-              l1
-              (List.map
-                 (function zone -> zone.zone_constraint1)
-                 zone_list_array.(successor)
-              )
-              ta
-          in
-          let
-              l4 =
-            List.filter
-              (function z1 ->
-                List.for_all
-                  (function z2 ->
-                    not (clock_constraint_haveIntersection
-                           ta.clock_names
-                           z1.zone_constraint1
-                           z2.zone_constraint1)
-                  )
-                  zone_list_array.(successor)
-              )
-              l3
-          in
-          let
-              l5 =
-            split_zone_list_on_constraint_list
-              zone_list_array.(successor)
-              (List.map
-                 (function zone -> zone.zone_constraint1)
-                 l1
-              )
-              ta
-          in
-          Printf.printf
-            "l4 = [%s]\n"
-            (String.concat
-               "; "
-               (List.map
-                  (function zone ->
-                    (string_of_int
-                        zone.zone_location1) ^ " " ^
-                        (string_of_clock_constraint zone.zone_constraint1) 
-                  )
-                  l4
-               )
-            );
-          zone_list_array.(successor) <- l4 @ l5
+          zone_list_array.(successor) <-
+            (new_successor_zones
+               ta
+               zone_list_array.(qhd)
+               departure
+               zone_list_array.(successor)
+            )
           ;
           queueref :=
             if
@@ -440,10 +417,10 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                  zone_list_array.(l1.location_index) <- changed_zone_list
                 )
              else
-              ()
-           )
-        ;
-       )
+                ()
+            )
+            ;
+          )
           l1.departures
       )
       (ta.locations)
@@ -482,9 +459,9 @@ let dequeue ta (queue, zone_list_array, tree_array) =
          zone_list_array.(qhd) <-
            (self_split ta qhd zone_list_array.(qhd));
          Printf.printf
-            "location = %s, zone_list length = %s after split\n"
-            (string_of_int qhd)
-            (string_of_int (List.length zone_list_array.(qhd)));
+           "location = %s, zone_list length = %s after split\n"
+           (string_of_int qhd)
+           (string_of_int (List.length zone_list_array.(qhd)));
          tree_array.(qhd) <-
            (add_element_to_tree tree_array.(qhd) qhd)
         )
