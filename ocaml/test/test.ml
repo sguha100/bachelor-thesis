@@ -1,6 +1,6 @@
 open Grammar_types
 open Clock_constraint_utilities
-open Graph_functions
+open Graph_functions3
 open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
@@ -108,7 +108,7 @@ let test8 =
   
 let test9 =
   if
-    test7 [True; True; True; Eq ("X", 7)] ["X"] [Eq ("X", 7)]
+    test7 [True; True; True; Eq ("X", 7)] ["X"] [Ge ("X", 7); Le ("X", 7)]
   then
     "test9 passed"
   else
@@ -209,10 +209,160 @@ let test19 =
 
 let test20 =
   let
-      ta = {numlocations = 5; numtrans = 0; numclocks = 2; numactions
-        = 1; numinit = 0; clock_names = [|"X1"; "X2"|]; locations = [||]}
+      c = [Le ("X1", 5); Lt ("X1", 7); Gt ("X1", 2); Ge ("X1", 3)]
   in
-  "test20: " ^ (raw_t_to_string ta (dbm_zero (dbm_init 3) 3))
+  if
+    (test1
+       (pseudo_future c)
+       [Gt ("X1", 2); Ge ("X1", 3)]
+    )
+  then
+    "test20 passed"
+  else
+    "test20 failed"
+
+let test21 =
+  if
+    (test1
+       (pseudo_future [Eq ("X1", 9)])
+       [Ge ("X1", 9)]
+    )
+  then
+    "test21 passed"
+  else
+    "test21 failed"
+
+(* CAV paper example *)
+let test22 = {
+  numlocations = 3;
+  numtrans = 3;
+  numclocks = 1;
+  numactions = 3;
+  numinit = 0;
+  clock_names = [|"X"|];
+  locations =
+    [|
+      {
+        location_index = 0;
+        invariant = [True];
+        departures =
+          [|
+            {
+              action = 0;
+              condition = [Gt ("X", 2)];
+              clock_resets = [||];
+              next_location = 1
+            }
+          |]
+      };
+      {
+        location_index = 1;
+        invariant = [True];
+        departures =
+          [|
+            {
+              action = 1;
+              condition = [Gt ("X", 5)];
+              clock_resets = [|"X"|];
+              next_location = 2
+            }
+          |]
+      };
+      {
+        location_index = 2;
+        invariant = [True];
+        departures =
+          [|
+            {
+              action = 2;
+              condition = [Gt ("X", 8)];
+              clock_resets = [||];
+              next_location = 0
+            }
+          |]
+      }
+    |]
+}
+
+let test23 ta =
+  let
+      zone_list_array = init_zone_list_array ta
+  in
+  (Array.length zone_list_array = ta.numlocations)
+    &&
+    (let
+        truth = ref true
+     in
+     Array.iteri
+       (function i -> function zone_list ->
+         if
+           (i = ta.numinit)
+         then
+           truth :=
+             match
+               zone_list
+             with
+             | [zone] ->
+               (zone.zone_location1 = i &&
+                   (test1
+                      zone.zone_constraint1
+                      (pseudo_future
+                         (List.map
+                            (function cn -> Eq (cn, 0))
+                            (Array.to_list ta.clock_names)
+                         )
+                      )
+                   )
+               )
+             | _ -> false
+         else
+           truth := (zone_list = [])
+       )
+       zone_list_array;
+     !truth
+    )
+
+let test24 =
+  if
+    test23 test22
+  then
+    "test24 passed"
+  else
+    "test24 failed"
+
+let test25 queue location =
+  let
+      next_queue = enqueue_without_repetition queue location
+  in
+  List.fold_left
+    (function truth -> function location ->
+      (List.length
+         (List.filter
+            ((=) location)
+            next_queue
+         )
+      )
+      =
+        1
+    )
+    true
+    (location::queue)
+
+let test26  =
+  if
+    test25 [0; 1; 3] 2
+  then
+    "test26 passed"
+  else
+    "test26 failed"
+
+let test27  =
+  if
+    test25 [0; 1; 2] 2
+  then
+    "test27 passed"
+  else
+    "test27 failed"
 
 let _ =
   print_string test2;
@@ -252,4 +402,12 @@ let _ =
   print_newline ();
   print_string test20;
   print_newline ();
-  exit 0
+  print_string test21;
+  print_newline ();
+  print_string test24;
+  print_newline (); 
+  print_string test26;
+  print_newline ();
+  print_string test27;
+  print_newline ();
+ exit 0
