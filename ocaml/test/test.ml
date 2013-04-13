@@ -364,7 +364,21 @@ let test27  =
   else
     "test27 failed"
 
-let test28 =
+let test28 found expected =
+  List.for_all
+    (function c1 ->
+      (List.length
+         (List.filter
+            (function zone -> test1 zone.zone_constraint1 c1)
+            found
+         )
+      )
+      =
+        1
+    )
+    expected  
+    
+let test29 =
   let
       found =
     (self_split
@@ -380,22 +394,33 @@ let test28 =
     [[Le ("X", 2)]; [Gt ("X", 2)]]
   in
   if
-    List.for_all
-      (function c1 ->
-        (List.length
-           (List.filter
-              (function zone -> test1 zone.zone_constraint1 c1)
-              found
-           )
-        )
-        =
-          1
-      )
-      expected
+    test28 found expected
   then
-    "test28 passed"
+    "test29 passed"
   else
-    "test28 failed"
+    "test29 failed"
+
+let test30 =
+  let
+      found =
+    (self_split
+       test22
+       1
+       [{zone_location1 = 1;
+         zone_constraint1 = [Gt ("X", 2)]
+        }]
+    )
+  in
+  let
+      expected =
+    [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
+  in
+  if
+    test28 found expected
+  then
+    "test30 passed"
+  else
+    "test30 failed"
 
 let _ =
   print_string test2;
@@ -443,6 +468,8 @@ let _ =
   print_newline ();
   print_string test27;
   print_newline ();
-  print_string test28;
+  print_string test29;
+  print_newline ();
+  print_string test30;
   print_newline ();
  exit 0
