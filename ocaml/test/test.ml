@@ -365,29 +365,43 @@ let test27  =
     "test27 failed"
 
 let test28 found expected =
-  List.for_all
-    (function c1 ->
-      (List.length
-         (List.filter
-            (function zone -> test1 zone.zone_constraint1 c1)
-            found
-         )
-      )
-      =
-        1
-    )
-    expected  
+  (List.length found = List.length expected) &&
+  (List.for_all
+     (function c1 ->
+       (List.length
+          (List.filter
+             (function zone -> test1 zone.zone_constraint1 c1)
+             found
+          )
+       )
+       =
+         1
+     )
+     expected
+  )
+
+let test29 = 
+  (self_split
+     test22
+     test22.numinit
+     [{zone_location1 = test22.numinit;
+       zone_constraint1 = [True]
+      }]
+  )
     
-let test29 =
+let test30 =
+  (self_split
+     test22
+     1
+     [{zone_location1 = 1;
+       zone_constraint1 = [Gt ("X", 2)]
+      }]
+  )
+    
+let test31 =
   let
       found =
-    (self_split
-       test22
-       test22.numinit
-       [{zone_location1 = test22.numinit;
-         zone_constraint1 = [True]
-        }]
-    )
+    test29
   in
   let
       expected =
@@ -396,20 +410,14 @@ let test29 =
   if
     test28 found expected
   then
-    "test29 passed"
+    "test31 passed"
   else
-    "test29 failed"
+    "test31 failed"
 
-let test30 =
+let test32 =
   let
       found =
-    (self_split
-       test22
-       1
-       [{zone_location1 = 1;
-         zone_constraint1 = [Gt ("X", 2)]
-        }]
-    )
+    test30
   in
   let
       expected =
@@ -418,9 +426,66 @@ let test30 =
   if
     test28 found expected
   then
-    "test30 passed"
+    "test32 passed"
   else
-    "test30 failed"
+    "test32 failed"
+
+let test33 =
+  let
+      found =
+    useful_predecessor_zones
+      test22
+      test29
+      [Gt ("X", 2)]
+  in
+  let
+      expected =
+    [[Le ("X", 2)]; [Gt ("X", 2)]]
+  in
+  if
+    test28 found expected
+  then
+    "test33 passed"
+  else
+    "test33 failed"
+
+let test34 =
+  let
+      found =
+    useful_predecessor_zones
+      test22
+      test30
+      [Gt ("X", 5)]
+  in
+  let
+      expected =
+    [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
+  in
+  if
+    test28 found expected
+  then
+    "test34 passed"
+  else
+    "test34 failed"
+
+let test35 =
+  let
+      found =
+    useful_predecessor_zones
+      test22
+      test30
+      [Le ("X", 5)]
+  in
+  let
+      expected =
+    [[Gt ("X", 2); Le ("X", 5)]]
+  in
+  if
+    test28 found expected
+  then
+    "test35 passed"
+  else
+    "test35 failed"
 
 let _ =
   print_string test2;
@@ -468,8 +533,14 @@ let _ =
   print_newline ();
   print_string test27;
   print_newline ();
-  print_string test29;
+  print_string test31;
   print_newline ();
-  print_string test30;
+  print_string test32;
+  print_newline ();
+  print_string test33;
+  print_newline ();
+  print_string test34;
+  print_newline ();
+  print_string test35;
   print_newline ();
  exit 0
