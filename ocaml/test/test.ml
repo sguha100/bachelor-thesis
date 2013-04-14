@@ -209,58 +209,6 @@ let test21 =
   else
     "test21 failed"
 
-(* CAV paper example *)
-let test22 = {
-  numlocations = 3;
-  numtrans = 3;
-  numclocks = 1;
-  numactions = 3;
-  numinit = 0;
-  clock_names = [|"X"|];
-  locations =
-    [|
-      {
-        location_index = 0;
-        invariant = [True];
-        departures =
-          [|
-            {
-              action = 0;
-              condition = [Gt ("X", 2)];
-              clock_resets = [||];
-              next_location = 1
-            }
-          |]
-      };
-      {
-        location_index = 1;
-        invariant = [True];
-        departures =
-          [|
-            {
-              action = 1;
-              condition = [Gt ("X", 5)];
-              clock_resets = [|"X"|];
-              next_location = 2
-            }
-          |]
-      };
-      {
-        location_index = 2;
-        invariant = [True];
-        departures =
-          [|
-            {
-              action = 2;
-              condition = [Gt ("X", 8)];
-              clock_resets = [||];
-              next_location = 0
-            }
-          |]
-      }
-    |]
-}
-
 let test23 ta =
   let
       zone_list_array = init_zone_list_array ta
@@ -301,7 +249,7 @@ let test23 ta =
 
 let test24 =
   if
-    test23 test22
+    test23 ta1
   then
     "test24 passed"
   else
@@ -364,16 +312,16 @@ let test28 found expected =
 
 let test29 = 
   (self_split
-     test22
-     test22.numinit
-     [{zone_location1 = test22.numinit;
+     ta1
+     ta1.numinit
+     [{zone_location1 = ta1.numinit;
        zone_constraint1 = [True]
       }]
   )
     
 let test30 =
   (self_split
-     test22
+     ta1
      1
      [{zone_location1 = 1;
        zone_constraint1 = [Gt ("X", 2)]
@@ -416,7 +364,7 @@ let test33 =
   let
       found =
     useful_predecessor_zones
-      test22
+      ta1
       test29
       [Gt ("X", 2)]
   in
@@ -435,7 +383,7 @@ let test34 =
   let
       found =
     useful_predecessor_zones
-      test22
+      ta1
       test30
       [Gt ("X", 5)]
   in
@@ -454,7 +402,7 @@ let test35 =
   let
       found =
     useful_predecessor_zones
-      test22
+      ta1
       test30
       [Le ("X", 5)]
   in
@@ -473,7 +421,7 @@ let test36 =
   let
       found =
     successor_zones_from_predecessor
-      test22
+      ta1
       test30
       {clock_resets = [||]; condition = [Le ("X", 5)]; action = 0;
        next_location = 1}
@@ -493,7 +441,7 @@ let test37 =
   let
       found =
     successor_zones_from_predecessor
-      test22
+      ta1
       test30
       {clock_resets = [||]; condition = [Gt ("X", 5)]; action = 0;
        next_location = 1}
@@ -513,7 +461,7 @@ let test38 =
   let
       found =
     successor_zones_from_predecessor
-      test22
+      ta1
       test30
       {clock_resets = [|"X"|]; condition = [Gt ("X", 5)]; action = 0;
        next_location = 1}
@@ -533,7 +481,7 @@ let test39 =
   let
       found =
     new_successor_zones
-      test22
+      ta1
       test29
       {clock_resets = [||]; condition = [Gt ("X", 2)]; action = 0;
        next_location = 1}
