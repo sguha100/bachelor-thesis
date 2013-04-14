@@ -134,6 +134,15 @@ let minimise_clock_constraint clock_names clock_constraint =
                     current_gt
                    )
                  in
+                 let
+                     same =
+                   (partial_clock_constraint,
+                    current_lt,
+                    current_le,
+                    current_ge,
+                    current_gt
+                   )
+                 in
                  match unit_clock_constraint
                  with
                  | Lt (cn1, n1) ->
@@ -154,6 +163,17 @@ let minimise_clock_constraint clock_names clock_constraint =
                       current_lt,
                       (if n1 < current_le then n1 else current_le),
                       current_ge,
+                      current_gt
+                     )
+                   else
+                     default
+                 | Eq (cn1, n1) ->
+                   if (cn1 = cn)
+                   then
+                     (partial_clock_constraint,
+                      current_lt,
+                      (if n1 < current_ge then n1 else current_le),
+                      (if n1 > current_ge then n1 else current_ge),
                       current_gt
                      )
                    else
@@ -180,6 +200,10 @@ let minimise_clock_constraint clock_names clock_constraint =
                      )
                    else
                      default
+                 | True ->
+                   same
+                 | False ->
+                   default
              )
              ([], max_int, max_int, 0, 0)
              (clock_constraint)
@@ -205,16 +229,7 @@ let minimise_clock_constraint clock_names clock_constraint =
       clock_constraint
       clock_name_list
   in
-  let
-      result =
-    (phase4 (phase3 (phase2 (phase1 clock_constraint))))
-  in
-  Printf.printf
-    "minimise: clock_constraint=%s, result=%s\n"
-    (string_of_clock_constraint clock_constraint)
-    (string_of_clock_constraint result)
-  ;
-  result
+  (phase4 (phase3 (phase2 (phase1 clock_constraint))))
 
 let clock_constraint_intersection clock_names c1 c2 =
   minimise_clock_constraint clock_names (c1 @ c2)

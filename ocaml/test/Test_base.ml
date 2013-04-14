@@ -26,7 +26,7 @@ let match_clock_constraints found expected =
     )
 
 let match_minimised clock_names clock_constraint expected =
-  (minimise_clock_constraint clock_names clock_constraint) = expected
+  match_clock_constraints (minimise_clock_constraint clock_names clock_constraint) expected
 
 (* CAV paper example *)
 let ta1 = {
