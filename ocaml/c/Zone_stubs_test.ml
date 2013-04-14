@@ -32,3 +32,42 @@ let test41 =
     "test41 passed"
   else
     "test41 failed"
+
+let test42 =
+  if
+    (match
+        (clock_constraint_to_raw_t_option [|"X"|] [Gt ("X", 3)])
+     with
+     | None -> false
+     | Some dbm ->
+       match
+         dbm_toConstraintList dbm 2
+       with
+       | [(i, j, strictness, bound)] ->
+          (i = 0) && (j = 1) && strictness && (bound = -3)
+       | _ -> false
+    )
+  then
+    "test42 passed"
+  else
+    "test42 failed"
+
+let test43 =
+  if
+    (match
+        (clock_constraint_to_raw_t_option [|"X"; "Y"|] [Gt ("Y", 3);
+                                                        Ge ("Y", 3)])
+     with
+     | None -> false
+     | Some dbm ->
+       match
+         dbm_toConstraintList dbm 3
+       with
+       | [(i, j, strictness, bound)] ->
+          (i = 0) && (j = 2) && strictness && (bound = -3)
+       | _ -> false
+    )
+  then
+    "test43 passed"
+  else
+    "test43 failed"
