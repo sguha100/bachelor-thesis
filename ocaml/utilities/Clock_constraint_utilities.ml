@@ -116,152 +116,105 @@ let minimise_clock_constraint clock_names clock_constraint =
   let
       phase4 clock_constraint =
     List.fold_left
-      (function clock_constraint ->
-        function cn ->
-          if
-            List.exists
-              (function Lt (cn1, _) -> (cn1 = cn) | _ -> false)
-              clock_constraint
-          then
-            Lt (cn, (List.fold_left
-                       (function current_min ->
-                         function Lt (cn1, n1) ->
-                           if
-                             cn1 = cn
-                           then
-                             min
-                               current_min
-                               n1
-                           else
-                             current_min
-                         | _ -> current_min
-                       )
-                       max_int
-                       clock_constraint
-            ))
-            ::
-              (List.filter
-                 (function Lt (cn1, _) -> (cn1 <> cn) | _ -> true)
-                 clock_constraint
-              )
-          else
-            clock_constraint
+      (function clock_constraint -> function cn ->
+        match
+          (List.fold_left
+             (function (partial_clock_constraint,
+                        current_lt,
+                        current_le,
+                        current_ge,
+                        current_gt) ->
+               function unit_clock_constraint ->
+                 let
+                     default =
+                   (unit_clock_constraint::partial_clock_constraint,
+                    current_lt,
+                    current_le,
+                    current_ge,
+                    current_gt
+                   )
+                 in
+                 match unit_clock_constraint
+                 with
+                 | Lt (cn1, n1) ->
+                   if (cn1 = cn)
+                   then
+                     (partial_clock_constraint,
+                      (if n1 < current_lt then n1 else current_lt),
+                      current_le,
+                      current_ge,
+                      current_gt
+                     )
+                   else
+                     default
+                 | Le (cn1, n1) ->
+                   if (cn1 = cn)
+                   then
+                     (partial_clock_constraint,
+                      current_lt,
+                      (if n1 < current_le then n1 else current_le),
+                      current_ge,
+                      current_gt
+                     )
+                   else
+                     default
+                 | Ge (cn1, n1) ->
+                   if (cn1 = cn)
+                   then
+                     (partial_clock_constraint,
+                      current_lt,
+                      current_le,
+                      (if n1 > current_ge then n1 else current_ge),
+                      current_gt
+                     )
+                   else
+                     default
+                 | Gt (cn1, n1) ->
+                   if (cn1 = cn)
+                   then
+                     (partial_clock_constraint,
+                      current_lt,
+                      current_le,
+                      current_ge,
+                      (if n1 > current_gt then n1 else current_gt)
+                     )
+                   else
+                     default
+             )
+             ([], max_int, max_int, 0, 0)
+             (clock_constraint)
+          )
+        with
+        | (remainder, final_lt, final_le, final_ge, final_gt) ->
+          (if (final_lt <= final_le)
+           then
+              (if (final_lt < max_int) then [Lt (cn, final_lt)] else [])
+           else
+              (if (final_le < max_int) then [Le (cn, final_le)] else [])
+          )
+            @
+            (if (final_gt >= final_ge)
+             then
+                (if (final_gt > 0) then [Gt (cn, final_gt)] else [])
+             else
+                (if (final_ge > 0) then [Ge (cn, final_ge)] else [])
+            )
+            @
+            remainder
       )
       clock_constraint
       clock_name_list
   in
   let
-      phase5 clock_constraint =
-    List.fold_left
-      (function clock_constraint ->
-        function cn ->
-          if
-            List.exists
-              (function Le (cn1, _) -> (cn1 = cn) | _ -> false)
-              clock_constraint
-          then
-            Le (cn, (List.fold_left
-                       (function current_min ->
-                         function Le (cn1, n1) ->
-                           if
-                             cn1 = cn
-                           then
-                             min
-                               current_min
-                               n1
-                           else
-                             current_min
-                         | _ -> current_min
-                       )
-                       max_int
-                       clock_constraint
-            ))
-            ::
-              (List.filter
-                 (function Le (cn1, _) -> (cn1 <> cn) | _ -> true)
-                 clock_constraint
-              )
-          else
-            clock_constraint
-      )
-      clock_constraint
-      clock_name_list
+      result =
+    (phase4 (phase3 (phase2 (phase1 clock_constraint))))
   in
-  let
-      phase6 clock_constraint =
-    List.fold_left
-      (function clock_constraint ->
-        function cn ->
-          if
-            List.exists
-              (function Ge (cn1, _) -> (cn1 = cn) | _ -> false)
-              clock_constraint
-          then
-            Ge (cn, (List.fold_left
-                       (function current_max ->
-                         function Ge (cn1, n1) ->
-                           if
-                             cn1 = cn
-                           then
-                             max
-                               current_max
-                               n1
-                           else
-                             current_max
-                         | _ -> current_max
-                       )
-                       min_int
-                       clock_constraint
-            ))
-            ::
-              (List.filter
-                 (function Ge (cn1, _) -> (cn1 <> cn) | _ -> true)
-                 clock_constraint
-              )
-          else
-            clock_constraint
-      )
-      clock_constraint
-      clock_name_list
-  in
-  let
-      phase7 clock_constraint =
-    List.fold_left
-      (function clock_constraint ->
-        function cn ->
-          if
-            List.exists
-              (function Gt (cn1, _) -> (cn1 = cn) | _ -> false)
-              clock_constraint
-          then
-            Gt (cn, (List.fold_left
-                       (function current_max ->
-                         function Gt (cn1, n1) ->
-                           if
-                             cn1 = cn
-                           then
-                             max
-                               current_max
-                               n1
-                           else
-                             current_max
-                         | _ -> current_max
-                       )
-                       min_int
-                       clock_constraint
-            ))
-            ::
-              (List.filter
-                 (function Gt (cn1, _) -> (cn1 <> cn) | _ -> true)
-                 clock_constraint
-              )
-          else
-            clock_constraint
-      )
-      clock_constraint
-      clock_name_list
-  in
-  phase7 (phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint))))))
+  Printf.printf
+    "minimise: clock_constraint=%s, result=%s\n"
+    (string_of_clock_constraint clock_constraint)
+    (string_of_clock_constraint result)
+  ;
+  result
 
 let clock_constraint_intersection clock_names c1 c2 =
   minimise_clock_constraint clock_names (c1 @ c2)
