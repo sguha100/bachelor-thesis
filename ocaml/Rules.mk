@@ -68,6 +68,7 @@ utilities/Clock_constraint_utilities.ml \
 zone-valuation-graph/graph_functions.ml \
 utilities/UDBM_utilities.ml \
 test/test.ml \
+test/Test_base.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml

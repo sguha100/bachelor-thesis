@@ -4,34 +4,11 @@ open Graph_functions3
 open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
-
-let test1 found expected =
-  (List.for_all
-     (function expectedelem ->
-       (List.exists
-         ((=) expectedelem)
-         found
-       )
-     ||
-         (expectedelem = True)
-     )
-     expected
-  )
-  &&
-    (List.for_all
-       (function foundelem ->
-         (List.exists
-            ((=) foundelem)
-            expected)
-         ||
-           (foundelem = True)
-       )
-       found
-    )
+open Test_base
 
 let test2 = 
   if
-    (test1
+    (match_clock_constraints
        (unit_constraint_intersection
           (Lt ("x1", 3))
           (Lt ("x2", 4))
@@ -46,7 +23,7 @@ let test2 =
 
 let test3 = 
   if
-    (test1
+    (match_clock_constraints
        (unit_constraint_intersection
           (Lt ("x1", 3))
           (Lt ("x1", 4))
@@ -60,7 +37,7 @@ let test3 =
       
 let test4 = 
   if
-    (test1
+    (match_clock_constraints
        (unit_constraint_intersection
           (Gt ("x1", 3))
           (Lt ("x1", 4))
@@ -75,7 +52,7 @@ let test4 =
 
 let test5 = 
   if
-    (test1
+    (match_clock_constraints
        (unit_constraint_intersection
           (Lt ("x1", 3))
           (Gt ("x1", 4))
@@ -215,7 +192,7 @@ let test20 =
       c = [Le ("X1", 5); Lt ("X1", 7); Gt ("X1", 2); Ge ("X1", 3)]
   in
   if
-    (test1
+    (match_clock_constraints
        (pseudo_future c)
        [Gt ("X1", 2); Ge ("X1", 3)]
     )
@@ -226,7 +203,7 @@ let test20 =
 
 let test21 =
   if
-    (test1
+    (match_clock_constraints
        (pseudo_future [Eq ("X1", 9)])
        [Ge ("X1", 9)]
     )
@@ -307,7 +284,7 @@ let test23 ta =
              with
              | [zone] ->
                (zone.zone_location1 = i &&
-                   (test1
+                   (match_clock_constraints
                       zone.zone_constraint1
                       (pseudo_future
                          (List.map
@@ -373,14 +350,14 @@ let test28 found expected =
      (function c1 ->
        (List.length
           (List.filter
-             (function zone -> test1 zone.zone_constraint1 c1)
+             (function zone -> match_clock_constraints zone.zone_constraint1 c1)
              found
           )
        )
        =
          (List.length
             (List.filter
-               (test1 c1)
+               (match_clock_constraints c1)
                expected
             )
          )
@@ -574,15 +551,7 @@ let test39 =
   then
     "test39 passed"
   else
-    ("test39 failed, clock constraints are " ^
-        (String.concat
-           " and "
-           (List.map
-              (function zone -> string_of_clock_constraint zone.zone_constraint1)
-              found
-           )
-        )
-    )
+    "test39 failed"
 
 let _ =
   print_string test2;
