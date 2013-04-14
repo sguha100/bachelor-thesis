@@ -59,3 +59,14 @@ let test43 =
     "test43 passed"
   else
     "test43 failed"
+
+let test44 =
+  if
+    verify_raw_t_translation
+      [|"X"; "Y"|]
+      [Lt ("X", 3); Gt ("Y", 3); Ge ("Y", 3); Le ("X", 2)]
+      [(0, 2, true, -3); (1, 0, false, 2)]
+  then
+    "test44 passed"
+  else
+    "test44 failed"
