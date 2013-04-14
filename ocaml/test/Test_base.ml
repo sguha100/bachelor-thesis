@@ -1,4 +1,5 @@
 open Grammar_types
+open Clock_constraint_utilities
 
 let match_clock_constraints found expected =
   (List.for_all
@@ -23,3 +24,6 @@ let match_clock_constraints found expected =
        )
        found
     )
+
+let match_minimised clock_constraint clock_name_list expected =
+  (minimise_clock_constraint clock_constraint clock_name_list) = expected
