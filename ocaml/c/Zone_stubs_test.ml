@@ -14,6 +14,25 @@ let test40 =
   else
     "test40 failed"
 
+let verify_raw_t_translation clock_names clock_constraint expected =
+  (match
+      (clock_constraint_to_raw_t_option clock_names clock_constraint)
+   with
+   | None -> false
+   | Some dbm ->
+     let
+         found = dbm_toConstraintList dbm (1 + Array.length clock_names)
+     in
+     (List.for_all
+        (function e ->
+          (List.length (List.filter ((=) e) found))
+          =
+            (List.length (List.filter ((=) e) expected))
+        )
+        expected
+     )
+  )
+
 let test41 =
   if
     (match
