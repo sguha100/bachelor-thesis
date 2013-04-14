@@ -291,8 +291,10 @@ let split_zone_on_clock_constraint zone clock_constraint clock_names=
                     (function unit_clock_constraint -> (*Yep, variable overuse.*)
                       {zone_location1 = zone.zone_location1;
                        zone_constraint1 =
-                          (unit_clock_constraint ::
-                             zone.zone_constraint1)
+                          minimise_clock_constraint
+                            clock_names
+                            (unit_clock_constraint ::
+                               zone.zone_constraint1)
                       }
                     )
                     (split_on_unit_clock_constraint unit_clock_constraint)
