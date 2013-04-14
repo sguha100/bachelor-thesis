@@ -77,7 +77,7 @@ let test6 =
 
 let test8 =
   if
-    match_minimised [False; False; False; Eq ("X", 7)] ["X"] [False]
+    match_minimised [|"X"|] [False; False; False; Eq ("X", 7)] [False]
   then
     "test8 passed"
   else
@@ -85,7 +85,7 @@ let test8 =
   
 let test9 =
   if
-    match_minimised [True; True; True; Eq ("X", 7)] ["X"] [Ge ("X", 7); Le ("X", 7)]
+    match_minimised [|"X"|] [True; True; True; Eq ("X", 7)] [Ge ("X", 7); Le ("X", 7)]
   then
     "test9 passed"
   else
@@ -93,7 +93,7 @@ let test9 =
   
 let test10 =
   if
-    match_minimised [Lt ("X", 5); Lt ("X", 7); Lt ("X", 3)] ["X"] [Lt ("X", 3)]
+    match_minimised [|"X"|] [Lt ("X", 5); Lt ("X", 7); Lt ("X", 3)] [Lt ("X", 3)]
   then
     "test10 passed"
   else
@@ -101,7 +101,7 @@ let test10 =
   
 let test11 =
   if
-    match_minimised [Le ("X", 5); Le ("X", 7); Le ("X", 3)] ["X"] [Le ("X", 3)]
+    match_minimised [|"X"|] [Le ("X", 5); Le ("X", 7); Le ("X", 3)] [Le ("X", 3)]
   then
     "test11 passed"
   else
@@ -109,7 +109,7 @@ let test11 =
   
 let test12 =
   if
-    match_minimised [Ge ("X", 5); Ge ("X", 7); Ge ("X", 3)] ["X"] [Ge ("X", 7)]
+    match_minimised [|"X"|] [Ge ("X", 5); Ge ("X", 7); Ge ("X", 3)] [Ge ("X", 7)]
   then
     "test12 passed"
   else
@@ -117,7 +117,7 @@ let test12 =
   
 let test13 =
   if
-    match_minimised [Gt ("X", 5); Gt ("X", 7); Gt ("X", 3)] ["X"] [Gt ("X", 7)]
+    match_minimised [|"X"|] [Gt ("X", 5); Gt ("X", 7); Gt ("X", 3)] [Gt ("X", 7)]
   then
     "test13 passed"
   else

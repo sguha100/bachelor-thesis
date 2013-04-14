@@ -78,7 +78,10 @@ let split_on_unit_clock_constraint unit_clock_constraint =
       else
         [Lt (cn1, n1); Eq (cn1, n1); Gt (cn1, n1)]
 
-let minimise_clock_constraint clock_constraint clock_name_list =
+let minimise_clock_constraint clock_names clock_constraint =
+  let
+      clock_name_list = Array.to_list clock_names
+  in
   let
       phase1 clock_constraint =
     if
@@ -260,8 +263,8 @@ let minimise_clock_constraint clock_constraint clock_name_list =
   in
   phase7 (phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint))))))
 
-let clock_constraint_intersection clock_name_list c1 c2 =
-  minimise_clock_constraint (c1 @ c2) clock_name_list
+let clock_constraint_intersection clock_names c1 c2 =
+  minimise_clock_constraint clock_names (c1 @ c2)
 
 let split_zone_on_clock_constraint zone clock_constraint clock_names=
   List.fold_left (*This is where we split by each of the constituents
@@ -332,9 +335,6 @@ let clock_constraint_after_clock_resets clock_constraint clock_resets =
     (clock_constraint_without_reset_clocks clock_constraint clock_resets)
 
 let split_zone_list_on_constraint_list zone_list constraint_list ta =
-  let
-      clock_name_list = (Array.to_list ta.clock_names)
-  in
   List.fold_left
     (function zone_list ->
       function clock_constraint ->
@@ -346,8 +346,9 @@ let split_zone_list_on_constraint_list zone_list constraint_list ta =
                    {zone_location1 = zone.zone_location1;
                     zone_constraint1 =
                        (minimise_clock_constraint
+                          ta.clock_names
                           zone.zone_constraint1
-                          clock_name_list)
+                       )
                    }
                  )
                  ((split_zone_on_clock_constraint zone clock_constraint ta.clock_names)
