@@ -314,10 +314,15 @@ extern "C" {
             if (base_readOneBit(mingraph, i*dim+j))
               {
                 CAMLlocal1(hd);
-                hd = caml_alloc_tuple(3);
-                Store_field(hd, 0, i);
-                Store_field(hd, 1, j);
-                Store_field(hd, 2, alloc_raw_t(dbm + i*dim + j));
+                hd = caml_alloc_tuple(4);
+                Store_field(hd, 0, Val_int(i));
+                Store_field(hd, 1, Val_int(j));
+                switch (dbm_rawIsStrict(dbm[i*dim+j])) {
+                case TRUE: Store_field(hd, 2, Val_int(1));break;
+                case FALSE: Store_field(hd, 2, Val_int(0));break;
+                default: break;
+                }
+                Store_field(hd, 3, Val_int(dbm_raw2bound(dbm[i*dim + j])));
                 CAMLlocal1(temp);
                 temp = caml_alloc(2, 0);
                 Store_field(temp, 0, hd);
@@ -327,6 +332,26 @@ extern "C" {
           }
       }
   stop_loops:
+    CAMLreturn(current);
+  }
+
+  /* This is intended to be experimental in nature. */
+  CAMLprim value zone_int_toList (value n) {
+    CAMLparam1(n);
+    CAMLlocal1(current);
+    current = Val_int(0);
+    int i;
+    for (i = 0; i < Int_val(n); i++) {
+      CAMLlocal1(temp);
+      temp = caml_alloc(2, 0);
+      CAMLlocal1(hd);
+      hd = caml_alloc_tuple(2);
+      Store_field(hd, 0, Val_int(i));
+      Store_field(hd, 1, Val_int(1));
+      Store_field(temp, 0, hd);
+      Store_field(temp, 1, current);
+      current = temp;
+    }
     CAMLreturn(current);
   }
 

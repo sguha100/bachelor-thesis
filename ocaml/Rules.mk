@@ -69,7 +69,11 @@ zone-valuation-graph/graph_functions.ml \
 utilities/UDBM_utilities.ml \
 test/test.ml \
 test/Test_base.ml \
+zone-valuation-graph/Graph_functions3.ml \
 zone-valuation-graph/Graph_functions3_test.ml \
+c/zone_stubs.c \
+c/zone_stubs.mli \
+c/Zone_stubs_test.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml

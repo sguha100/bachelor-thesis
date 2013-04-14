@@ -183,10 +183,10 @@ let raw_t_to_string ta raw_t =
   String.concat
     " && "
     (List.map
-       (function (i, j, raw_t) ->
+       (function (i, j, strictness, bound) ->
          (clock_names.(i)) ^ " - " ^
-           (clock_names.(j)) ^ " < " ^ (*I know this is wrong!*)
-           (string_of_int (dbm_raw2bound raw_t))
+           (clock_names.(j)) ^ (if strictness then " < " else " <= ") ^ 
+           (string_of_int (bound))
        )
        (dbm_toConstraintList raw_t dim)
     )

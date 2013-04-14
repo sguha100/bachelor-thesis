@@ -3,6 +3,7 @@ open Clock_constraint_utilities
 open Graph_functions3_test
 open Unit_constraint_intersection
 open Zone_stubs
+open Zone_stubs_test
 open UDBM_utilities
 open Test_base
 
@@ -247,5 +248,9 @@ let _ =
   print_string test38;
   print_newline ();
   print_string test39;
+  print_newline ();
+  print_string test40;
+  print_newline ();
+  print_string test41;
   print_newline ();
  exit 0
