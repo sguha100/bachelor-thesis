@@ -407,7 +407,12 @@ let dequeue ta (queue, zone_list_array, tree_array) =
               split_zone_list_on_constraint_list
                 zone_list_array.(l1.location_index)
                 (List.map
-                   (function zone -> zone.zone_constraint1)
+                   (function zone ->
+                     (clock_constraint_without_reset_clocks
+                       zone.zone_constraint1
+                       departure.clock_resets
+                     )
+                   )
                    zone_list_array.(departure.next_location)
                 )
                 ta
