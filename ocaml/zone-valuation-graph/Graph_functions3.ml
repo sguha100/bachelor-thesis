@@ -100,9 +100,10 @@ let successor_zones_from_predecessor
        zone_constraint1 =
           pseudo_future
             (clock_constraint_after_clock_resets
-               (minimise_clock_constraint
-                  (edge.condition @ (pseudo_future zone.zone_constraint1))
+               (clock_constraint_intersection
                   (Array.to_list ta.clock_names)
+                  (edge.condition)
+                  (pseudo_future zone.zone_constraint1)
                )
                edge.clock_resets
             )

@@ -260,6 +260,9 @@ let minimise_clock_constraint clock_constraint clock_name_list =
   in
   phase7 (phase6 (phase5 (phase4 (phase3 (phase2 (phase1 clock_constraint))))))
 
+let clock_constraint_intersection clock_name_list c1 c2 =
+  minimise_clock_constraint (c1 @ c2) clock_name_list
+
 let split_zone_on_clock_constraint zone clock_constraint clock_names=
   List.fold_left (*This is where we split by each of the constituents
                    of the constraint, one by one.*)
