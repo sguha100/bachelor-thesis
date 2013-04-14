@@ -218,7 +218,7 @@ let test24 =
   else
     "test24 failed"
 
-let test25 queue location =
+let verify_enqueue queue location =
   let
       next_queue = enqueue_without_repetition queue location
   in
@@ -238,7 +238,7 @@ let test25 queue location =
 
 let test26  =
   if
-    test25 [0; 1; 3] 2
+    verify_enqueue [0; 1; 3] 2
   then
     "test26 passed"
   else
@@ -246,13 +246,13 @@ let test26  =
 
 let test27  =
   if
-    test25 [0; 1; 2] 2
+    verify_enqueue [0; 1; 2] 2
   then
     "test27 passed"
   else
     "test27 failed"
 
-let test28 found expected =
+let verify_zone_list found expected =
   (List.length found = List.length expected) &&
   (List.for_all
      (function c1 ->
@@ -273,7 +273,7 @@ let test28 found expected =
      expected
   )
 
-let test29 = 
+let ta1_zone_list4 = 
   (self_split
      ta1
      ta1.numinit
@@ -282,7 +282,7 @@ let test29 =
       }]
   )
     
-let test30 =
+let ta1_zone_list5 =
   (self_split
      ta1
      1
@@ -294,14 +294,14 @@ let test30 =
 let test31 =
   let
       found =
-    test29
+    ta1_zone_list4
   in
   let
       expected =
     [[Le ("X", 2)]; [Gt ("X", 2)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test31 passed"
   else
@@ -310,14 +310,14 @@ let test31 =
 let test32 =
   let
       found =
-    test30
+    ta1_zone_list5
   in
   let
       expected =
     [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test32 passed"
   else
@@ -328,7 +328,7 @@ let test33 =
       found =
     useful_predecessor_zones
       ta1
-      test29
+      ta1_zone_list4
       [Gt ("X", 2)]
   in
   let
@@ -336,7 +336,7 @@ let test33 =
     [[Le ("X", 2)]; [Gt ("X", 2)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test33 passed"
   else
@@ -347,7 +347,7 @@ let test34 =
       found =
     useful_predecessor_zones
       ta1
-      test30
+      ta1_zone_list5
       [Gt ("X", 5)]
   in
   let
@@ -355,7 +355,7 @@ let test34 =
     [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test34 passed"
   else
@@ -366,7 +366,7 @@ let test35 =
       found =
     useful_predecessor_zones
       ta1
-      test30
+      ta1_zone_list5
       [Le ("X", 5)]
   in
   let
@@ -374,7 +374,7 @@ let test35 =
     [[Gt ("X", 2); Le ("X", 5)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test35 passed"
   else
@@ -385,7 +385,7 @@ let test36 =
       found =
     successor_zones_from_predecessor
       ta1
-      test30
+      ta1_zone_list5
       {clock_resets = [||]; condition = [Le ("X", 5)]; action = 0;
        next_location = 1}
   in
@@ -394,7 +394,7 @@ let test36 =
     [[Gt ("X", 2)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test36 passed"
   else
@@ -405,7 +405,7 @@ let test37 =
       found =
     successor_zones_from_predecessor
       ta1
-      test30
+      ta1_zone_list5
       {clock_resets = [||]; condition = [Gt ("X", 5)]; action = 0;
        next_location = 1}
   in
@@ -414,7 +414,7 @@ let test37 =
     [[Gt ("X", 5)]; [Gt ("X", 5)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test37 passed"
   else
@@ -425,7 +425,7 @@ let test38 =
       found =
     successor_zones_from_predecessor
       ta1
-      test30
+      ta1_zone_list5
       {clock_resets = [|"X"|]; condition = [Gt ("X", 5)]; action = 0;
        next_location = 1}
   in
@@ -434,7 +434,7 @@ let test38 =
     [[Ge ("X", 0)]; [Ge ("X", 0)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test38 passed"
   else
@@ -445,17 +445,17 @@ let test39 =
       found =
     new_successor_zones
       ta1
-      test29
+      ta1_zone_list4
       {clock_resets = [||]; condition = [Gt ("X", 2)]; action = 0;
        next_location = 1}
-      test30
+      ta1_zone_list5
   in
   let
       expected =
     [[Gt ("X", 2); Le ("X", 5)]; [Gt ("X", 5)]]
   in
   if
-    test28 found expected
+    verify_zone_list found expected
   then
     "test39 passed"
   else
