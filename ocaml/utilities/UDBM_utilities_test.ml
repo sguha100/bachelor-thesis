@@ -59,3 +59,102 @@ let test47 =
     "test47 passed"
   else
     ("test47 failed, found  = " ^ (raw_t_to_string [|"X"; "Y"|] dbm02))
+
+let test48 =
+  if
+    (match
+        (constraint_list_to_raw_t_option
+           2
+           [(0, 1, false, -3); (1, 0, true, 3)]
+        )
+     with
+     | None -> true
+     | _ -> false
+    )
+  then
+    "test48 passed"
+  else
+    "test48 failed"
+
+let test49 =
+  let dim = 2 in
+  if
+    (match
+        (constraint_list_to_raw_t_option
+           dim
+           [(0, 1, false, -3); (1, 0, false, 3)]
+        )
+     with
+     | None -> false
+     | Some dbm ->
+       verify_raw_t
+         dim
+         dbm
+         [(0, 1, false, -3); (1, 0, false, 3)]
+    )
+  then
+    "test49 passed"
+  else
+    "test49 failed"
+
+let dim04 = 3
+
+let dbm04 =
+  match
+    (constraint_list_to_raw_t_option
+       dim04
+       [(2, 0, false, 3); (1, 0, false, 3)]
+    )
+  with
+  | None -> (dbm_init dim04) (* This is not supposed to happen! *)
+  | Some dbm04 -> dbm04
+
+let test50 =
+  if
+    verify_raw_t
+      dim04
+      dbm04
+      [(2, 0, false, 3); (1, 0, false, 3)]
+  then
+    "test50 passed"
+  else
+    "test50 failed"
+
+let test51 =
+  let
+      found =
+    split_raw_t_on_constraint dim04 dbm04 (1, 2, false, 2)
+  in
+  let
+      expected =
+    [[(2, 0, false, 3); (1, 0, false, 3); (1, 2, false, 2)];
+     [(1, 0, false, 3); (2, 1, true, -2)]]
+  in
+  if
+    (List.length found = List.length expected) &&
+      (List.for_all
+         (function e ->
+           (List.length
+              (List.filter
+                 (function f ->
+                   verify_raw_t dim04 f e
+                 )
+                 found)
+           )
+           =
+             (List.length (List.filter ((=) e) expected))
+         )
+         expected
+      )
+  then
+    "test51 passed"
+  else
+    ("test51 failed, dbm are [" ^
+        (String.concat
+           "; "
+           (List.map
+              (raw_t_to_string [|"X"; "Y"|])
+              found
+           )
+        )
+     ^ "]")

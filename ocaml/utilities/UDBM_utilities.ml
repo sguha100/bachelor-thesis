@@ -195,6 +195,8 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
       )
 
 let raw_t_to_string clock_names raw_t =
+  Printf.printf "%s" "raw_t_to_string got called!\n";
+  flush stdout;
   let
       clock_names = Array.of_list ("0"::(Array.to_list clock_names))
   in
@@ -210,4 +212,55 @@ let raw_t_to_string clock_names raw_t =
            (string_of_int (bound))
        )
        (dbm_toConstraintList raw_t dim)
+    )
+
+let constraint_list_to_raw_t_option dim constraint_list =
+  List.fold_left
+    (function
+    | None -> (function _ -> None)
+    | Some dbm ->
+      (function (i, j, strictness, bound) ->
+        let
+            dbm =
+          dbm_constrainC
+            dbm
+            dim
+            (dbm_constraint2
+	       i
+	       j
+	       bound
+	       strictness
+            )
+        in
+        if
+          dbm_isEmpty dbm dim
+        then
+          None
+        else
+          Some dbm
+      )
+    )
+    (Some (dbm_init dim))
+    constraint_list
+
+let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
+  List.concat
+    (List.map
+       (function constraint_t ->
+         let
+             dbm = 
+           dbm_constrainC
+             dbm
+             dim
+             constraint_t
+         in
+         if
+           dbm_isEmpty dbm dim
+         then
+           []
+         else
+           [dbm]
+        )
+       [dbm_constraint2 i j bound strictness;
+        dbm_constraint2 j i (0-bound) (not strictness)]
     )

@@ -211,8 +211,10 @@ extern "C" {
     CAMLparam3(dbm, dim, c);
     /* printf("(constraint_t_val(c))->i = %d\n", (constraint_t_val(c))->i); */
     /* printf("(constraint_t_val(c))->j = %d\n", (constraint_t_val(c))->j); */
-    dbm_constrainC(raw_t_val(dbm), Int_val(dim), *(constraint_t_val(c)));
-    CAMLreturn (dbm);
+    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
+    dbm_constrainC(dbm_dup, Int_val(dim), *(constraint_t_val(c)));
+    CAMLreturn (alloc_raw_t(dbm_dup));
   }
 
   CAMLprim value zone_dbm_constraint2 (value i,
@@ -239,35 +241,47 @@ extern "C" {
 
   CAMLprim value zone_dbm_haveIntersection (value dst, value src, value dim) {
     CAMLparam3(dst, src, dim);
-    if (dbm_intersection(raw_t_val(dst), raw_t_val(src), Int_val(dim)) == TRUE) {
+    raw_t *dst_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dst_dup, raw_t_val(dst), Int_val(dim));
+    if (dbm_intersection(dst_dup, raw_t_val(src), Int_val(dim)) == TRUE) {
+      free(dst_dup);
       CAMLreturn (Val_int(1)); //ocaml true
     } else {
+      free(dst_dup);
       CAMLreturn (Val_int(0)); //ocaml false
     }
   }
 
   CAMLprim value zone_dbm_intersection (value dst, value src, value dim) {
     CAMLparam3(dst, src, dim);
-    dbm_intersection(raw_t_val(dst), raw_t_val(src), Int_val(dim));
-    CAMLreturn (dst);
+    raw_t *dst_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dst_dup, raw_t_val(dst), Int_val(dim));
+    dbm_intersection(dst_dup, raw_t_val(src), Int_val(dim));
+    CAMLreturn (alloc_raw_t(dst_dup));
   }
 
   CAMLprim value zone_dbm_freeClock (value dbm, value dim, value k) {
     CAMLparam3(dbm, dim, k);
-    dbm_freeClock(raw_t_val(dbm), Int_val(dim), Int_val(k));
-    CAMLreturn (dbm);
+    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
+    dbm_freeClock(dbm_dup, Int_val(dim), Int_val(k));
+    CAMLreturn (alloc_raw_t(dbm_dup));
   }
 
   CAMLprim value zone_dbm_updateValue (value dbm, value dim, value k, value val) {
     CAMLparam4(dbm, dim, k, val);
-    dbm_updateValue(raw_t_val(dbm), Int_val(dim), Int_val(k), Int_val(val));
-    CAMLreturn (dbm);
+    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
+    dbm_updateValue(dbm_dup, Int_val(dim), Int_val(k), Int_val(val));
+    CAMLreturn (alloc_raw_t(dbm_dup));
   }
 
   CAMLprim value zone_dbm_up(value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    dbm_up(raw_t_val(dbm), Int_val(dim));
-    CAMLreturn (dbm);
+    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
+    dbm_up(dbm_dup, Int_val(dim));
+    CAMLreturn (alloc_raw_t(dbm_dup));
   }
 
   CAMLprim value zone_dbm_toString(value dbm, value dim) {
@@ -277,8 +291,10 @@ extern "C" {
 
   CAMLprim value zone_dbm_zero(value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    dbm_zero(raw_t_val(dbm), Int_val(dim));
-    CAMLreturn (dbm);
+    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
+    dbm_zero(dbm_dup, Int_val(dim));
+    CAMLreturn (alloc_raw_t(dbm_dup));
   }
 
   CAMLprim value zone_dbm_raw2bound(value raw) {
