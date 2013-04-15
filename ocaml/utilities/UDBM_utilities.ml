@@ -16,9 +16,6 @@ let clock_name_to_index cn clock_names =
   f 0 cn (Array.to_list clock_names)
 
 let raw_t_clock_reset_operation operation clock_names clock_resets raw_t =
-  let
-      dim = 1 + (Array.length clock_names)
-  in
   List.fold_left
     operation
     raw_t
@@ -264,3 +261,24 @@ let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
        [dbm_constraint2 i j bound strictness;
         dbm_constraint2 j i (0-bound) (not strictness)]
     )
+
+let split_raw_t_list_on_constraint
+    dim
+    dbm_list
+    (i, j, strictness, bound) =
+  List.concat
+    (List.map
+       (function dbm -> split_raw_t_on_constraint dim dbm (i, j, strictness, bound))
+       dbm_list
+    )
+
+let split_raw_t_list_on_constraint_list
+    dim
+    dbm_list
+    constraint_list =
+  List.fold_left
+    (split_raw_t_list_on_constraint
+       dim
+    )
+    dbm_list
+    constraint_list

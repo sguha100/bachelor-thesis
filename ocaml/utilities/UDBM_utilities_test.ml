@@ -149,7 +149,68 @@ let test51 =
   then
     "test51 passed"
   else
-    ("test51 failed, dbm are [" ^
+    "test51 failed"
+      
+let test52 =
+  let
+      found =
+    split_raw_t_on_constraint dim04 dbm04 (2, 1, true, -2)
+  in
+  let
+      expected =
+    [[(2, 0, false, 3); (1, 0, false, 3); (1, 2, false, 2)];
+     [(1, 0, false, 3); (2, 1, true, -2)]]
+  in
+  if
+    (List.length found = List.length expected) &&
+      (List.for_all
+         (function e ->
+           (List.length
+              (List.filter
+                 (function f ->
+                   verify_raw_t dim04 f e
+                 )
+                 found)
+           )
+           =
+             (List.length (List.filter ((=) e) expected))
+         )
+         expected
+      )
+  then
+    "test52 passed"
+  else
+    "test52 failed"
+      
+let test53 =
+  let
+      found =
+    split_raw_t_on_constraint dim04 dbm04 (2, 1, true, -3)
+  in
+  let
+      expected =
+    [[(2, 0, false, 3); (1, 0, false, 3)]]
+  in
+  if
+    (List.length found = List.length expected) &&
+      (List.for_all
+         (function e ->
+           (List.length
+              (List.filter
+                 (function f ->
+                   verify_raw_t dim04 f e
+                 )
+                 found)
+           )
+           =
+             (List.length (List.filter ((=) e) expected))
+         )
+         expected
+      )
+  then
+    "test53 passed"
+  else
+    ("test53 failed, dbm are [" ^
         (String.concat
            "; "
            (List.map
