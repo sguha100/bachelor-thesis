@@ -217,7 +217,7 @@ let test54 =
         )
      ^ "]")
 
-let dim05 = 3
+let dim05 = dim04
 
 let dbm05 =
   match
@@ -261,6 +261,37 @@ let test56 =
     "test56 passed"
   else
     ("test56 failed, dbm are [" ^
+        (String.concat
+           "; "
+           (List.map
+              (raw_t_to_string [|"X"; "Y"|])
+              found
+           )
+        )
+     ^ "]")
+      
+let test57 =
+  let
+      found =
+    split_raw_t_list_on_clock_constraint
+      [|"X"; "Y"|]
+      [dbm05]
+      [Le ("X", 3); Le ("Y", 3)]
+  in
+  let
+      expected =
+    [[(2, 0, false, 3); (1, 0, false, 3); (1, 2, false, 2); (2, 1, false, 2)];
+     [(0, 2, true, -3); (1, 0, false, 3); (2, 1, false, 2)];
+     [(2, 0, false, 3); (0, 1, true, -3); (1, 2, false, 2)];
+     [(0, 2, true, -3); (0, 1, true, -3); (1, 2, false, 2); (2, 1, false, 2)]
+    ]
+  in
+  if
+    verify_split dim04 found expected
+  then
+    "test57 passed"
+  else
+    ("test57 failed, dbm are [" ^
         (String.concat
            "; "
            (List.map

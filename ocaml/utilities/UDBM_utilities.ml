@@ -290,3 +290,15 @@ let split_raw_t_list_on_raw_t
     dbm_list
     (dbm_toConstraintList dbm dim)
     
+let split_raw_t_list_on_clock_constraint
+    clock_names
+    dbm_list
+    clock_constraint =
+  let
+      dim = 1 + Array.length clock_names
+  in
+  match
+    (clock_constraint_to_raw_t_option clock_names clock_constraint)
+  with
+  | None -> dbm_list
+  | Some dbm -> split_raw_t_list_on_raw_t dim dbm_list dbm
