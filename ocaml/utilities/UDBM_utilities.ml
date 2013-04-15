@@ -15,11 +15,20 @@ let clock_name_to_index cn clock_names =
   in
   f 0 cn (Array.to_list clock_names)
 
-let raw_t_after_clock_resets clock_names clock_resets raw_t =
+let raw_t_clock_reset_operation operation clock_names clock_resets raw_t =
   let
       dim = 1 + (Array.length clock_names)
   in
   List.fold_left
+    operation
+    raw_t
+    (Array.to_list clock_resets)
+
+let raw_t_after_clock_resets clock_names =
+  let
+      dim = 1 + (Array.length clock_names)
+  in
+  raw_t_clock_reset_operation
     (function raw_t -> function cn ->
       dbm_updateValue
         raw_t
@@ -27,8 +36,19 @@ let raw_t_after_clock_resets clock_names clock_resets raw_t =
         (1 + (clock_name_to_index cn clock_names))
         0
     )
-    raw_t
-    (Array.to_list clock_resets)
+    clock_names
+
+let raw_t_without_reset_clocks clock_names =
+  let
+      dim = 1 + (Array.length clock_names)
+  in
+  raw_t_clock_reset_operation
+    (function raw_t -> function cn ->
+      dbm_freeClock
+        raw_t
+        dim
+        (1 + (clock_name_to_index cn clock_names))
+    )
 
 let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names

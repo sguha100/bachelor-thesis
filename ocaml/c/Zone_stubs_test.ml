@@ -14,25 +14,26 @@ let test40 =
   else
     "test40 failed"
 
+let verify_raw_t dim dbm expected =
+  let
+      found = dbm_toConstraintList dbm dim
+  in
+  List.length found = List.length expected &&
+  List.for_all
+    (function e ->
+      (List.length (List.filter ((=) e) found))
+      =
+        (List.length (List.filter ((=) e) expected))
+    )
+    expected
+    
 let verify_raw_t_translation clock_names clock_constraint expected =
-  (match
-      (clock_constraint_to_raw_t_option clock_names clock_constraint)
-   with
-   | None -> false
-   | Some dbm ->
-     let
-         found = dbm_toConstraintList dbm (1 + Array.length clock_names)
-     in
-     (List.for_all
-        (function e ->
-          (List.length (List.filter ((=) e) found))
-          =
-            (List.length (List.filter ((=) e) expected))
-        )
-        expected
-     )
-  )
-
+  match
+    (clock_constraint_to_raw_t_option clock_names clock_constraint)
+  with
+  | None -> false
+  | Some dbm -> verify_raw_t (1 + Array.length clock_names) dbm expected
+    
 let test41 =
   if
     verify_raw_t_translation [|"X"|] [Le ("X", 3)] [(1, 0, false, 3)]
