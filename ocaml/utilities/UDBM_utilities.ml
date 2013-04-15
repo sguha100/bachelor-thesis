@@ -49,6 +49,7 @@ let raw_t_without_reset_clocks clock_names =
         dim
         (1 + (clock_name_to_index cn clock_names))
     )
+    clock_names
 
 let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names
@@ -193,9 +194,9 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
        | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
       )
 
-let raw_t_to_string ta raw_t =
+let raw_t_to_string clock_names raw_t =
   let
-      clock_names = Array.of_list ("0"::(Array.to_list ta.clock_names))
+      clock_names = Array.of_list ("0"::(Array.to_list clock_names))
   in
   let
       dim = Array.length clock_names

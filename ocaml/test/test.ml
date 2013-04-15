@@ -5,6 +5,7 @@ open Unit_constraint_intersection
 open Zone_stubs
 open Zone_stubs_test
 open UDBM_utilities
+open UDBM_utilities_test
 open Test_base
 
 let test2 = 
@@ -258,5 +259,11 @@ let _ =
   print_string test43;
   print_newline ();
   print_string test44;
+  print_newline ();
+  print_string test45;
+  print_newline ();
+  print_string test46;
+  print_newline ();
+  print_string test47;
   print_newline ();
   exit 0

@@ -67,6 +67,7 @@ $(grammar_types) \
 utilities/Clock_constraint_utilities.ml \
 zone-valuation-graph/graph_functions.ml \
 utilities/UDBM_utilities.ml \
+utilities/UDBM_utilities_test.ml \
 test/test.ml \
 test/Test_base.ml \
 zone-valuation-graph/Graph_functions3.ml \
