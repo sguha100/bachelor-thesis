@@ -192,8 +192,6 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
       )
 
 let raw_t_to_string clock_names raw_t =
-  Printf.printf "%s" "raw_t_to_string got called!\n";
-  flush stdout;
   let
       clock_names = Array.of_list ("0"::(Array.to_list clock_names))
   in
@@ -282,3 +280,13 @@ let split_raw_t_list_on_constraint_list
     )
     dbm_list
     constraint_list
+
+let split_raw_t_list_on_raw_t
+    dim
+    dbm_list
+    dbm =
+  split_raw_t_list_on_constraint_list
+    dim
+    dbm_list
+    (dbm_toConstraintList dbm dim)
+    

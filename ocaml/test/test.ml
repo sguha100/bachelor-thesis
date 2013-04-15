@@ -278,4 +278,10 @@ let _ =
   print_newline ();
   print_string test53;
   print_newline ();
+  print_string test54;
+  print_newline ();
+  print_string test55;
+  print_newline ();
+  print_string test56;
+  print_newline ();
   exit 0
