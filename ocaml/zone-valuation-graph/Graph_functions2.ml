@@ -5,36 +5,34 @@ open UDBM_utilities
 open Clock_constraint_utilities
 open ZVG_tree
 
-let pseudo_future clock_constraint =
-  List.concat
-    (List.map
-       (function unit_clock_constraint ->
-         match unit_clock_constraint with
-         | True
-         | False
-         | Gt _
-         | Ge _ -> [unit_clock_constraint]
-         | Eq (cn, n) -> [Ge (cn, n)]
-         | Lt _
-         | Le _ -> []
-       )
-       clock_constraint
-    )
-
+let split_zone_list_on_constraint_list
+    clock_names
+    location
+    zone_list
+    constraint_list =
+  List.map
+    (function dbm -> {zone_location2 = location; zone_constraint2 = dbm})
+  (List.fold_left
+     (split_raw_t_on_clock_constraint clock_names)
+     (List.map
+        (function zone -> zone.zone_constraint2)
+        zone_list
+     )
+     (constraint_list)
+  )
+    
 let init_zone_list_array ta =
+  let
+      dim = 1 + Array.length ta.clock_names
   (Array.init
      ta.numlocations
      (function i ->
        if
          (i = ta.numinit)
        then
-         [{zone_location1 = i;
-           zone_constraint1 =
-             pseudo_future
-               (List.map
-                  (function cn -> Eq (cn, 0))
-                  (Array.to_list ta.clock_names)
-               )
+         [{zone_location2 = i;
+           zone_constraint2 =
+             dbm_up (dbm_zero (dbm_init dim) dim) dim
           }]
        else
          []
@@ -83,10 +81,17 @@ let useful_predecessor_zones
     edge_condition =
   List.filter
     (function zone ->
-      clock_constraint_haveIntersection
-        ta.clock_names
-        (pseudo_future zone.zone_constraint1)
-        edge_condition
+      match
+        clock_constraint_to_raw_t_option
+          ta.clock_names
+          edge_condition
+      with
+      | None -> false
+      | Some edge_condition -> 
+        clock_constraint_haveIntersection
+          ta.clock_names
+          (dbm_up zone.zone_constraint2)
+          edge_condition
     )
     predecessor_zone_list
 
@@ -94,19 +99,30 @@ let successor_zones_from_predecessor
     ta
     predecessor_zone_list
     edge =
+  let dim = 1 + Array.length ta.clock_names in
+  let edge_condition =
+    match
+      clock_constraint_to_raw_t_option
+         ta.clock_names
+         edge.condition
+    with
+    | Some edge_condition -> edge_condition
+  in
   List.map
     (function zone ->
-      {zone_location1 = edge.next_location;
-       zone_constraint1 =
-          pseudo_future
-            (clock_constraint_after_clock_resets
-               (clock_constraint_intersection
-                  ta.clock_names
-                  (edge.condition)
-                  (pseudo_future zone.zone_constraint1)
-               )
+      {zone_location2 = edge.next_location;
+       zone_constraint2 =
+          dbm_up
+            (raw_t_after_clock_resets
+               ta.clock_names
                edge.clock_resets
+               (dbm_intersection
+                  edge_condition
+                  (dbm_up dim zone.zone_constraint2)
+                  dim
+               )
             )
+            dim
       }
     )
     (useful_predecessor_zones
@@ -124,14 +140,15 @@ let cut_and_uncut_successor_zones_from_predecessor
     predecessor_zone_list
     edge
     successor_zone_list =
+  let dim = 1 + ta.numclocks in
   List.partition
     (function z1 ->
       List.for_all
         (function z2 ->
-          clock_constraint_haveIntersection
-            ta.clock_names
-            z1.zone_constraint1
-            z2.zone_constraint1
+          dbm_haveIntersection
+            z1.zone_constraint2
+            z2.zone_constraint2
+            dim
         )
         successor_zone_list
     )
@@ -143,29 +160,32 @@ let cut_and_uncut_successor_zones_from_predecessor
 
 let new_successor_zones_from_predecessor
     ta
+    predecessor
     predecessor_zone_list
     edge
     successor_zone_list
     (cut, uncut) =
+  let dim = 1 + ta.numclocks in
   (List.filter
      (function z1 ->
        List.for_all
          (function z2 ->
            not (clock_constraint_haveIntersection
-                  ta.clock_names
-                  z1.zone_constraint1
-                  z2.zone_constraint1
+                  z1.zone_constraint2
+                  z2.zone_constraint2
+                  dim
            )
          )
          successor_zone_list
      )
      (split_zone_list_on_constraint_list
+        ta.clock_names
+        predecessor
         cut
         (List.map
-           (function zone -> zone.zone_constraint1)
+           (function zone -> zone.zone_constraint2)
            successor_zone_list
         )
-        ta
      )
      , uncut)
     
@@ -174,16 +194,17 @@ let new_successor_zones
     predecessor_zone_list
     edge
     successor_zone_list =
+  let dim = 1 + ta.numclocks in
   List.fold_left
     (function successor_zone_list -> function z1 ->
       (List.filter
          (function z1 ->
            List.for_all
              (function z2 -> not
-               (clock_constraint_haveIntersection
-                  ta.clock_names
-                  z1.zone_constraint1
-                  z2.zone_constraint1
+               (dbm_haveIntersection
+                  z1.zone_constraint2
+                  z2.zone_constraint2
+                  dim
                )
              )
              successor_zone_list
@@ -191,7 +212,7 @@ let new_successor_zones
          (split_zone_list_on_constraint_list
             [z1]
             (List.map
-               (function z2 -> z2.zone_constraint1)
+               (function z2 -> z2.zone_constraint2)
                successor_zone_list
             )
             ta
@@ -246,7 +267,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   (*      (List.map *)
   (*         (function zone -> *)
   (*           clock_constraint_after_clock_resets *)
-  (*             zone.zone_constraint1 *)
+  (*             zone.zone_constraint2 *)
   (*             edge.clock_resets *)
   (*         ) (\*Why reset the clocks on the parent's zones? In order *)
   (*             to ensure that the zones in this location are made *)
@@ -255,7 +276,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   (*            (function zone -> *)
   (*              (clock_constraint_haveIntersection *)
   (*                 ta.clock_names *)
-  (*                 zone.zone_constraint1 *)
+  (*                 zone.zone_constraint2 *)
   (*                 edge.condition *)
   (*              ) *)
   (*            ) *)
@@ -299,7 +320,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
   (*             constraint_list = *)
   (*           (List.map *)
   (*              (function zone -> *)
-  (*                zone.zone_constraint1 *)
+  (*                zone.zone_constraint2 *)
   (*              ) *)
   (*              zone_list_array.(qhd) *)
   (*           ) *)
@@ -408,9 +429,10 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                 zone_list_array.(l1.location_index)
                 (List.map
                    (function zone ->
-                     (clock_constraint_without_reset_clocks
-                       zone.zone_constraint1
-                       departure.clock_resets
+                     (raw_t_without_reset_clocks
+                        ta.clock_names
+                        departure.clock_resets
+                        zone.zone_constraint2
                      )
                    )
                    zone_list_array.(departure.next_location)
@@ -522,18 +544,18 @@ let generate_zone_valuation_graph ta =
                {action = -1;
                 condition = [True];
                 clock_resets = [||];
-                next_location = zone.zone_location1
+                next_location = zone.zone_location2
                } (*This one is a time transition.*)
                ::
                  (List.filter
                     (function departure ->
                       clock_constraint_haveIntersection
                         ta.clock_names
-                        zone.zone_constraint1
+                        zone.zone_constraint2
                         departure.condition
                     )
                     (Array.to_list
-                       ta.locations.(zone.zone_location1).departures)
+                       ta.locations.(zone.zone_location2).departures)
                  )
              in
              List.map
@@ -545,10 +567,10 @@ let generate_zone_valuation_graph ta =
                          clock_constraint_haveIntersection
                            ta.clock_names
                            (clock_constraint_after_clock_resets
-                              zone.zone_constraint1
+                              zone.zone_constraint2
                               departure.clock_resets
                            )
-                           arrival_zone.zone_constraint1
+                           arrival_zone.zone_constraint2
                        )
                        zone_list_array.(departure.next_location)
                     )
@@ -557,19 +579,19 @@ let generate_zone_valuation_graph ta =
                        (function arrival_zone ->
                          (* clock_constraint_haveIntersection *)
                          (*   ta.clock_names *)
-                         (*   zone.zone_constraint1 (\*TODO: make this upward unbounded!*\) *)
-                         (*   arrival_zone.zone_constraint1 *)
+                         (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
+                         (*   arrival_zone.zone_constraint2 *)
                          match
                            (clock_constraint_to_raw_t_option
                               ta.clock_names
-                              zone.zone_constraint1)
+                              zone.zone_constraint2)
                          with
                            None -> false
                          | Some dst ->
                            (match
                                (clock_constraint_to_raw_t_option
                                   ta.clock_names
-                                  arrival_zone.zone_constraint1)
+                                  arrival_zone.zone_constraint2)
                             with
                               None -> false
                             | Some src ->
