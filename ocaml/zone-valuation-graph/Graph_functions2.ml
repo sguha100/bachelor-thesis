@@ -453,11 +453,30 @@ let dequeue ta (queue, zone_list_array, tree_array) =
         Array.iter
           (function departure ->
             let
+                (splittable, unsplittable) =
+              List.partition
+                (function zone ->
+                  match
+                    (clock_constraint_to_raw_t_option
+                       ta.clock_names
+                       departure.condition
+                    )
+                  with
+                  | None -> false
+                  | Some departure_condition_raw_t -> 
+                    dbm_haveIntersection
+                      (zone.zone_constraint2)
+                      (departure_condition_raw_t)
+                      dim
+                )
+                zone_list_array.(l1.location_index)
+            in
+            let
                 changed_zone_list =
               split_zone_list_on_raw_t_list
                 dim
                 l1.location_index
-                zone_list_array.(l1.location_index)
+                splittable
                 (List.map
                    (function zone ->
                      (raw_t_without_reset_clocks
@@ -471,11 +490,12 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             in
             (if
                 (List.length changed_zone_list >
-                   List.length zone_list_array.(l1.location_index)
+                   List.length splittable
                 )
              then
                 (new_zone := true;
-                 zone_list_array.(l1.location_index) <- changed_zone_list
+                 zone_list_array.(l1.location_index) <-
+                   changed_zone_list @ unsplittable
                 )
              else
                 ()
