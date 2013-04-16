@@ -100,21 +100,21 @@ Methods
 \item This function updates the splitter $t$, replacing any occurence of the
   simple splitter $x$ with the compound splitter $(x, x1, x2)$.
 <<Fernandez_modules.ml>>=
-  let rec two_way_update_tree t x x1 x2 =
+  let rec two_way_update_tree l t x x1 x2 =
     match t with
       Simple t0 ->
         if
           (
             (List.for_all
                (function t0elem ->
-                 (List.exists ((=) t0elem) x.node_refs)
+                 (List.exists (node_equality l t0elem) x.node_refs)
                )
                t0.node_refs
             )
             &&
               (List.for_all
                  (function xelem ->
-                   (List.exists ((=) xelem) t0.node_refs)
+                   (List.exists (node_equality l xelem) t0.node_refs)
                  )
                  x.node_refs
               )
@@ -125,11 +125,11 @@ Methods
           (t, false)
     | Compound (t0, t1, t2) -> (
       match
-        (two_way_update_tree t1 x x1 x2)
+        (two_way_update_tree l t1 x x1 x2)
       with
         (_, false) -> (
           match
-            (two_way_update_tree t2 x x1 x2)
+            (two_way_update_tree l t2 x x1 x2)
           with
             (_, false) -> (t, false)
           | (tt2, true) -> (Compound (t0, t1, tt2), true)
@@ -141,11 +141,11 @@ Methods
 \item This function updates the queue $w$, replacing any occurrence of
   the simple splitter $x$ with the compound splitter $(x, x1, x2)$.
 <<Fernandez_modules.ml>>=
-  let rec two_way_update_queue w x x1 x2 =
+  let rec two_way_update_queue l w x x1 x2 =
     match w with
       [] -> [Compound (x, Simple x1, Simple x2)]
-    | t::ts -> (match (two_way_update_tree t x x1 x2) with
-      (_, false) -> t::(two_way_update_queue ts x x1 x2)
+    | t::ts -> (match (two_way_update_tree l t x x1 x2) with
+      (_, false) -> t::(two_way_update_queue l ts x x1 x2)
       | (tt, true) -> tt::ts
     )
 
@@ -159,7 +159,7 @@ Methods
         List.length
           (List.filter
              (function belem ->
-               (List.mem node_ref (in_adjacency l belem a))
+               (List.exists (node_equality l node_ref) (in_adjacency l belem a))
              )
              node_refs
           )
@@ -184,7 +184,7 @@ Methods
         (function xelem ->
           List.exists
             (function belem ->
-              (List.mem xelem (in_adjacency l belem a))
+              (List.exists (node_equality l xelem) (in_adjacency l belem a))
             )
             b.node_refs)
         x.node_refs
@@ -246,7 +246,7 @@ Methods
        (match (simple_split_block_on_action l x b a) with
          ({node_refs= []; info= _}, x2) -> (ww, x2::xxs)
        | (x1, {node_refs=[]; info= _}) -> (ww, x1::xxs)
-       | (x1, x2) -> (let www = (two_way_update_queue ww x x1 x2) in (www, x1::x2::xxs))
+       | (x1, x2) -> (let www = (two_way_update_queue l ww x x1 x2) in (www, x1::x2::xxs))
        ))
 
 @ 
@@ -279,17 +279,17 @@ Methods
           (ww, x3::xxs)
         | ((x3, x1), ({node_refs=[]; info=_}, {node_refs=[]; info=_})) ->
           (let
-              www = (two_way_update_queue ww x x3 x1)
+              www = (two_way_update_queue l ww x x3 x1)
            in
            (www, x3::x1::xxs))
         | ((x3, {node_refs=[]; info=_}), (x2, {node_refs=[]; info=_})) ->
           (let
-              www = (two_way_update_queue ww x x3 x2)
+              www = (two_way_update_queue l ww x x3 x2)
            in
            (www, x3::x2::xxs))
         | (({node_refs=[]; info=_}, x1), (x2, {node_refs=[]; info=_})) ->
           (let
-              www = (two_way_update_queue ww x x1 x2)
+              www = (two_way_update_queue l ww x x1 x2)
            in
            (www, x1::x2::xxs))
         | ((x3, x1), (x2, {node_refs=[]; info=_})) ->
@@ -301,8 +301,8 @@ Methods
                       x2.info a node_ref + x3.info a node_ref
                     )}
               in
-              (two_way_update_queue
-                 (two_way_update_queue ww x x1 x23) x23 x2 x3))
+              (two_way_update_queue l
+                 (two_way_update_queue l ww x x1 x23) x23 x2 x3))
            in
            (www, x1::x2::x3::xxs))
        ))

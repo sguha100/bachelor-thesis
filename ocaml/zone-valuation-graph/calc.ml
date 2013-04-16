@@ -49,11 +49,10 @@ let _ =
   let g = generate_zone_valuation_graph result in
   text_dump result g;
   let l = lts_of_zone_valuation_graph result in
+  let partition = ZVGLTS2.fernandez l in
   (ZVGLTS2.print_dot
      l
-     (ZVGLTS2.fernandez
-        l
-     )
+     partition
      "/tmp/lts.dot");
   exit 0
 

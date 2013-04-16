@@ -118,7 +118,10 @@ struct
               (function (departure, zone_list) ->
                 departure.action = a
                 &&
-                  (List.mem zone zone_list)
+                  (List.exists
+                     (node_equality l zone)
+                     zone_list
+                  )
               )
               dl
           )
