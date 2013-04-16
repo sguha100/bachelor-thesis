@@ -302,6 +302,21 @@ extern "C" {
     CAMLreturn(Int_val(dbm_raw2bound(*(raw_t_val(raw)))));
   }
 
+  CAMLprim value zone_dbm_areEqual(value dbm1, value dbm2, value dim) {
+    CAMLparam3(dbm1, dbm2, dim);
+    switch (dbm_areEqual(raw_t_val(dbm1), raw_t_val(dbm2), Int_val(dim))) {
+    case TRUE:
+      CAMLreturn(Val_int(1));
+      break;
+    case FALSE:
+      CAMLreturn(Val_int(0));
+      break;
+    default:
+      CAMLreturn(Val_int(0));
+      break;
+    }
+  }
+
   CAMLprim value zone_dbm_toConstraintList(value dbm_value, value dim_value) 
   {
     CAMLparam2(dbm_value, dim_value);

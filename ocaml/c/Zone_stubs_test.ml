@@ -71,3 +71,30 @@ let test44 =
     "test44 passed"
   else
     "test44 failed"
+
+let test58 =
+  let dim = 3 in
+  if
+    dbm_areEqual (dbm_init dim) (dbm_init dim) dim
+  then
+    "test58 passed"
+  else
+    "test58 failed"
+
+let test59 =
+  let dim = 3 in
+  if
+    dbm_areEqual (dbm_zero (dbm_init dim) dim) (dbm_zero (dbm_init dim) dim) dim
+  then
+    "test59 passed"
+  else
+    "test59 failed"
+
+let test60 =
+  let dim = 3 in
+  if
+    dbm_areEqual (dbm_init dim) (dbm_zero (dbm_init dim) dim) dim
+  then
+    "test60 failed"
+  else
+    "test60 passed"
