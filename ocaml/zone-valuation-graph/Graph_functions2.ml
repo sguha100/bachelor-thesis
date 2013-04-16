@@ -39,7 +39,7 @@ let split_zone_list_on_raw_t_list
     
 let init_zone_list_array ta =
   let
-      dim = 1 + Array.length ta.clock_names
+      dim = 1 + ta.numclocks
   in
   (Array.init
      ta.numlocations
@@ -97,7 +97,7 @@ let useful_predecessor_zones
     predecessor_zone_list
     edge_condition =
   let
-      dim = 1 + ta.numlocations
+      dim = 1 + ta.numclocks
   in
   List.filter
     (function zone ->
@@ -119,7 +119,7 @@ let successor_zones_from_predecessor
     ta
     predecessor_zone_list
     edge =
-  let dim = 1 + Array.length ta.clock_names in
+  let dim = 1 + ta.numclocks in
   let edge_condition =
     match
       clock_constraint_to_raw_t_option
@@ -286,6 +286,7 @@ let self_split ta location zone_list =
   )
     
 let dequeue ta (queue, zone_list_array, tree_array) =
+  let dim = 1 + ta.numclocks in
   let queueref = ref queue in
   (* let split_using_parent qhd (parent, edge) = *)
   (*   (let *)
@@ -454,7 +455,7 @@ let dequeue ta (queue, zone_list_array, tree_array) =
             let
                 changed_zone_list =
               split_zone_list_on_raw_t_list
-                (1 + ta.numlocations)
+                dim
                 l1.location_index
                 zone_list_array.(l1.location_index)
                 (List.map
@@ -549,6 +550,7 @@ let rec empty_queue ta (queue, zone_list_array, tree_array) =
   )
 
 let generate_zone_valuation_graph ta =
+  let dim = 1 + ta.numclocks in
   let zone_list_array = 
     match
       (empty_queue
@@ -588,7 +590,7 @@ let generate_zone_valuation_graph ta =
                         dbm_haveIntersection
                           zone.zone_constraint2
                           departure_condition
-                          (1 + ta.numlocations)
+                          dim
                     )
                     (Array.to_list
                        ta.locations.(zone.zone_location2).departures)
@@ -607,7 +609,7 @@ let generate_zone_valuation_graph ta =
                               zone.zone_constraint2
                            )
                            arrival_zone.zone_constraint2
-                           (1 + ta.numlocations)
+                           dim
                        )
                        zone_list_array.(departure.next_location)
                     )
@@ -619,9 +621,9 @@ let generate_zone_valuation_graph ta =
                               (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
                               (*   arrival_zone.zone_constraint2 *)
                          (dbm_haveIntersection
-                            (dbm_up zone.zone_constraint2 (1 + Array.length ta.clock_names))
+                            (dbm_up zone.zone_constraint2 dim)
                             arrival_zone.zone_constraint2
-                            (1 + Array.length ta.clock_names))
+                            dim)
                         )
                          zone_list_array.(departure.next_location)
                        )

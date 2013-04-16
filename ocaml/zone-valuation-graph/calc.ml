@@ -1,7 +1,7 @@
 (* File calc.ml *)
 open Parse_timed_automaton
 open Clock_constraint_utilities
-open Graph_functions3
+open Graph_functions2
 open Grammar_types
 open UDBM_utilities
 open Zone_stubs
@@ -21,7 +21,7 @@ let text_dump ta g =
         Printf.fprintf txt_out "\nlocation: %s\n" (string_of_int i);
         Printf.fprintf txt_out
           "invar: %s\n"
-          (string_of_clock_constraint zone.zone_constraint1)
+          (raw_t_to_string ta.clock_names zone.zone_constraint2)
         ;
         Printf.fprintf txt_out "trans:\n";
         List.iter
@@ -49,9 +49,9 @@ let _ =
   let g = generate_zone_valuation_graph result in
   text_dump result g;
   let l = lts_of_zone_valuation_graph result in
-  (ZVGLTS.print_dot
+  (ZVGLTS2.print_dot
      l
-     (ZVGLTS.fernandez
+     (ZVGLTS2.fernandez
         l
      )
      "/tmp/lts.dot");

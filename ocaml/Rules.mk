@@ -70,6 +70,7 @@ utilities/UDBM_utilities.ml \
 utilities/UDBM_utilities_test.ml \
 test/test.ml \
 test/Test_base.ml \
+zone-valuation-graph/Graph_functions2.ml \
 zone-valuation-graph/Graph_functions3.ml \
 zone-valuation-graph/Graph_functions3_test.ml \
 c/zone_stubs.c \
