@@ -3,6 +3,7 @@ open UDBM_utilities
 open Clock_constraint_utilities
 open Graph_functions2
 open Fernandez_modules
+open Zone_stubs
 
 module ZVGLT =
 struct
@@ -11,6 +12,9 @@ struct
   type lts_t = {nodes:((zone_using_list * ((transition *
                                               (zone_using_list list)) list)) list) array;
                 action_count: int}
+  let node_equality =
+    function l -> function node_ref1 -> function node_ref2 ->
+      (node_ref1 = node_ref2)
   let node_name =
     function l -> function zone -> ((string_of_int
                                        zone.zone_location1) ^ " " ^
@@ -72,6 +76,12 @@ struct
                 action_count: int;
                 clock_names: string array
                }
+  let node_equality =
+    function l -> function zone1 -> function zone2 ->
+      (let dim = 1 + Array.length l.clock_names in
+       zone1.zone_location2 = zone2.zone_location2 &&
+          (dbm_areEqual zone1.zone_constraint2 zone2.zone_constraint2 dim)
+      )
   let node_name =
     function l -> function zone -> ((string_of_int
                                        zone.zone_location2) ^ " " ^

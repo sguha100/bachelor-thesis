@@ -26,6 +26,10 @@ Data types
 \end{itemize}
 Methods
 \begin{itemize}
+\item This is an equality type for node_ref_t.
+<<Fernandez_modules.ml>>=
+  val node_equality: lts_t -> node_ref_t -> node_ref_t -> bool
+@ 
 \item This is the node label used while drawing the LTS in graphviz.
 <<Fernandez_modules.ml>>=
   val node_name: lts_t -> node_ref_t -> string
@@ -454,6 +458,7 @@ struct
   type lts_t =
     {action_count : action_t;
      in_adjacencies: ((action_t *(node_ref_t list)) list) array}
+  let node_equality l node_ref1 node_ref2 = (node_ref1 = node_ref2)
   let node_name l i= (string_of_int i)
   let expand_action l a = string_of_int a
   let nodes=
