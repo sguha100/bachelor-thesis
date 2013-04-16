@@ -202,9 +202,24 @@ let raw_t_to_string clock_names raw_t =
     " && "
     (List.map
        (function (i, j, strictness, bound) ->
-         (clock_names.(i)) ^ " - " ^
-           (clock_names.(j)) ^ (if strictness then " < " else " <= ") ^ 
-           (string_of_int (bound))
+         if
+           (bound > 0)
+         then
+           (clock_names.(i)) ^
+             (if (j <> 0) then " - " ^ (clock_names.(j)) else "" ) ^
+             (if strictness then " < " else " <= ") ^ 
+             (string_of_int (bound))
+         else
+           if
+             (bound < 0)
+           then
+             (clock_names.(j)) ^
+               (if (i <> 0) then " - " ^ (clock_names.(i)) else "" ) ^
+               (if strictness then " > " else " >= ") ^ 
+               (string_of_int (-bound))
+           else
+             (clock_names.(i)) ^ (if strictness then " < " else " <= ") ^
+               (clock_names.(j))
        )
        (dbm_toConstraintList raw_t dim)
     )
