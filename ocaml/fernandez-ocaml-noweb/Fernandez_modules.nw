@@ -70,6 +70,7 @@ Data types
   type action_t = LT.action_t
   (* type lts = {nodes: node_ref_t array; actions: action_t
      array} *)
+  let node_equality = LT.node_equality
   let node_name = LT.node_name
   let expand_action = LT.expand_action
   let nodes = LT.nodes
@@ -370,7 +371,13 @@ Methods
 \item This function splits the LTS $l$ starting with partition $pi$
   using Fernandez' algorithm.
 <<Fernandez_modules.ml>>=
-  let fernandez_specifying_partition l pi =
+  let fernandez_specifying_partition l node_ref_list_list =
+    let
+        pi =
+      List.map
+        (get_block_from_node_refs l)
+        node_ref_list_list
+    in
     let
         (_, pi) = emptyqueue l ((List.map (function block -> Simple block) pi), pi)
     in
