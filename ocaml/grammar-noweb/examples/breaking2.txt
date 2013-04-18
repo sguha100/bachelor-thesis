@@ -1,0 +1,11 @@
+#locations 1
+#trans 1
+#clocks 2
+#actions 1
+#init 0
+X Y
+
+location: 0
+invar: TRUE
+trans:
+Y = 1 => ACT 0; RESET {Y}; goto 0
