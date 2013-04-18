@@ -1,5 +1,4 @@
 open Grammar_types
-open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
 open Clock_constraint_utilities
