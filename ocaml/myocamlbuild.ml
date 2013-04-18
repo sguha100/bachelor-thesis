@@ -5,7 +5,10 @@ open Command
 let have_udbm = "-DHAVE_UDBM"
 let udbm_lib = "-ludbm"
 let udbm_libdir = "-L/home/mihir/uppaal/lib"
+let ocamlgraph_lib = "-lgraph"
+let ocamlgraph_libdir = "-L+ocamlgraph"
 let udbm_include = "-I/home/mihir/uppaal/include"
+let ocamlgraph_include = "+ocamlgraph"
 let cpp_lib = "-lstdc++"
   
 let static = true
@@ -30,6 +33,12 @@ dispatch begin function
   
   flag ["link"; "ocaml"; "library"; "use_udbm"]
     (S[A"-ccopt"; A udbm_libdir; A"-cclib"; A udbm_lib]);
+  
+  flag ["compile"]
+    (S[A"-I"; A ocamlgraph_include]);
+
+  flag ["link"; "ocaml"; "library"]
+    (S[A"-ccopt"; A ocamlgraph_libdir; A"-cclib"; A ocamlgraph_lib]);
   
   (* If `static' is true then every ocaml link in bytecode will add
      -custom *)

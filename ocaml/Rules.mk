@@ -3,6 +3,7 @@ all: targets
 
 # We will need to change this when we make the OCaml-C interface.
 OCAMLBUILD := ocamlbuild
+OCAMLLIBS := graph
 
 # The next three are to compact some of the dependencies in the top
 # level.
