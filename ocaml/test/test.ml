@@ -1,129 +1,14 @@
 open Grammar_types
 open Clock_constraint_utilities
 open Graph_functions3_test
-open Unit_constraint_intersection
+open Unit_constraint_intersection_test
 open Zone_stubs
 open Zone_stubs_test
 open UDBM_utilities
 open UDBM_utilities_test
 open Test_base
-
-let test2 = 
-  if
-    (match_clock_constraints
-       (unit_constraint_intersection
-          (Lt ("x1", 3))
-          (Lt ("x2", 4))
-       )
-       ([(Lt ("x1", 3));
-         (Lt ("x2", 4))])
-    )
-  then
-    "test2 passed"
-  else
-    "test2 failed"
-
-let test3 = 
-  if
-    (match_clock_constraints
-       (unit_constraint_intersection
-          (Lt ("x1", 3))
-          (Lt ("x1", 4))
-       )
-       ([(Lt ("x1", 3))])
-    )
-  then
-    "test3 passed"
-  else
-    "test3 failed"
-      
-let test4 = 
-  if
-    (match_clock_constraints
-       (unit_constraint_intersection
-          (Gt ("x1", 3))
-          (Lt ("x1", 4))
-       )
-       ([(Gt ("x1", 3));
-         (Lt ("x1", 4))])
-    )
-  then
-    "test4 passed"
-  else
-    "test4 failed"
-
-let test5 = 
-  if
-    (match_clock_constraints
-       (unit_constraint_intersection
-          (Lt ("x1", 3))
-          (Gt ("x1", 4))
-       )
-       ([False])
-    )
-  then
-    "test5 passed"
-  else
-    "test5 failed"
-
-let test6 =
-  let a = 
-    split_zone_on_clock_constraint
-      {zone_location1 = 0;
-       zone_constraint1 = [Le ("X", 8); Ge ("X", 2)]
-      }
-      [Le ("X", 6); Ge ("X", 4)]
-      [|"X"|]
-  in
-  (Printf.sprintf "test6: %s" (string_of_int (List.length a)))
-
-let test8 =
-  if
-    match_minimised [|"X"|] [False; False; False; Eq ("X", 7)] [False]
-  then
-    "test8 passed"
-  else
-    "test8 failed"
-  
-let test9 =
-  if
-    match_minimised [|"X"|] [True; True; True; Eq ("X", 7)] [Ge ("X", 7); Le ("X", 7)]
-  then
-    "test9 passed"
-  else
-    "test9 failed"
-  
-let test10 =
-  if
-    match_minimised [|"X"|] [Lt ("X", 5); Lt ("X", 7); Lt ("X", 3)] [Lt ("X", 3)]
-  then
-    "test10 passed"
-  else
-    "test10 failed"
-  
-let test11 =
-  if
-    match_minimised [|"X"|] [Le ("X", 5); Le ("X", 7); Le ("X", 3)] [Le ("X", 3)]
-  then
-    "test11 passed"
-  else
-    "test11 failed"
-  
-let test12 =
-  if
-    match_minimised [|"X"|] [Ge ("X", 5); Ge ("X", 7); Ge ("X", 3)] [Ge ("X", 7)]
-  then
-    "test12 passed"
-  else
-    "test12 failed"
-  
-let test13 =
-  if
-    match_minimised [|"X"|] [Gt ("X", 5); Gt ("X", 7); Gt ("X", 3)] [Gt ("X", 7)]
-  then
-    "test13 passed"
-  else
-    "test13 failed"
+open Test_base_clutter
+open Clock_constraint_clutter_test
   
 let test14 =
   if

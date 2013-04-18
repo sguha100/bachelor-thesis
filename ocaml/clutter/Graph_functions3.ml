@@ -3,6 +3,7 @@ open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
 open Clock_constraint_utilities
+open Clock_constraint_clutter
 open ZVG_tree
 
 let pseudo_future clock_constraint =
