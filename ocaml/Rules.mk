@@ -74,6 +74,8 @@ clutter/Graph_functions3_test.ml \
 c/zone_stubs.c \
 c/zone_stubs.mli \
 c/Zone_stubs_test.ml \
+utilities/NRQueue.ml \
+utilities/PCQueue_test.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml

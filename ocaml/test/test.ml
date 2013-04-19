@@ -9,6 +9,7 @@ open UDBM_utilities_test
 open Test_base
 open Test_base_clutter
 open Clock_constraint_clutter_test
+open PCQueue_test
   
 let test14 =
   if
@@ -176,5 +177,17 @@ let _ =
   print_string test59;
   print_newline ();
   print_string test60;
+  print_newline ();
+  print_string test61;
+  print_newline ();
+  print_string test62;
+  print_newline ();
+  print_string test63;
+  print_newline ();
+  print_string test64;
+  print_newline ();
+  print_string test65;
+  print_newline ();
+  print_string test66;
   print_newline ();
   exit 0
