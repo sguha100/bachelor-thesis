@@ -252,7 +252,7 @@ Methods
 
 @ 
 \item This function splits the blocks in $xl$ of the LTS $l$ using the
-  simple splitter $(b, b1, b2)$ and the action $a$ and updates the queue $w$
+  compound splitter $(b, b1, b2)$ and the action $a$ and updates the queue $w$
   accordingly.
 <<Fernandez_modules.ml>>=
   let rec compound_split_blocks_on_action l (w, xl) b b1 b2 a =
