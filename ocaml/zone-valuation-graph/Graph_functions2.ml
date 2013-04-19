@@ -4,6 +4,10 @@ open UDBM_utilities
 open Clock_constraint_utilities
 open ZVG_tree
 
+open NRQueue
+open PCQueue
+open PCQueueElement
+
 let split_zone_list_on_constraint_list
     clock_names
     location
@@ -284,6 +288,58 @@ let self_split ta location zone_list =
      constraint_list
   )
     
+let rec empty_queue2 ta (queue, zone_list_array) =
+  try
+    (match
+        dequeue queue
+     with
+     | (e, new_queue1) ->
+       let
+           changed_zone_list1 =
+         match
+           (e.parent, e.edge)
+         with
+         | (None, None) -> zone_list_array.(e.child)
+         | (Some parent, Some edge) ->
+           (new_successor_zones
+              ta
+              parent
+              zone_list_array.(parent)
+              edge
+              e.child
+              zone_list_array.(e.child)
+           )
+       in
+       let
+           changed_zone_list2 =
+         self_split ta e.child changed_zone_list1
+       in
+       let
+           new_queue2 =
+         if
+           (List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
+         then
+           (zone_list_array.(e.child) <- changed_zone_list2;
+            List.fold_left
+              (function new_queue1 -> function departure ->
+                enqueue
+                  new_queue1
+                  {child = departure.next_location;
+                   parent = Some e.child;
+                   edge = Some departure
+                  }
+              )
+              new_queue1
+              (Array.to_list ta.locations.(e.child).departures)
+           )
+         else
+           new_queue1
+       in
+       empty_queue2 ta (new_queue2, zone_list_array)
+    )
+  with
+  | Empty_queue -> (queue, zone_list_array)
+
 let dequeue ta (queue, zone_list_array, tree_array) =
   let dim = 1 + ta.numclocks in
   let queueref = ref queue in
