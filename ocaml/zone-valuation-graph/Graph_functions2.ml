@@ -277,7 +277,8 @@ let self_split ta location zone_list =
     )
   in
   (Printf.printf
-     "Self-splitting, constraint_list length = %s\n"
+     "Self-splitting location %s, constraint_list length = %s\n"
+     (string_of_int location)
      (string_of_int (List.length constraint_list))
   );
   flush stdout;
@@ -287,20 +288,41 @@ let self_split ta location zone_list =
      zone_list
      constraint_list
   )
-    
+
 let rec empty_queue2 ta (queue, zone_list_array) =
   try
     (match
         dequeue queue
      with
      | (e, new_queue1) ->
+       (Printf.printf "new_queue1 = [%s]\n"
+         (String.concat
+            "; "
+            (List.map
+               (function e -> string_of_int e.child)
+               new_queue1
+            )
+         )
+       );
        let
            changed_zone_list1 =
          match
            (e.parent, e.edge)
          with
-         | (None, None) -> zone_list_array.(e.child)
+         | (None, None) ->
+           Printf.printf "%s\n" "No parent!";
+           zone_list_array.(e.child)
          | (Some parent, Some edge) ->
+           Printf.printf "parent: %s\n" (string_of_int parent);
+           Printf.printf "parent zones: [%s]\n"
+             (String.concat
+                "; "
+                (List.map
+                   (function zone -> raw_t_to_string ta.clock_names zone.zone_constraint2)
+                   zone_list_array.(parent)
+                )
+             )
+           ;
            (new_successor_zones
               ta
               parent
@@ -316,6 +338,11 @@ let rec empty_queue2 ta (queue, zone_list_array) =
        in
        let
            new_queue2 =
+         Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
+           (string_of_int (List.length changed_zone_list2))
+           (string_of_int (List.length changed_zone_list1))
+           (string_of_int (List.length zone_list_array.(e.child)))
+         ;
          if
            (List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
          then
@@ -335,10 +362,21 @@ let rec empty_queue2 ta (queue, zone_list_array) =
          else
            new_queue1
        in
+       (Printf.printf "new_queue2 = [%s]\n"
+         (String.concat
+            "; "
+            (List.map
+               (function e -> string_of_int e.child)
+               new_queue2
+            )
+         )
+       );
        empty_queue2 ta (new_queue2, zone_list_array)
     )
   with
-  | Empty_queue -> (queue, zone_list_array)
+  | Empty_queue ->
+    Printf.printf "%s\n" "Empty_queue caught!";
+    (queue, zone_list_array)
 
 let dequeue ta (queue, zone_list_array, tree_array) =
   let dim = 1 + ta.numclocks in
@@ -625,19 +663,91 @@ let rec empty_queue ta (queue, zone_list_array, tree_array) =
   )
 
 let generate_zone_valuation_graph ta =
+  Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + ta.numclocks in
   let zone_list_array = 
     match
-      (empty_queue
+      Printf.printf "%s\n" "Calling empty_queue2!";
+      (empty_queue2
          ta
-         ([ta.numinit],
-          (init_zone_list_array ta),
-          (init_tree_array ta)
+         (enqueue empty {parent = None; edge = None; child = ta.numinit},
+          (init_zone_list_array ta)
          )
       )
     with
-      (_, zone_list_array, _) -> zone_list_array
+      (_, zone_list_array) -> zone_list_array
   in
+  let rec
+      backward_propagate () =
+    let
+        new_zone = ref false
+    in
+    Array.iter
+      (function l1 ->
+        Array.iter
+          (function departure ->
+            let
+                (splittable, unsplittable) =
+              List.partition
+                (function zone ->
+                  match
+                    (clock_constraint_to_raw_t_option
+                       ta.clock_names
+                       departure.condition
+                    )
+                  with
+                  | None -> false
+                  | Some departure_condition_raw_t -> 
+                    dbm_haveIntersection
+                      (zone.zone_constraint2)
+                      (departure_condition_raw_t)
+                      dim
+                )
+                zone_list_array.(l1.location_index)
+            in
+            let
+                changed_zone_list =
+              split_zone_list_on_raw_t_list
+                dim
+                l1.location_index
+                splittable
+                (List.map
+                   (function zone ->
+                     (raw_t_without_reset_clocks
+                        ta.clock_names
+                        departure.clock_resets
+                        zone.zone_constraint2
+                     )
+                   )
+                   zone_list_array.(departure.next_location)
+                )
+            in
+            (if
+                (List.length changed_zone_list >
+                   List.length splittable
+                )
+             then
+                (new_zone := true;
+                 zone_list_array.(l1.location_index) <-
+                   changed_zone_list @ unsplittable
+                )
+             else
+                ()
+            )
+            ;
+          )
+          l1.departures
+      )
+      (ta.locations)
+    ;
+    if
+      !new_zone
+    then
+      backward_propagate ()
+    else
+      ()
+  in
+  backward_propagate ();
   let
       graph = 
     Array.map
@@ -691,10 +801,10 @@ let generate_zone_valuation_graph ta =
                   else (*time transition*)
                     (List.filter
                        (function arrival_zone ->
-                              (* clock_constraint_haveIntersection *)
-                              (*   ta.clock_names *)
-                              (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
-                              (*   arrival_zone.zone_constraint2 *)
+                         (* clock_constraint_haveIntersection *)
+                         (*   ta.clock_names *)
+                         (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
+                         (*   arrival_zone.zone_constraint2 *)
                          (dbm_haveIntersection
                             (dbm_up zone.zone_constraint2 dim)
                             arrival_zone.zone_constraint2

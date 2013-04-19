@@ -40,7 +40,6 @@ let verify_zone_lists ta =
      !truth
     )
 
-
 let test20 =
   let
       c = [Le ("X1", 5); Lt ("X1", 7); Gt ("X1", 2); Ge ("X1", 3)]
