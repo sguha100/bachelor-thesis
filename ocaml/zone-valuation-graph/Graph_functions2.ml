@@ -246,7 +246,12 @@ let new_successor_zones
          )
       )
       @
-        successor_zone_list
+        (split_zone_list_on_raw_t_list
+           dim
+           successor
+           successor_zone_list
+           [z1.zone_constraint2]
+        )
     )
     successor_zone_list
     (successor_zones_from_predecessor

@@ -49,17 +49,18 @@ let _ =
   let g = generate_zone_valuation_graph result in
   text_dump result g;
   let l = lts_of_zone_valuation_graph result in
-  let
-      zone_list_list =
-    List.map
-      (function zone_edge_list ->
-        List.map
-          (function (zone, _) -> zone)
-          zone_edge_list
-      )
-      (Array.to_list g)
-  in
-  let partition = ZVGLTS2.fernandez_specifying_partition l zone_list_list in
+  (* let *)
+  (*     zone_list_list = *)
+  (*   List.map *)
+  (*     (function zone_edge_list -> *)
+  (*       List.map *)
+  (*         (function (zone, _) -> zone) *)
+  (*         zone_edge_list *)
+  (*     ) *)
+  (*     (Array.to_list g) *)
+  (* in *)
+  (* let partition = ZVGLTS2.fernandez_specifying_partition l zone_list_list in *)
+  let partition = ZVGLTS2.fernandez l in
   (ZVGLTS2.print_dot
      l
      partition

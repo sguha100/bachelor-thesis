@@ -10,6 +10,7 @@ open Test_base
 open Test_base_clutter
 open Clock_constraint_clutter_test
 open PCQueue_test
+open Graph_functions2_test
   
 let test14 =
   if
@@ -189,5 +190,15 @@ let _ =
   print_string test65;
   print_newline ();
   print_string test66;
+  print_newline ();
+  print_string test67;
+  print_newline ();
+  print_string test68;
+  print_newline ();
+  print_string test69;
+  print_newline ();
+  print_string test70;
+  print_newline ();
+  print_string test71;
   print_newline ();
   exit 0
