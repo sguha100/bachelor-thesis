@@ -170,10 +170,12 @@ brightness settings, example taken from \cite{aceto2007reactive}
 This algorithm is adapted from the algorithm in
 \cite{DBLP:conf/cav/GuhaNA12}. We changed it to make the correctness
 more evident. 
-In summary, the algorithm consists of a \emph{forward
+This algorithm consists of a \emph{forward
   propagation} which ensures that all \emph{reachable} zones are created, and a
 \emph{backward propagation} which ensures that each zone is \emph{stable} with
-respect to its successors. For the forward propagation, we use a queue,
+respect to its successors. \\
+
+For the forward propagation, we use a queue,
 akin to the queue of the classic \emph{breadth-first search} algorithm
 for graphs, to traverse the timed automaton, starting from the inital
 location, to ensure that all reachable zones are created. In each
@@ -208,30 +210,50 @@ $l_{succ}$ to ensure stability with respect to
 its invariant and outgoing edge constraints. If any new
 zones are thus created, we enqueue each of the location's successors,
 in order to ensure that all reachable zones are created. The forward
-propagation ends when the queue is empty. In the backward propagation, we
+propagation ends when the queue is empty. \\
+
+In the backward propagation, we
 iterate through the transitions of the timed automaton, multiple times
 if necessary, splitting the zones of the source of each transition
 with respect to the zones of the transition's target, until we achieve
-stability of each zone of each location. This generates the zone
-valuation graph.
+stability of each zone of each location. We recall that for stability,
+whenever we have an edge in the zone valuation graph from a zone
+$(l_{pred}, \zeta _{pred})$ to $(l_{succ}, \zeta _{succ})$
+corresponding to a transition $t$ in the timed automaton, we require 
+\begin{displaymath} 
+\zeta _{pred} \subseteq t.guard
+\wedge
+\zeta _{pred} [t.resets := 0] \subseteq \zeta _{succ}
+\end{displaymath} 
+Thus, when this does not hold, we split $(l_{pred}, \zeta _{pred})$
+into
+\begin{displaymath} 
+(l_{pred}, \zeta _{pred} \cap (t.guard \cap [t.resets := 0] \zeta _{succ}))
+\end{displaymath} 
+(which is convex and has an edge to $(l_{succ}, \zeta _{succ})$)
+and
+\begin{displaymath} 
+(l_{pred}, \zeta _{pred} - (t.guard \cap [t.resets := 0] \zeta _{succ}))
+\end{displaymath} 
+(which does not have an edge to $(l_{succ}, \zeta _{succ})$ and may
+need to be split into convex zones.) \\
+ This generates the zone valuation graph.
 
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
   Initialise the graph $zone\_graph$ with a single node $(l_0, v_0 \uparrow)$
   with an $\epsilon$ self-loop\;
   \While{$Q$ is not empty}{
-    Dequeue $(l_{parent}, transition, l_{child})$ from $Q$\;
+    Dequeue $(l_{parent}, t, l_{child})$ from $Q$\;
     \If{$l_{parent} \neq null$}{
       \ForEach{zone $Z_{parent}$ of $l_{parent}$}{
         Add new zones to the zones of $l_{child}$ so that all zones
-        reachable from $Z_{parent}$ (given by the equation $Z_{child}
-        = (((Z_{parent} \uparrow ) \cap transition.guard)
-        [transition.resets := 0]) \uparrow$) are represented\;
+        reachable from $Z_{parent}$ are represented\;
         Abstract if necessary\;
         Update edges from $Z_{parent}$ to the new zones of $l_{child}$
         \If{new zones are created in $l_{child}$}{
-          \ForEach{outgoing transition $t$ of $l_{child}$}{
-            Enqueue $(l_{child}, t, t.target)$ in $Q$\;
+          \ForEach{outgoing transition $t'$ of $l_{child}$}{
+            Enqueue $(l_{child}, t', t'.target)$ in $Q$\;
           }
         }
       }
@@ -241,9 +263,7 @@ valuation graph.
       Reset $new\_zone$\;
       \ForEach{transition $t$ in the timed automaton}{
         Split the zones of $t.source$ to be stable with respect to the
-        zones of $t.target$, so that each source zone $Z_{parent}$
-        with an edge to a target zone $Z_child$ satisfies $Z_{parent}
-        \subseteq t.guard \cap ([t.resets := 0]Z_{child})$\;
+        zones of $t.target$\;
         Update edges accordingly\;
         \If{new zones are created in $t.source$}{
           Set $new\_zone$\;
