@@ -10,6 +10,9 @@ _build
 *.snm
 *.toc
 *.vrb
+# Ignore byproducts of bibtex
+*.bbl
+*.blg
 # Ignore native applications.
 *.native
 # Ignore generated files.
