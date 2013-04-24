@@ -97,23 +97,23 @@ states, labelled by actions. \\
 
 \begin{SCfigure}
   \centering
-\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
-    distance=2.8cm,
-    semithick]
-  \tikzstyle{every state}=[fill=red,draw=none,text=white]
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
+      distance=2.8cm,
+      semithick]
+    \tikzstyle{every state}=[fill=red,draw=none,text=white]
 
-  \node[initial,state] (A)                    {$q_a$};
-  \node[state]         (B) [below of=A] {$q_b$};
-  \node[state]         (C) [below of=B] {$q_c$};
-  
-  \path (A) edge              node {press, $x:=0$}    (B)
-  (B) edge [bend left] node {press, $x > 1.4$}        (A)
-  edge              node {press, $x \le 1.4$}         (C)
-  (C) edge [bend right] node {press}                  (A);
-\end{tikzpicture}
+    \node[initial,state] (A)                    {$q_a$};
+    \node[state]         (B) [below of=A] {$q_b$};
+    \node[state]         (C) [below of=B] {$q_c$};
+    
+    \path (A) edge              node {press, $x:=0$}    (B)
+    (B) edge [bend left] node {press, $x > 1.4$}        (A)
+    edge              node {press, $x \le 1.4$}         (C)
+    (C) edge [bend right] node {press}                  (A);
+  \end{tikzpicture}
 
-\caption{Timed automaton representing a light bulb with two
-brightness settings, example taken from \cite{aceto2007reactive}}
+  \caption{Timed automaton representing a light bulb with two
+    brightness settings, example taken from \cite{aceto2007reactive}}
 \end{SCfigure}
 
 \begin{itemize}

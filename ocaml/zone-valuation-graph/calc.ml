@@ -60,10 +60,13 @@ let _ =
   (*     (Array.to_list g) *)
   (* in *)
   (* let partition = ZVGLTS2.fernandez_specifying_partition l zone_list_list in *)
-  let partition = ZVGLTS2.fernandez l in
   (ZVGLTS2.print_dot
      l
-     partition
      "/tmp/lts.dot");
+  let partition = ZVGLTS2.fernandez l in
+  (ZVGLTS2.print_quotient_dot
+     l
+     partition
+     "/tmp/lts_quotient.dot");
   exit 0
 

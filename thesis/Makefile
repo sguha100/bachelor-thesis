@@ -1,7 +1,10 @@
+all: targets
+
 FIGURES := lts01.png lts01quotient.png
 TARGETS := thesis.pdf
 
-all: $(TARGETS)
+.PHONY: targets
+targets: $(TARGETS)
 
 $(TARGETS): Makefile
 

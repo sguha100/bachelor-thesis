@@ -396,10 +396,42 @@ Methods
     pi
 
 @ 
+\item This function prints a DOT representation of a given LTS.
+<<Fernandez_modules.ml>>=
+  let print_dot l filename = 
+    let
+        out = open_out filename
+    in
+    Printf.fprintf out "digraph {\n";
+    List.iter
+      (function node_ref1 ->
+        Printf.fprintf out "\"%s\";\n" (node_name l node_ref1);
+        List.iter
+          (function a ->
+            List.iter
+              (function node_ref2 ->
+                Printf.fprintf
+                  out
+                  "\"%s\" -> \"%s\" [label = \"%s\"];\n"
+                  (node_name l node_ref2)
+                  (node_name l node_ref1)
+                  (expand_action l a)
+
+              )
+              (in_adjacency l node_ref1 a)
+          )
+          (actions l)
+      )
+      (nodes l);
+    Printf.fprintf out "}\n";
+    flush out;
+    close_out out
+
+@ 
 \item This function prints a DOT representation of the equivalence
   classes given by a partition of the LTS.
 <<Fernandez_modules.ml>>=
-  let print_dot l partition filename =
+  let print_quotient_dot l partition filename =
     let
         out = open_out filename  
     in
@@ -433,7 +465,7 @@ Methods
                   (function successor_node_ref ->
                     Printf.fprintf
                       out
-                      "\"%s\" -> \"%s\" [label = \"%s\"]\n"
+                      "\"%s\" -> \"%s\" [label = \"%s\"];\n"
                       (node_name l successor_node_ref)
                       (node_name l node_ref)
                       (expand_action l a)
@@ -447,7 +479,8 @@ Methods
       )
       partition;
     Printf.fprintf out "}\n";
-    flush out
+    flush out;
+    close_out out
 end
 @ 
 \end{itemize}
