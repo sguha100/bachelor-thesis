@@ -10,6 +10,8 @@ _build
 *.snm
 *.toc
 *.vrb
+*.lof
+*.lot
 # Ignore byproducts of bibtex
 *.bbl
 *.blg

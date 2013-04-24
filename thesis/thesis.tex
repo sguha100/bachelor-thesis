@@ -8,6 +8,7 @@
 \usepackage{verbatim}
 \usetikzlibrary{arrows,automata}
 \usepackage{graphicx}
+\usepackage{sidecap}
 
 \begin{document}
 
@@ -28,6 +29,12 @@
   Project for the academic year 2012-2013.
 \end{abstract}
 
+\tableofcontents
+\pagebreak
+\listoffigures
+\listoftables
+\pagebreak
+
 \section{Objectives}
 
 The work described in this thesis builds on the work of
@@ -47,23 +54,29 @@ several of these relations and leaves some scope for implementing others.
 
 \section{Labelled transition systems}
 
-\includegraphics[scale=0.5]{lts01}
-Example of a labelled transition system. \\
+\begin{SCfigure}
+  \centering
+  \includegraphics[scale=0.5]{lts01}
+  \caption{An example of a labelled transition system. Here, the
+    states are $\{0, 1, 2, \ldots 7\}$ and the actions are $\{0,
+    1\}$.}
+  \label{lts01}
+\end{SCfigure}
 
 A labelled transition system (LTS) \cite{aceto2007reactive} is an automaton
 which is described by a set of \emph{states}, a set of \emph{actions},
 and a \emph{transition relation} from the set of states to the set of
 states, labelled by actions. \\
 
-In the above example, the states are $\{0, 1, 2, \ldots 7\}$ and
-the actions are $\{0, 1\}$.
-
 \section{Equivalences on labelled transition systems}
 
 \subsection{Strong bisimilarity}
 
-\includegraphics[scale=0.5]{lts01quotient}
-Strong bisimilarity quotient of the above LTS. \\
+\begin{SCfigure}
+  \centering
+  \includegraphics[scale=0.5]{lts01quotient}
+  \caption{Strong bisimilarity quotient of the LTS in Figure~\ref{lts01}.}
+\end{SCfigure}
 
 \begin{itemize}
 \item \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
@@ -82,6 +95,8 @@ Strong bisimilarity quotient of the above LTS. \\
 
 \section{Timed automata}
 
+\begin{SCfigure}
+  \centering
 \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node
     distance=2.8cm,
     semithick]
@@ -97,8 +112,9 @@ Strong bisimilarity quotient of the above LTS. \\
   (C) edge [bend right] node {press}                  (A);
 \end{tikzpicture}
 
-Timed automaton representing a light bulb with two
-brightness settings, example taken from \cite{aceto2007reactive}
+\caption{Timed automaton representing a light bulb with two
+brightness settings, example taken from \cite{aceto2007reactive}}
+\end{SCfigure}
 
 \begin{itemize}
 \item Formally, a timed automaton over a finite set of clocks $C$
@@ -221,9 +237,9 @@ space of timed automata exist, which we elaborate on, below.
 
 \subsubsection{Overview}
 
-This algorithm is adapted from the algorithm in
-\cite{DBLP:conf/cav/GuhaNA12}. We changed it to make the correctness
-more evident. 
+This algorithm is adapted from the algorithms in
+\cite{DBLP:conf/cav/GuhaNA12} and \cite{guha2013notes}. We changed it
+to make the correctness more evident. 
 This algorithm consists of a \emph{forward
   propagation} which ensures that all \emph{reachable} zones are created, and a
 \emph{backward propagation} which ensures that each zone is \emph{stable} with
