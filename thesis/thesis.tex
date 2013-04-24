@@ -7,6 +7,7 @@
 \usepackage{tikz}
 \usepackage{verbatim}
 \usetikzlibrary{arrows,automata}
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -31,7 +32,7 @@
 
 The work described in this thesis builds on the work of
 \cite{DBLP:conf/cav/GuhaNA12} in which Guha et al described an
-algorithm to generate \emph{zone-valuation graphs} for timed automata
+algorithm to generate \emph{zone valuation graphs} for timed automata
 and an algorithm to use such zone-valuation graphs to perform an
 on-the-fly analysis to determine \emph{timed performance
   prebisimilarity} on pairs of timed automata. Our aim was to
@@ -43,6 +44,41 @@ untimed automata as well as various existing tools for verifying these
 equivalences (such as \texttt{minim}, described in
 \cite{tripakis2001analysis}. Our implementation, in OCaml, implements
 several of these relations and leaves some scope for implementing others.
+
+\section{Labelled transition systems}
+
+\includegraphics[scale=0.5]{lts01}
+Example of a labelled transition system. \\
+
+A labelled transition system (LTS) \cite{aceto2007reactive} is an automaton
+which is described by a set of \emph{states}, a set of \emph{actions},
+and a \emph{transition relation} from the set of states to the set of
+states, labelled by actions. \\
+
+In the above example, the states are $\{0, 1, 2, \ldots 7\}$ and
+the actions are $\{0, 1\}$.
+
+\section{Equivalences on labelled transition systems}
+
+\subsection{Strong bisimilarity}
+
+\includegraphics[scale=0.5]{lts01quotient}
+Strong bisimilarity quotient of the above LTS. \\
+
+\begin{itemize}
+\item \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
+  bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+  . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+  . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
+\item \emph{Strong bisimilarity}: It can be shown that the union of
+  all strong bisimulationsc over the set of states is a strong
+  bisimulation. This binary relation is called \textit{strong
+    bisimilarity}, denoted by $\sim$.
+
+\end{itemize}
 
 \section{Timed automata}
 
@@ -86,7 +122,27 @@ brightness settings, example taken from \cite{aceto2007reactive}
   state change while resetting some of its clocks.
 \end{itemize}
 
-\pagebreak
+It is evident that the state space in a timed automaton is, in
+general, uncountably infinite. This makes it impossible for any
+algorithm to terminate which explores the state space in a naive
+manner. However, some standard techniques to discretise the state
+space of timed automata exist, which we elaborate on, below.
+
+\begin{itemize}
+
+\item \emph{State}: A state of a timed automaton is a pair $(l, v)$
+  where $l$ is a location in the automaton and $v$ is a clock
+  valuation satisfying $l.invar$
+
+\item \emph{Symbolic state}: A symbolic state is a set of states in
+  the timed automaton. The constituent states do not necessarily share
+  a location.
+
+\item \emph{Zone}: A zone is a symbolic state where the all the
+  constituent states share a location and the set of valuations of
+  these states forms a convex polyhedron on the valuation space.
+
+\end{itemize}
 
 \section{Timed relations on timed automata}
 
@@ -159,13 +215,11 @@ brightness settings, example taken from \cite{aceto2007reactive}
 
 \end{itemize}
 
-\section{Abstractions}
-
-
-
 \section{Algorithms}
 
 \subsection{Creation of the zone valuation graph}
+
+\subsubsection{Overview}
 
 This algorithm is adapted from the algorithm in
 \cite{DBLP:conf/cav/GuhaNA12}. We changed it to make the correctness
@@ -191,7 +245,7 @@ Thus, for each predecessor zone $(l_{pred}, \zeta _{pred_{i}})$, the
 derived successor zone is $(l_{succ}, \zeta _{succ_{i}})$, where
 
 \begin{displaymath} 
-\zeta _{succ_{i}} = ((\zeta _{pred_{i}} \uparrow \cap t.guard)[t.resets := 0]) \uparrow
+  \zeta _{succ_{i}} = ((\zeta _{pred_{i}} \uparrow \cap t.guard)[t.resets := 0]) \uparrow
 \end{displaymath} 
 
 Thus, if we let  $(l_{pred}, \zeta _{pred_{i}})$ range over the
@@ -200,7 +254,7 @@ _{succ_{j}})$ range over the existing zones of $l_{succ}$, then the
 new zones in $l_{succ}$ will cover
 
 \begin{displaymath} 
-\zeta _{succ_{new}} = (\bigcup _{i} \zeta_{succ_{i}}) - (\bigcup _{j} \zeta_{succ_{j}})
+  \zeta _{succ_{new}} = (\bigcup _{i} \zeta_{succ_{i}}) - (\bigcup _{j} \zeta_{succ_{j}})
 \end{displaymath} 
 
 Since $\zeta _{succ_{new}}$ is not necessarily convex, we may need to
@@ -221,23 +275,25 @@ whenever we have an edge in the zone valuation graph from a zone
 $(l_{pred}, \zeta _{pred})$ to $(l_{succ}, \zeta _{succ})$
 corresponding to a transition $t$ in the timed automaton, we require 
 \begin{displaymath} 
-\zeta _{pred} \subseteq t.guard
-\wedge
-\zeta _{pred} [t.resets := 0] \subseteq \zeta _{succ}
+  \zeta _{pred} \subseteq t.guard
+  \wedge
+  \zeta _{pred} [t.resets := 0] \subseteq \zeta _{succ}
 \end{displaymath} 
 Thus, when this does not hold, we split $(l_{pred}, \zeta _{pred})$
 into
 \begin{displaymath} 
-(l_{pred}, \zeta _{pred} \cap (t.guard \cap [t.resets := 0] \zeta _{succ}))
+  (l_{pred}, \zeta _{pred} \cap (t.guard \cap [t.resets := 0] \zeta _{succ}))
 \end{displaymath} 
 (which is convex and has an edge to $(l_{succ}, \zeta _{succ})$)
 and
 \begin{displaymath} 
-(l_{pred}, \zeta _{pred} - (t.guard \cap [t.resets := 0] \zeta _{succ}))
+  (l_{pred}, \zeta _{pred} - (t.guard \cap [t.resets := 0] \zeta _{succ}))
 \end{displaymath} 
 (which does not have an edge to $(l_{succ}, \zeta _{succ})$ and may
 need to be split into convex zones.) \\
- This generates the zone valuation graph.
+This generates the zone valuation graph.
+
+\subsubsection{Pseudocode}
 
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
@@ -273,6 +329,8 @@ need to be split into convex zones.) \\
   }
   Return $zone\_graph$\;
 \end{algorithm2e}
+
+\subsubsection{Proof of correctness}
 
 \begin{itemize}
 
