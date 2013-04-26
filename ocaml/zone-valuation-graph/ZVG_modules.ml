@@ -243,9 +243,7 @@ struct
                         (ZVGQuotient2.node_equality l1 z1)
                         (ZVGQuotient2.in_adjacency l1 z3 a)
                     then
-                      [(z3,
-                        out_adjacency l2 z2 a
-                      )]
+                      [(z3, out_adjacency l2 z2 a)]
                     else
                       []
                   )
@@ -266,9 +264,7 @@ struct
                         (ZVGQuotient2.node_equality l2 z2)
                         (ZVGQuotient2.in_adjacency l2 z4 a)
                     then
-                      [(z4,
-                        out_adjacency l1 z1 a
-                      )]
+                      [(out_adjacency l1 z1 a, z4)]
                     else
                       []
                   )
@@ -300,9 +296,7 @@ struct
                         (ZVGQuotient2.node_equality l1 z1)
                         (ZVGQuotient2.in_adjacency l1 z3 a)
                     then
-                      [(z3,
-                        out_adjacency_with_delay_earlier l2 z2 a
-                      )]
+                      [(z3, out_adjacency_with_delay_earlier l2 z2 a)]
                     else
                       []
                   )
@@ -323,9 +317,7 @@ struct
                         (ZVGQuotient2.node_equality l2 z2)
                         (ZVGQuotient2.in_adjacency l2 z4 a)
                     then
-                      [(z4,
-                        out_adjacency_with_delay_earlier l1 z1 a
-                      )]
+                      [(out_adjacency_with_delay_earlier l1 z1 a, z4)]
                     else
                       []
                   )
@@ -357,9 +349,7 @@ struct
                         (ZVGQuotient2.node_equality l1 z1)
                         (ZVGQuotient2.in_adjacency l1 z3 a)
                     then
-                      [(z3,
-                        out_adjacency_with_delay_earlier_and_later l2 z2 a
-                      )]
+                      [(z3, out_adjacency_with_delay_earlier_and_later l2 z2 a)]
                     else
                       []
                   )
@@ -380,9 +370,7 @@ struct
                         (ZVGQuotient2.node_equality l2 z2)
                         (ZVGQuotient2.in_adjacency l2 z4 a)
                     then
-                      [(z4,
-                        out_adjacency_with_delay_earlier_and_later l1 z1 a
-                      )]
+                      [(out_adjacency_with_delay_earlier_and_later l1 z1 a, z4)]
                     else
                       []
                   )
@@ -478,7 +466,8 @@ struct
       ta1
       ta2
       =
-    let table = empty_table () in
+    let yes_table = empty_table () in
+    let no_table = empty_table () in
     let l1 = lts_of_zone_valuation_graph ta1 in
     let l2 = lts_of_zone_valuation_graph ta2 in
     let pi1 = ZVGLTS2.fernandez l1 in
@@ -488,14 +477,40 @@ struct
     let
         z1 =
       List.find
-        (function _ -> true)
+        (function z1 ->
+          List.exists
+            (function node_ref1 ->
+              (node_ref1.zone_location2 = ta1.numinit)
+              &&
+                (dbm_isZeroIncluded node_ref1.zone_constraint2 (1+ta1.numlocations))
+            )
+            q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list
+        )
         (ZVGQuotient2.nodes q1)
     in
     let
         z2 =
       List.find
-        (function _ -> true)
-        (ZVGQuotient2.nodes q1)
+        (function z2 ->
+          List.exists
+            (function node_ref2 ->
+              (node_ref2.zone_location2 = ta2.numinit)
+              &&
+                (dbm_isZeroIncluded node_ref2.zone_constraint2 (1+ta2.numlocations))
+            )
+            q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list
+        )
+        (ZVGQuotient2.nodes q2)
     in
+    check_relation_on_nodes
+      q1
+      q2
+      yes_table
+      no_table
+      z1
+      z2
 end
       
+module STABChecker = RelationCheckingFunctor (Table_using_list) (STAB)
+module TADBChecker = RelationCheckingFunctor (Table_using_list) (TADB)
+module TAOBChecker = RelationCheckingFunctor (Table_using_list) (TAOB)
