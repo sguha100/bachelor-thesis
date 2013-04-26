@@ -94,6 +94,7 @@ Data types
 <<Fernandez_modules.ml>>=
   type splitter = Simple of block | Compound of (block * splitter *
                                                    splitter)
+
 @ 
 \end{itemize}
 Methods
@@ -481,6 +482,177 @@ Methods
     Printf.fprintf out "}\n";
     flush out;
     close_out out
+
+@
+\item This is a somewhat bizarre structure, using the same
+  signature. Let's see if it works.
+<<Fernandez_modules.ml>>=
+  module Quotient_LTS = struct
+    type node_ref_t = int
+    type action_t = LT.action_t
+    type node = {
+      node_ref_list: LT.node_ref_t list;
+      in_adjacencies: (action_t *(node_ref_t list)) list
+    }
+    type lts_t = {nodes: node array; original: LT.lts_t}
+    let node_equality l node_ref1 node_ref2 =
+      (List.length l.nodes.(node_ref1).node_ref_list
+       =
+          List.length l.nodes.(node_ref2).node_ref_list
+      )
+      &&
+        (List.for_all
+           (function n1 ->
+             List.length
+               (List.filter
+                  (LT.node_equality l.original n1)
+                  l.nodes.(node_ref2).node_ref_list
+               )
+               =
+               List.length
+                 (List.filter
+                    (LT.node_equality l.original n1)
+                    l.nodes.(node_ref1).node_ref_list
+                 )
+           )
+           l.nodes.(node_ref1).node_ref_list
+        )
+    let node_name l node_ref =
+      "[" ^
+        (String.concat
+           "; "
+           (List.map
+              (LT.node_name l.original)
+              (l.nodes.(node_ref).node_ref_list)
+           )
+        )
+      ^ "]"
+    let expand_action l a = LT.expand_action l.original a
+    let nodes l =
+      Array.to_list (Array.init (Array.length l.nodes) (function i ->
+    i))
+    let actions l = LT.actions l.original
+    let in_adjacency l node_ref a =
+      try
+        List.assoc
+          a
+          l.nodes.(node_ref).in_adjacencies
+      with
+        Not_found -> []
+  end
+
+  let quotient_lts l pi = {
+    Quotient_LTS.original = l;
+    Quotient_LTS.nodes =
+      let
+          node_ref_list_array =
+        Array.of_list
+          (List.map
+             (function block -> block.node_refs)
+             pi
+          )
+      in
+      Printf.printf
+        "node_ref_list_array = [|%s|]\n"
+        (String.concat
+           "; "
+           (List.map
+              (function node_ref_list ->
+                "[" ^ 
+                (String.concat
+                    "; "
+                    (List.map (LT.node_name l) node_ref_list)
+                 )
+                ^ "]"
+              )
+              (Array.to_list node_ref_list_array)
+           )
+        )
+      ;
+      flush stdout;
+      Array.map
+        (function node_ref_list ->
+          Printf.printf
+            "Processing node_ref_list = [%s]\n"
+            (String.concat
+               "; "
+               (List.map (LT.node_name l) node_ref_list)
+            )
+          ;
+          flush stdout;
+          {
+            Quotient_LTS.node_ref_list =
+              node_ref_list;
+            Quotient_LTS.in_adjacencies =
+              try (
+              List.map
+                (function a ->
+                  (a, 
+                   List.fold_left
+                     (function partial_in_adjacency -> function n1 ->
+                       (List.filter
+                          (function n2 ->
+                            not
+                              (List.exists
+                                 (Quotient_LTS.node_equality
+                                    {Quotient_LTS.original = l;
+                                     Quotient_LTS.nodes = [||]
+                                    }
+                                    n2
+                                 )
+                                 partial_in_adjacency
+                              )
+                          )
+                          (List.map
+                             (function n2 ->
+                               let index = ref (-1) in
+                               Printf.printf "Processing %s -> %s\n"
+                                 (LT.node_name l n2)
+                                 (LT.node_name l n1)
+                               ;
+                               flush stdout;
+                               Array.iteri
+                                 (function i -> function n3 ->
+                                   if
+                                     List.exists
+                                       (LT.node_equality l n2)
+                                       n3
+                                   then
+                                     index := i
+                                   else
+                                     ()
+                                 )
+                                 node_ref_list_array;
+                               Printf.printf
+                                 "index in quotient_lts is %s\n"
+                                 (string_of_int !index)
+                               ;
+                               flush stdout;
+                               !index
+                             )
+                             (LT.in_adjacency l n1 a)
+                          )
+                       )
+                       @
+                         partial_in_adjacency
+                     )
+                     []
+                     node_ref_list
+                  )
+                )
+                (LT.actions l)
+              )
+                          with
+          | Invalid_argument s ->
+            raise
+              (Invalid_argument
+                 ("We caught this: " ^ s)
+              )
+          }
+        )
+        node_ref_list_array
+  }
+      
 end
 @ 
 \end{itemize}

@@ -7,6 +7,8 @@ open UDBM_utilities
 open Zone_stubs
 open ZVG_modules
 
+module Q = Fernandez_modules.LTS(ZVGLTS2.Quotient_LTS)
+
 let text_dump ta g = 
   let txt_out = open_out "/tmp/lts.txt" in
   Printf.fprintf txt_out "#locations %s\n" (string_of_int ta.numlocations);
@@ -68,5 +70,7 @@ let _ =
      l
      partition
      "/tmp/lts_quotient.dot");
+  let q = ZVGLTS2.quotient_lts l partition in
+  (Q.print_dot q "/tmp/quotient_lts.dot");
   exit 0
 

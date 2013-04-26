@@ -84,4 +84,3 @@ let lts_of_zone_valuation_graph ta =
    ZVGLT2.nodes = generate_zone_valuation_graph ta;
    ZVGLT2.clock_names = ta.clock_names
   }
-
