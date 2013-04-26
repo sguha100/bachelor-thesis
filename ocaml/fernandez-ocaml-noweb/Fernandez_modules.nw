@@ -552,6 +552,21 @@ Methods
              pi
           )
       in
+      let
+          pseudo_quotient =
+        {
+          Quotient_LTS.original = l;
+          Quotient_LTS.nodes =
+            Array.map
+              (function node_ref_list ->
+                {
+                  Quotient_LTS.node_ref_list = node_ref_list;
+                  Quotient_LTS.in_adjacencies = []
+                }
+              )
+              node_ref_list_array
+        }
+      in
       Printf.printf
         "node_ref_list_array = [|%s|]\n"
         (String.concat
@@ -584,7 +599,6 @@ Methods
             Quotient_LTS.node_ref_list =
               node_ref_list;
             Quotient_LTS.in_adjacencies =
-              try (
               List.map
                 (function a ->
                   (a, 
@@ -593,15 +607,21 @@ Methods
                        (List.filter
                           (function n2 ->
                             not
-                              (List.exists
+                              (try (
+                            List.exists
                                  (Quotient_LTS.node_equality
-                                    {Quotient_LTS.original = l;
-                                     Quotient_LTS.nodes = [||]
-                                    }
+                                    pseudo_quotient
                                     n2
                                  )
-                                 partial_in_adjacency
+                                 partial_in_adjacency                            )
+                               with
+                               | Invalid_argument s ->
+                                 raise
+                                   (Invalid_argument
+                                      ("We caught this: " ^ s)
+                                   )
                               )
+
                           )
                           (List.map
                              (function n2 ->
@@ -641,13 +661,6 @@ Methods
                   )
                 )
                 (LT.actions l)
-              )
-                          with
-          | Invalid_argument s ->
-            raise
-              (Invalid_argument
-                 ("We caught this: " ^ s)
-              )
           }
         )
         node_ref_list_array
