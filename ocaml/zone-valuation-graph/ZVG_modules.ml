@@ -12,7 +12,7 @@ struct
   type node_ref_t = zone_using_raw_t
   type action_t = int
   type lts_t = {nodes:((zone_using_raw_t * ((transition *
-                                              (zone_using_raw_t list)) list)) list) array;
+                                               (zone_using_raw_t list)) list)) list) array;
                 action_count: int;
                 clock_names: string array
                }
@@ -79,8 +79,317 @@ end
 
 module ZVGLTS2 = LTS (ZVGLT2)
 
+module ZVGQuotient2 = ZVGLTS2.Quotient_LTS
+
+module ZVGQuotientLTS2 = LTS (ZVGQuotient2)
+
 let lts_of_zone_valuation_graph ta =
   {ZVGLT2.action_count = ta.numactions;
    ZVGLT2.nodes = generate_zone_valuation_graph ta;
    ZVGLT2.clock_names = ta.clock_names
   }
+
+type half_key = ZVGQuotient2.node_ref_t
+
+module type DP_TABLE_TYPE =
+sig
+  type table (*The 'a type is the co-ordinate type for the table.*)
+  val lookup:
+    table ->
+    ZVGQuotient2.lts_t ->
+    (half_key * half_key) ->
+    bool (*Whether it was found or not.*)
+  val remove:
+    table ->
+    ZVGQuotient2.lts_t ->
+    (half_key * half_key) ->
+    bool (*Whether we needed to remove it or not.*)
+  val insert: table ->
+    (half_key * half_key) ->
+    bool (*Whether we needed to remove something before inserting it.*)
+end
+  
+module type TA_RELATION_TYPE =
+sig
+  val check_relation_on_nodes:
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
+    half_key ->
+    half_key ->
+    (((half_key * (half_key list)) list) * (((half_key list) * half_key) list)) option
+end
+
+module Table_using_list =
+struct
+  type table = (half_key * half_key) list ref
+  let lookup table l (h1, h2) =
+    try
+      List.find
+        (function (h3, h4) ->
+          ZVGQuotient2.node_equality l h1 h3 && ZVGQuotient2.node_equality l h2 h4
+        )
+        !table;
+      true
+    with
+    | Not_found -> false
+  let remove table l (h1, h2) =
+    if
+      lookup table l (h1, h2)
+    then
+      (table :=
+         List.filter
+          (function (h3, h4) ->
+            not
+              (ZVGQuotient2.node_equality l h1 h3 && ZVGQuotient2.node_equality l h2 h4)
+          )
+          !table;
+       true)
+    else false
+  let insert table l (h1, h2) =
+    let
+        result = remove table l (h1, h2)
+    in
+    (table := (h1, h2)::!table);
+    result
+end
+
+let out_adjacency l z a
+    =
+  List.filter
+    (function zz ->
+      List.exists
+        (ZVGQuotient2.node_equality l z)
+        (ZVGQuotient2.in_adjacency l zz a)
+    )
+    (ZVGQuotient2.nodes l)
+
+let out_adjacency_with_delay_earlier l z a
+    =
+  let rec f ol =
+    let ext =
+      List.filter
+        (function z ->
+          not
+            (List.exists
+               (ZVGQuotient2.node_equality l z)
+               ol
+            )
+        )
+        (List.concat
+           (List.map
+              (function z -> out_adjacency l z (-1))
+              ol
+           )
+        )
+    in
+    match ext with
+    | [] -> ol
+    | _ -> f (ext@ol)
+  in
+  List.concat
+    (List.map
+       (function z -> out_adjacency l z a)
+       (f [z])
+    )
+
+let out_adjacency_with_delay_earlier_and_later l z a =
+  let rec f ol =
+    let ext =
+      List.filter
+        (function z ->
+          not
+            (List.exists
+               (ZVGQuotient2.node_equality l z)
+               ol
+            )
+        )
+        (List.concat
+           (List.map
+              (function z -> out_adjacency l z (-1))
+              ol
+           )
+        )
+    in
+    match ext with
+    | [] -> ol
+    | _ -> f (ext@ol)
+  in
+  f (out_adjacency_with_delay_earlier l z a)
+
+module STAB =
+struct
+  let check_relation_on_nodes
+      l1
+      l2
+      z1
+      z2
+      = 
+    (
+      List.concat
+        (List.map
+           (function z3 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l1 z1)
+                        (ZVGQuotient2.in_adjacency l1 z3 a)
+                    then
+                      [(z3,
+                        out_adjacency l2 z2 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l1)
+               )
+           )
+           (ZVGQuotient2.nodes l1)
+        )
+        ,
+      List.concat
+        (List.map
+           (function z4 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l2 z2)
+                        (ZVGQuotient2.in_adjacency l2 z4 a)
+                    then
+                      [(z4,
+                        out_adjacency l1 z1 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l2)
+               )
+           )
+           (ZVGQuotient2.nodes l2)
+        )
+    )
+end
+
+module TADB =
+struct
+  let check_relation_on_nodes
+      l1
+      l2
+      z1
+      z2
+      = 
+    (
+      List.concat
+        (List.map
+           (function z3 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l1 z1)
+                        (ZVGQuotient2.in_adjacency l1 z3 a)
+                    then
+                      [(z3,
+                        out_adjacency_with_delay_earlier l2 z2 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l1)
+               )
+           )
+           (ZVGQuotient2.nodes l1)
+        )
+        ,
+      List.concat
+        (List.map
+           (function z4 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l2 z2)
+                        (ZVGQuotient2.in_adjacency l2 z4 a)
+                    then
+                      [(z4,
+                        out_adjacency_with_delay_earlier l1 z1 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l2)
+               )
+           )
+           (ZVGQuotient2.nodes l2)
+        )
+    )
+end
+
+module TAOB =
+struct
+  let check_relation_on_nodes
+      l1
+      l2
+      z1
+      z2
+      = 
+    (
+      List.concat
+        (List.map
+           (function z3 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l1 z1)
+                        (ZVGQuotient2.in_adjacency l1 z3 a)
+                    then
+                      [(z3,
+                        out_adjacency_with_delay_earlier_and_later l2 z2 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l1)
+               )
+           )
+           (ZVGQuotient2.nodes l1)
+        )
+        ,
+      List.concat
+        (List.map
+           (function z4 ->
+             List.concat
+               (List.map
+                  (function a ->
+                    if
+                      List.exists
+                        (ZVGQuotient2.node_equality l2 z2)
+                        (ZVGQuotient2.in_adjacency l2 z4 a)
+                    then
+                      [(z4,
+                        out_adjacency_with_delay_earlier_and_later l1 z1 a
+                      )]
+                    else
+                      []
+                  )
+                  (ZVGQuotient2.actions l2)
+               )
+           )
+           (ZVGQuotient2.nodes l2)
+        )
+    )
+end
+
+module RelationCheckingFunctor =
+  functor (Table: DP_TABLE_TYPE) ->
+  functor (Relation: TA_RELATION_TYPE) ->
+struct
+  
+end
