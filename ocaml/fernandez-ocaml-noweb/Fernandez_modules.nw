@@ -567,34 +567,8 @@ Methods
               node_ref_list_array
         }
       in
-      Printf.printf
-        "node_ref_list_array = [|%s|]\n"
-        (String.concat
-           "; "
-           (List.map
-              (function node_ref_list ->
-                "[" ^ 
-                (String.concat
-                    "; "
-                    (List.map (LT.node_name l) node_ref_list)
-                 )
-                ^ "]"
-              )
-              (Array.to_list node_ref_list_array)
-           )
-        )
-      ;
-      flush stdout;
       Array.map
         (function node_ref_list ->
-          Printf.printf
-            "Processing node_ref_list = [%s]\n"
-            (String.concat
-               "; "
-               (List.map (LT.node_name l) node_ref_list)
-            )
-          ;
-          flush stdout;
           {
             Quotient_LTS.node_ref_list =
               node_ref_list;
@@ -621,16 +595,10 @@ Methods
                                       ("We caught this: " ^ s)
                                    )
                               )
-
                           )
                           (List.map
                              (function n2 ->
                                let index = ref (-1) in
-                               Printf.printf "Processing %s -> %s\n"
-                                 (LT.node_name l n2)
-                                 (LT.node_name l n1)
-                               ;
-                               flush stdout;
                                Array.iteri
                                  (function i -> function n3 ->
                                    if
@@ -643,11 +611,6 @@ Methods
                                      ()
                                  )
                                  node_ref_list_array;
-                               Printf.printf
-                                 "index in quotient_lts is %s\n"
-                                 (string_of_int !index)
-                               ;
-                               flush stdout;
                                !index
                              )
                              (LT.in_adjacency l n1 a)
