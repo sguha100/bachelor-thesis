@@ -94,60 +94,67 @@ type half_key = ZVGQuotient2.node_ref_t
 module type DP_TABLE_TYPE =
 sig
   type table (*The 'a type is the co-ordinate type for the table.*)
+  val empty_table: unit -> table
   val lookup:
     table ->
+    ZVGQuotient2.lts_t ->
     ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
     bool (*Whether it was found or not.*)
   val remove:
     table ->
     ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
     bool (*Whether we needed to remove it or not.*)
-  val insert: table ->
+  val insert:
+    table ->
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
     bool (*Whether we needed to remove something before inserting it.*)
 end
   
 module type TA_RELATION_TYPE =
 sig
-  val check_relation_on_nodes:
+  val nodes_to_other_nodes:
     ZVGQuotient2.lts_t ->
     ZVGQuotient2.lts_t ->
     half_key ->
     half_key ->
-    (((half_key * (half_key list)) list) * (((half_key list) * half_key) list)) option
+    (((half_key * (half_key list)) list) * (((half_key list) * half_key) list))
 end
 
 module Table_using_list =
 struct
   type table = (half_key * half_key) list ref
-  let lookup table l (h1, h2) =
+  let empty_table: unit -> table = function () -> ref []
+  let lookup table l1 l2 (h1, h2) =
     try
       List.find
         (function (h3, h4) ->
-          ZVGQuotient2.node_equality l h1 h3 && ZVGQuotient2.node_equality l h2 h4
+          ZVGQuotient2.node_equality l1 h1 h3 && ZVGQuotient2.node_equality l2 h2 h4
         )
         !table;
       true
     with
     | Not_found -> false
-  let remove table l (h1, h2) =
+  let remove table l1 l2 (h1, h2) =
     if
-      lookup table l (h1, h2)
+      lookup table l1 l2 (h1, h2)
     then
       (table :=
          List.filter
           (function (h3, h4) ->
             not
-              (ZVGQuotient2.node_equality l h1 h3 && ZVGQuotient2.node_equality l h2 h4)
+              (ZVGQuotient2.node_equality l1 h1 h3 && ZVGQuotient2.node_equality l2 h2 h4)
           )
           !table;
        true)
     else false
-  let insert table l (h1, h2) =
+  let insert table l1 l2 (h1, h2) =
     let
-        result = remove table l (h1, h2)
+        result = remove table l1 l2 (h1, h2)
     in
     (table := (h1, h2)::!table);
     result
@@ -218,7 +225,7 @@ let out_adjacency_with_delay_earlier_and_later l z a =
 
 module STAB =
 struct
-  let check_relation_on_nodes
+  let nodes_to_other_nodes
       l1
       l2
       z1
@@ -275,7 +282,7 @@ end
 
 module TADB =
 struct
-  let check_relation_on_nodes
+  let nodes_to_other_nodes
       l1
       l2
       z1
@@ -332,7 +339,7 @@ end
 
 module TAOB =
 struct
-  let check_relation_on_nodes
+  let nodes_to_other_nodes
       l1
       l2
       z1
@@ -389,7 +396,106 @@ end
 
 module RelationCheckingFunctor =
   functor (Table: DP_TABLE_TYPE) ->
-  functor (Relation: TA_RELATION_TYPE) ->
+    functor (Relation: TA_RELATION_TYPE) ->
 struct
-  
+  type table = Table.table
+  let empty_table = Table.empty_table
+  let lookup = Table.lookup
+  let remove = Table.remove
+  let insert = Table.insert
+  let nodes_to_other_nodes = Relation.nodes_to_other_nodes
+  let rec check_relation_on_nodes
+      l1
+      l2
+      yes_table
+      no_table
+      z1
+      z2
+      =
+    if
+      lookup
+        yes_table
+        l1
+        l2
+        (z1, z2)
+    then
+      true
+    else
+      (if
+          lookup
+            no_table
+            l1
+            l2
+            (z1, z2)
+       then
+          false
+       else
+          (insert yes_table l1 l2 (z1, z2);
+           let
+               (x1, x2) =
+             nodes_to_other_nodes
+               l1
+               l2
+               z1
+               z2             
+           in
+           ((List.for_all
+               (function (z3, lz4) ->
+                 List.exists
+                   (function z4 ->
+                     check_relation_on_nodes
+                       l1
+                       l2
+                       yes_table
+                       no_table
+                       z3
+                       z4
+                   )
+                   lz4
+               )
+               x1
+            ) &&
+               (List.for_all
+                  (function (lz3, z4) ->
+                    List.exists
+                      (function z3 ->
+                        check_relation_on_nodes
+                          l1
+                          l2
+                          yes_table
+                          no_table
+                          z3
+                          z4
+                      )
+                      lz3
+                  )
+                  x2
+               )
+           )
+          )
+      )
+  let check_relation_on_timed_automata
+      ta1
+      ta2
+      =
+    let table = empty_table () in
+    let l1 = lts_of_zone_valuation_graph ta1 in
+    let l2 = lts_of_zone_valuation_graph ta2 in
+    let pi1 = ZVGLTS2.fernandez l1 in
+    let pi2 = ZVGLTS2.fernandez l2 in
+    let q1 = ZVGLTS2.quotient_lts l1 pi1 in
+    let q2 = ZVGLTS2.quotient_lts l2 pi2 in
+    let
+        z1 =
+      List.find
+        (function _ -> true)
+        (ZVGQuotient2.nodes q1)
+    in
+    let
+        z2 =
+      List.find
+        (function _ -> true)
+        (ZVGQuotient2.nodes q1)
+    in
 end
+      
