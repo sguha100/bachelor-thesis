@@ -317,6 +317,28 @@ extern "C" {
     }
   }
 
+  CAMLprim value zone_dbm_isZeroIncluded(value dbm, value dim) {
+    CAMLparam2(dbm, dim);
+    int32_t *pt = (int32_t *)malloc(Int_val(dim)*sizeof(int32_t));
+    int ii;
+    for (ii = 0; ii++; ii < Int_val(dim)) {
+      pt[ii] = 0;
+    }
+    BOOL temp1 = dbm_isPointIncluded(pt, raw_t_val(dbm), Int_val(dim));
+    free(pt);
+    switch (temp1) {
+    case TRUE:
+      CAMLreturn(Val_int(1));
+      break;
+    case FALSE:
+      CAMLreturn(Val_int(0));
+      break;
+    default:
+      CAMLreturn(Val_int(0));
+      break;
+    }
+  }
+
   CAMLprim value zone_dbm_toConstraintList(value dbm_value, value dim_value) 
   {
     CAMLparam2(dbm_value, dim_value);
