@@ -234,44 +234,28 @@ struct
     (
       List.concat
         (List.map
-           (function z3 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l1 z1)
-                        (ZVGQuotient2.in_adjacency l1 z3 a)
-                    then
-                      [(z3, out_adjacency l2 z2 a)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l1)
-               )
+           (function a ->
+             let
+                 lz4 = out_adjacency l2 z2 a
+             in
+             List.map
+               (function z3 -> (z3, lz4))
+               (out_adjacency l1 z1 a)
            )
-           (ZVGQuotient2.nodes l1)
+           (ZVGQuotient2.actions l1)
         )
         ,
       List.concat
         (List.map
-           (function z4 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l2 z2)
-                        (ZVGQuotient2.in_adjacency l2 z4 a)
-                    then
-                      [(out_adjacency l1 z1 a, z4)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l2)
-               )
+           (function a ->
+             let
+                 lz3 = out_adjacency l1 z1 a
+             in
+             List.map
+               (function z4 -> (lz3, z4))
+               (out_adjacency l2 z2 a)
            )
-           (ZVGQuotient2.nodes l2)
+           (ZVGQuotient2.actions l2)
         )
     )
 end
@@ -287,44 +271,28 @@ struct
     (
       List.concat
         (List.map
-           (function z3 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l1 z1)
-                        (ZVGQuotient2.in_adjacency l1 z3 a)
-                    then
-                      [(z3, out_adjacency_with_delay_earlier l2 z2 a)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l1)
-               )
+           (function a ->
+             let
+                 lz4 = out_adjacency_with_delay_earlier l2 z2 a
+             in
+             List.map
+               (function z3 -> (z3, lz4))
+               (out_adjacency l1 z1 a)
            )
-           (ZVGQuotient2.nodes l1)
+           (ZVGQuotient2.actions l1)
         )
         ,
       List.concat
         (List.map
-           (function z4 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l2 z2)
-                        (ZVGQuotient2.in_adjacency l2 z4 a)
-                    then
-                      [(out_adjacency_with_delay_earlier l1 z1 a, z4)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l2)
-               )
+           (function a ->
+             let
+                 lz3 = out_adjacency_with_delay_earlier l1 z1 a
+             in
+             List.map
+               (function z4 -> (lz3, z4))
+               (out_adjacency l2 z2 a)
            )
-           (ZVGQuotient2.nodes l2)
+           (ZVGQuotient2.actions l2)
         )
     )
 end
@@ -340,44 +308,28 @@ struct
     (
       List.concat
         (List.map
-           (function z3 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l1 z1)
-                        (ZVGQuotient2.in_adjacency l1 z3 a)
-                    then
-                      [(z3, out_adjacency_with_delay_earlier_and_later l2 z2 a)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l1)
-               )
+           (function a ->
+             let
+                 lz4 = out_adjacency_with_delay_earlier_and_later l2 z2 a
+             in
+             List.map
+               (function z3 -> (z3, lz4))
+               (out_adjacency l1 z1 a)
            )
-           (ZVGQuotient2.nodes l1)
+           (ZVGQuotient2.actions l1)
         )
         ,
       List.concat
         (List.map
-           (function z4 ->
-             List.concat
-               (List.map
-                  (function a ->
-                    if
-                      List.exists
-                        (ZVGQuotient2.node_equality l2 z2)
-                        (ZVGQuotient2.in_adjacency l2 z4 a)
-                    then
-                      [(out_adjacency_with_delay_earlier_and_later l1 z1 a, z4)]
-                    else
-                      []
-                  )
-                  (ZVGQuotient2.actions l2)
-               )
+           (function a ->
+             let
+                 lz3 = out_adjacency_with_delay_earlier_and_later l1 z1 a
+             in
+             List.map
+               (function z4 -> (lz3, z4))
+               (out_adjacency l2 z2 a)
            )
-           (ZVGQuotient2.nodes l2)
+           (ZVGQuotient2.actions l2)
         )
     )
 end
@@ -509,17 +461,17 @@ struct
     let
         z1 =
       try (
-      List.find
-        (function z1 ->
-          List.exists
-            (function node_ref1 ->
-              (node_ref1.zone_location2 = ta1.numinit)
-              &&
-                (dbm_isZeroIncluded node_ref1.zone_constraint2 (1+ta1.numclocks))
-            )
-            q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list
-        )
-        (ZVGQuotient2.nodes q1)
+        List.find
+          (function z1 ->
+            List.exists
+              (function node_ref1 ->
+                (node_ref1.zone_location2 = ta1.numinit)
+                &&
+                  (dbm_isZeroIncluded node_ref1.zone_constraint2 (1+ta1.numclocks))
+              )
+              q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list
+          )
+          (ZVGQuotient2.nodes q1)
       ) with
       | Not_found -> invalid_arg "We caught Not_found while searching for z1."
     in
@@ -530,23 +482,23 @@ struct
           "node_ref1 = %s %s\n"
           (string_of_int node_ref1.zone_location2)
           (raw_t_to_string ta1.clock_names node_ref1.zone_constraint2)
-          ;
+        ;
       )
       q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list;
     let
         z2 =
       try (
-      List.find
-        (function z2 ->
-          List.exists
-            (function node_ref2 ->
-              (node_ref2.zone_location2 = ta2.numinit)
-              &&
-                (dbm_isZeroIncluded node_ref2.zone_constraint2 (1+ta2.numclocks))
-            )
-            q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list
-        )
-        (ZVGQuotient2.nodes q2)
+        List.find
+          (function z2 ->
+            List.exists
+              (function node_ref2 ->
+                (node_ref2.zone_location2 = ta2.numinit)
+                &&
+                  (dbm_isZeroIncluded node_ref2.zone_constraint2 (1+ta2.numclocks))
+              )
+              q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list
+          )
+          (ZVGQuotient2.nodes q2)
       ) with
       | Not_found -> invalid_arg "We caught Not_found while searching for z2."
     in
@@ -557,7 +509,7 @@ struct
           "node_ref2 = %s %s\n"
           (string_of_int node_ref2.zone_location2)
           (raw_t_to_string ta2.clock_names node_ref2.zone_constraint2)
-          ;
+        ;
       )
       q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list;
     check_relation_on_nodes
