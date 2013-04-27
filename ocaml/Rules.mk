@@ -26,13 +26,17 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: next_step.native calc.native test.native
+targets: next_step.native calc.native test.native compare_automata.native
 
 libzone_stubs.a: \
 c/zone_stubs.mli \
 c/zone.mllib \
 c/zone_stubs.c
 	$(OCAMLBUILD) libzone_stubs.a
+
+compare_automata.native: \
+zone-valuation-graph/compare_automata.ml
+
 
 calc.native: \
 zone-valuation-graph/calc.ml \
@@ -85,7 +89,8 @@ myocamlbuild.ml
 	$(OCAMLBUILD)  \
 	next_step/next_step.native \
 	zone-valuation-graph/calc.native \
-	test/test.native
+	test/test.native \
+	zone-valuation-graph/compare_automata.native
 
 calc.top: \
 zone-valuation-graph/calc.ml \
