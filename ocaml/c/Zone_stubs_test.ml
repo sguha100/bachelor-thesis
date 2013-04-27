@@ -98,3 +98,45 @@ let test60 =
     "test60 failed"
   else
     "test60 passed"
+
+let test72 =
+  let dim = 3 in
+  if dbm_isZeroIncluded (dbm_init dim) dim
+  then
+    "test72 passed"
+  else
+    "test72 failed"
+
+let test73 =
+  let dim = 3 in
+  if dbm_isZeroIncluded (dbm_zero (dbm_init dim) dim) dim
+  then
+    "test73 passed"
+  else
+    "test73 failed"
+
+let test74 =
+  let dim = 3 in
+  if
+    dbm_isZeroIncluded (dbm_updateValue (dbm_init dim) dim 1 2) dim
+  then
+    "test74 failed"
+  else
+    "test74 passed"
+
+let test75 =
+  let dim = 3 in
+  if
+    dbm_isZeroIncluded
+      (dbm_up
+         (dbm_updateValue
+            (dbm_updateValue (dbm_init dim) dim 2 2)
+            dim
+            1
+            2)
+         dim)
+      dim
+  then
+    "test75 failed"
+  else
+    "test75 passed"

@@ -201,4 +201,12 @@ let _ =
   print_newline ();
   print_string test71;
   print_newline ();
+  print_string test72;
+  print_newline ();
+  print_string test73;
+  print_newline ();
+  print_string test74;
+  print_newline ();
+  print_string test75;
+  print_newline ();
   exit 0
