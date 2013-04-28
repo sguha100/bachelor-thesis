@@ -219,8 +219,8 @@ let raw_t_to_string clock_names raw_t =
                   (if strictness then " > " else " >= ") ^ 
                   (string_of_int (-bound))
               else
-                (clock_names.(i)) ^ (if strictness then " < " else " <= ") ^
-                  (clock_names.(j))
+                (clock_names.(j)) ^ (if strictness then " > " else " >= ") ^
+                  (clock_names.(i))
           )
           (dbm_toConstraintList raw_t dim)
        )
