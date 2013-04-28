@@ -349,7 +349,11 @@ let rec empty_queue2 ta (queue, zone_list_array) =
            (string_of_int (List.length zone_list_array.(e.child)))
          ;
          if
-           (List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
+           ((List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
+               || e.parent = None
+           (*When the parent is None, the zone is new anyway,
+             so the successors should be enqueued.*)
+           )
          then
            (zone_list_array.(e.child) <- changed_zone_list2;
             List.fold_left

@@ -235,11 +235,15 @@ struct
       List.concat
         (List.map
            (function a ->
+             Printf.printf "a = %s\n" (ZVGQuotient2.expand_action l1 a);
              let
                  lz4 = out_adjacency l2 z2 a
              in
              List.map
-               (function z3 -> (z3, lz4))
+               (function z3 ->
+                 Printf.printf "z3 = %s\n" (ZVGQuotient2.node_name l1 z3);
+                 (z3, lz4)
+               )
                (out_adjacency l1 z1 a)
            )
            (ZVGQuotient2.actions l1)
@@ -248,11 +252,14 @@ struct
       List.concat
         (List.map
            (function a ->
+             Printf.printf "a = %s\n" (ZVGQuotient2.expand_action l2 a);
              let
                  lz3 = out_adjacency l1 z1 a
              in
              List.map
-               (function z4 -> (lz3, z4))
+               (function z4 ->
+                 Printf.printf "z4 = %s\n" (ZVGQuotient2.node_name l2 z4);
+                 (lz3, z4))
                (out_adjacency l2 z2 a)
            )
            (ZVGQuotient2.actions l2)
@@ -396,6 +403,47 @@ struct
                z1
                z2             
            in
+           Printf.printf
+             "x1 = [%s]\nx2 = [%s]\n"
+             (String.concat
+                "; "
+                (List.map
+                   (function (z3, lz4) ->
+                     "(" ^ (ZVGQuotient2.node_name l1 z3) ^ ", [" ^
+                       (String.concat
+                          "; "
+                          (List.map
+                             (function z4 ->
+                               ZVGQuotient2.node_name l2 z4)
+                             lz4
+                          )
+                       )
+                     ^ "])"
+                   )
+                   x1
+                )
+             )
+             (String.concat
+                "; "
+                (List.map
+                   (function (lz3, z4) ->
+                     "([" ^
+                       (String.concat
+                          "; "
+                          (List.map
+                             (function z3 ->
+                               ZVGQuotient2.node_name l1 z3)
+                             lz3
+                          )
+                       )
+                     ^ "], " ^
+                       (ZVGQuotient2.node_name l2 z4)
+                     ^ ")"
+                   )
+                   x2
+                )
+             )
+           ;
            match
              (List.for_all
                 (function (z3, lz4) ->
