@@ -35,8 +35,8 @@ c/zone_stubs.c
 	$(OCAMLBUILD) libzone_stubs.a
 
 compare_automata.native: \
-zone-valuation-graph/compare_automata.ml
-
+zone-valuation-graph/compare_automata.ml \
+relations/Relations.ml
 
 calc.native: \
 zone-valuation-graph/calc.ml \

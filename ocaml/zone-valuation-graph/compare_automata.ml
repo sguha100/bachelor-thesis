@@ -1,6 +1,7 @@
 open ZVG_modules
 open Grammar_types
 open Parse_timed_automaton
+open Relations
 
 let _ =
   let first = ref "" in
