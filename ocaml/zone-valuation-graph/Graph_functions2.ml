@@ -93,37 +93,92 @@ let successor_zones_from_predecessor
     predecessor_zone_list
     edge =
   let dim = 1 + ta.numclocks in
-  let edge_condition =
-    match
-      clock_constraint_to_raw_t_option
-        ta.clock_names
-        edge.condition
-    with
-    | Some edge_condition -> edge_condition
+  let
+      max = maximum_constant ta
   in
-  List.map
-    (function zone ->
-      {zone_location2 = edge.next_location;
-       zone_constraint2 =
-          dbm_up
-            (raw_t_after_clock_resets
-               ta.clock_names
-               edge.clock_resets
-               (dbm_intersection
-                  edge_condition
-                  (dbm_up zone.zone_constraint2 dim)
-                  dim
-               )
-            )
-            dim
-      }
-    )
-    (useful_predecessor_zones
-       ta
-       predecessor_zone_list
-       edge.condition
-    )
-    
+  match
+    clock_constraint_to_raw_t_option
+      ta.clock_names
+      edge.condition
+  with
+  | None -> []
+  | Some edge_condition ->
+    List.map
+      (function zone ->
+        {zone_location2 = edge.next_location;
+         zone_constraint2 =
+            let
+                raw_t_without_abstraction =
+              dbm_up
+                (raw_t_after_clock_resets
+                   ta.clock_names
+                   edge.clock_resets
+                   (dbm_intersection
+                      edge_condition
+                      (dbm_up zone.zone_constraint2 dim)
+                      dim
+                   )
+                )
+                dim
+            in
+            let
+                constraint_list_without_abstraction =
+              dbm_toConstraintList raw_t_without_abstraction dim
+            in
+            let
+                constraint_list_with_abstraction =
+              List.concat 
+                (List.map
+                   (function (i, j, strictness, bound) ->
+                     if
+                       (bound > max)
+                     then
+                       (Printf.printf "%s\n" "ABSTRACTION!";
+                        flush stdout;
+                        [])
+                     else
+                       if
+                         (bound < -max)
+                       then
+                         (Printf.printf "%s\n" "ABSTRACTION!";
+                          flush stdout;
+                          [(i, j, true, -max)])
+                       else
+                         [(i, j, strictness, bound)]
+                   )
+                   constraint_list_without_abstraction
+                )
+            in
+            let
+                raw_t_with_abstraction =
+              match
+                (constraint_list_to_raw_t_option dim constraint_list_with_abstraction)
+              with
+              | Some dbm -> dbm
+              | None ->
+                raise
+                  (Invalid_argument
+                     ("Abstraction failed, constraint_list_without_abstraction = "
+                      ^ (constraint_list_to_string
+                           ta.clock_names
+                           constraint_list_without_abstraction
+                      ) ^ ", constraint_list_with_abstraction = " ^
+                        (constraint_list_to_string
+                           ta.clock_names
+                           constraint_list_with_abstraction
+                        )
+                     )
+                  )
+            in
+            raw_t_with_abstraction
+        }
+      )
+      (useful_predecessor_zones
+         ta
+         predecessor_zone_list
+         edge.condition
+      )
+      
 let new_successor_zones
     ta
     predecessor

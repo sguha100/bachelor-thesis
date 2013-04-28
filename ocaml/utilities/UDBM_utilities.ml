@@ -191,12 +191,9 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
        | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
       )
 
-let raw_t_to_string clock_names raw_t =
+let constraint_list_to_string clock_names constraint_list =
   let
       clock_names = Array.of_list ("0"::(Array.to_list clock_names))
-  in
-  let
-      dim = Array.length clock_names
   in
   "[" ^
     (String.concat
@@ -222,9 +219,15 @@ let raw_t_to_string clock_names raw_t =
                 (clock_names.(j)) ^ (if strictness then " > " else " >= ") ^
                   (clock_names.(i))
           )
-          (dbm_toConstraintList raw_t dim)
+        constraint_list
        )
-    ) ^ "]"
+    ) ^ "]"  
+
+let raw_t_to_string clock_names raw_t =
+  let
+      dim = Array.length clock_names + 1
+  in
+  constraint_list_to_string clock_names (dbm_toConstraintList raw_t dim)
 
 let constraint_list_to_raw_t_option dim constraint_list =
   List.fold_left
