@@ -76,6 +76,7 @@ zone-valuation-graph/Graph_functions2.ml \
 zone-valuation-graph/Graph_functions2_test.ml \
 clutter/Graph_functions3.ml \
 clutter/Graph_functions3_test.ml \
+clutter/Graph_functions2_clutter.ml \
 c/zone_stubs.c \
 c/zone_stubs.mli \
 c/Zone_stubs_test.ml \
