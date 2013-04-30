@@ -485,6 +485,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
   with
   | Empty_queue ->
     Printf.printf "%s\n" "Empty_queue caught!";
+    flush stdout;
     (queue, zone_list_array)
 
 let generate_zone_valuation_graph ta =

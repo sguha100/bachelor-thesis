@@ -146,10 +146,15 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
             List.fold_left (*We just KNOW this folding will work.*)
               (function partial_raw_t ->
                 function constraint_t ->
-                  dbm_constrainC
-                    partial_raw_t
-                    dim
-                    constraint_t
+                  let
+                      result = 
+                    dbm_constrainC
+                      partial_raw_t
+                      dim
+                      constraint_t
+                  in
+                  (dbm_finish partial_raw_t;
+                   result)
               )
               (dbm_init dim)
               constraint_t_list
@@ -163,7 +168,8 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
           then
             Some (dbm_intersection partial_raw_t dst dim)
           else
-            None
+            (dbm_finish dst;
+             None)
         )
       )
     )
