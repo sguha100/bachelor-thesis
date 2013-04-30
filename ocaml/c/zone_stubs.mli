@@ -19,6 +19,8 @@ external dbm_zero: raw_t -> int -> raw_t = "zone_dbm_zero"
 external dbm_isZeroIncluded: raw_t -> int -> bool = "zone_dbm_isZeroIncluded"
 external dbm_toConstraintList: raw_t -> int -> ((int * int * bool * int) list) =
   "zone_dbm_toConstraintList"
+external dbm_toLargerConstraintList: raw_t -> int -> ((int * int * bool * int) list) =
+  "zone_dbm_toLargerConstraintList"
 external dbm_raw2bound: raw_t -> int = "zone_dbm_raw2bound"
 (*This is intended to be experimental in nature.*)
 external dbm_areEqual: raw_t -> raw_t -> int -> bool = "zone_dbm_areEqual"

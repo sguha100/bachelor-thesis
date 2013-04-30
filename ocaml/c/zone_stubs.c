@@ -388,6 +388,55 @@ extern "C" {
     CAMLreturn(current);
   }
 
+  CAMLprim value zone_dbm_toLargerConstraintList(value dbm_value, value dim_value) 
+  {
+    CAMLparam2(dbm_value, dim_value);
+    raw_t *dbm = raw_t_val(dbm_value);
+    cindex_t dim = Int_val(dim_value);
+    assert (!dbm_isEmpty(dbm, dim));
+      
+    uint32_t mingraph[bits2intsize(dim*dim)];
+    size_t n = dbm_cleanBitMatrix(dbm, dim, mingraph,
+                                  dbm_analyzeForMinDBM(dbm, dim, mingraph));
+    if (n == 0)
+      {
+        //This is the "true" constraint, so we just let it be an empty list.
+        CAMLreturn(Val_int(0)); 
+      }
+
+    /* This allocates an empty OCAML list. */
+    CAMLlocal1 (current);
+    current = Val_int(0); 
+
+    /* str += "("; */
+    for(cindex_t i = 0; i < dim; ++i)
+      {
+        for(cindex_t j = 0; j < dim; ++j)
+          {
+            if (!(dbm[i*dim+j] == dbm_LS_INFINITY) && i != j)
+              {
+                CAMLlocal1(hd);
+                hd = caml_alloc_tuple(4);
+                Store_field(hd, 0, Val_int(i));
+                Store_field(hd, 1, Val_int(j));
+                switch (dbm_rawIsStrict(dbm[i*dim+j])) {
+                case TRUE: Store_field(hd, 2, Val_int(1));break;
+                case FALSE: Store_field(hd, 2, Val_int(0));break;
+                default: break;
+                }
+                Store_field(hd, 3, Val_int(dbm_raw2bound(dbm[i*dim + j])));
+                CAMLlocal1(temp);
+                temp = caml_alloc(2, 0);
+                Store_field(temp, 0, hd);
+                Store_field(temp, 1, current);
+                current = temp;
+              }
+          }
+      }
+  stop_loops:
+    CAMLreturn(current);
+  }
+
   /* This is intended to be experimental in nature. */
   CAMLprim value zone_int_toList (value n) {
     CAMLparam1(n);

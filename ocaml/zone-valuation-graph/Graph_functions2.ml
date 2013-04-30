@@ -100,7 +100,8 @@ let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
   in
   let
       constraint_list_without_abstraction =
-    dbm_toConstraintList raw_t_without_abstraction dim
+    (* dbm_toConstraintList raw_t_without_abstraction dim *)
+    dbm_toLargerConstraintList raw_t_without_abstraction dim
   in
   let
       constraint_list_with_abstraction =
