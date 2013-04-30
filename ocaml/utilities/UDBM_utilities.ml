@@ -242,7 +242,7 @@ let constraint_list_to_raw_t_option dim constraint_list =
     | Some dbm ->
       (function (i, j, strictness, bound) ->
         let
-            dbm =
+            dbm1 =
           dbm_constrainC
             dbm
             dim
@@ -254,12 +254,12 @@ let constraint_list_to_raw_t_option dim constraint_list =
             )
         in
         if
-          dbm_isEmpty dbm dim
+          dbm_isEmpty dbm1 dim
         then
-          (dbm_finish dbm;
+          (dbm_finish dbm1;
            None)
         else
-          Some dbm
+          Some dbm1
       )
     )
     (Some (dbm_init dim))
