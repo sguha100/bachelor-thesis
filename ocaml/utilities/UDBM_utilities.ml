@@ -61,47 +61,47 @@ let rec unit_clock_constraint_to_udbm_constraint_list_option
   match unit_clock_constraint with
     True -> Some []
   | False -> None (*This weird expression signifies a constraint
-                    requiring a zero value to be less than zero.*)
-  (*Update: this weird expression is illegal, that is, a constraint
-    in which i = j cannot be applied to the DBM, and also, no
-    constraint can be applied to a DBM which makes the DBM empty. I
-    think we'll work around by preventing this from ever being sent
-    to the DBM functions which are uptight about this.*)
+       requiring a zero value to be less than zero.*)
+    (*Update: this weird expression is illegal, that is, a constraint
+      in which i = j cannot be applied to the DBM, and also, no
+      constraint can be applied to a DBM which makes the DBM empty. I
+      think we'll work around by preventing this from ever being sent
+      to the DBM functions which are uptight about this.*)
   | Lt (cn, n) -> Some [dbm_constraint2
-		           (index cn)
-		           0
-		           n
-		           true
-		       ]
+		      (index cn)
+		      0
+		      n
+		      true
+		  ]
   | Le (cn, n) -> Some [dbm_constraint2
-		           (index cn)
-		           0
-		           n
-		           false
-		       ]
+		      (index cn)
+		      0
+		      n
+		      false
+		  ]
   | Eq (cn, n) -> Some [dbm_constraint2
-		           0
-		           (index cn)
-		           (0-n)
-		           false;
-		        dbm_constraint2
-		          (index cn)
-		          0
-		          n
-		          false
-		       ]
+		      0
+		      (index cn)
+		      (0-n)
+		      false;
+		   dbm_constraint2
+		     (index cn)
+		     0
+		     n
+		     false
+		  ]
   | Ge (cn, n) -> Some [dbm_constraint2
-		           0
-		           (index cn)
-		           (0-n)
-		           false
-		       ]
+		      0
+		      (index cn)
+		      (0-n)
+		      false
+		  ]
   | Gt (cn, n) -> Some [dbm_constraint2
-		           0
-		           (index cn)
-		           (0-n)
-		           true
-		       ]
+		      0
+		      (index cn)
+		      (0-n)
+		      true
+		  ]
 
 (* let clock_constraint_to_udbm_constraint_list_option *)
 (*     clock_names *)
@@ -135,42 +135,35 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
     | (Some partial_raw_t) ->
       (function unit_clock_constraint -> 
         (match
-            unit_clock_constraint_to_udbm_constraint_list_option
-              clock_names
-              unit_clock_constraint
-         with
-           None -> None
-         | Some constraint_t_list ->
-           let
-               dst =
-             List.fold_left (*We just KNOW this folding will work.*)
-               (function partial_raw_t ->
-                 function constraint_t ->
-                   let
-                       result = 
-                     dbm_constrainC
-                       partial_raw_t
-                       dim
-                       constraint_t
-                   in
-                   (dbm_finish partial_raw_t;
-                    result)
-               )
-               (dbm_init dim)
-               constraint_t_list
-           in
-           let
-               result = (dbm_intersection partial_raw_t dst dim)
-           in
-           (dbm_finish dst;
-            if
-              dbm_isEmpty result dim
-            then
-              Some result
-            else
-              (dbm_finish result;
-               None)
-           )
+          unit_clock_constraint_to_udbm_constraint_list_option
+            clock_names
+            unit_clock_constraint
+        with
+          None -> None
+        | Some constraint_t_list ->
+          let
+              dst =
+            List.fold_left (*We just KNOW this folding will work.*)
+              (function partial_raw_t ->
+                function constraint_t ->
+                  dbm_constrainC
+                    partial_raw_t
+                    dim
+                    constraint_t
+              )
+              (dbm_init dim)
+              constraint_t_list
+          in
+          if
+            (dbm_haveIntersection
+               dst
+               partial_raw_t
+               dim
+            )
+          then
+            Some (dbm_intersection partial_raw_t dst dim)
+          else
+            None
         )
       )
     )
@@ -182,21 +175,21 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
     clock_constraint
 
 let clock_constraint_haveIntersection clock_names c1 c2 =
-  match
-    (clock_constraint_to_raw_t_option
-       clock_names
-       c1)
-  with
-    None -> false
-  | Some dst ->
-    (match
-        (clock_constraint_to_raw_t_option
-           clock_names
-           c2)
-     with
-       None -> false
-     | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
-    )
+    match
+      (clock_constraint_to_raw_t_option
+         clock_names
+         c1)
+    with
+      None -> false
+    | Some dst ->
+      (match
+          (clock_constraint_to_raw_t_option
+             clock_names
+             c2)
+       with
+         None -> false
+       | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
+      )
 
 let constraint_list_to_string clock_names constraint_list =
   let
@@ -226,7 +219,7 @@ let constraint_list_to_string clock_names constraint_list =
                 (clock_names.(j)) ^ (if strictness then " > " else " >= ") ^
                   (clock_names.(i))
           )
-          constraint_list
+        constraint_list
        )
     ) ^ "]"  
 
@@ -243,7 +236,7 @@ let constraint_list_to_raw_t_option dim constraint_list =
     | Some dbm ->
       (function (i, j, strictness, bound) ->
         let
-            dbm1 =
+            dbm =
           dbm_constrainC
             dbm
             dim
@@ -255,12 +248,11 @@ let constraint_list_to_raw_t_option dim constraint_list =
             )
         in
         if
-          dbm_isEmpty dbm1 dim
+          dbm_isEmpty dbm dim
         then
-          (dbm_finish dbm1;
-           None)
+          None
         else
-          Some dbm1
+          Some dbm
       )
     )
     (Some (dbm_init dim))
@@ -280,11 +272,10 @@ let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
          if
            dbm_isEmpty dbm dim
          then
-           (dbm_finish dbm;
-            [])
+           []
          else
            [dbm]
-       )
+        )
        [dbm_constraint2 i j bound strictness;
         dbm_constraint2 j i (0-bound) (not strictness)]
     )
