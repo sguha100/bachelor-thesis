@@ -130,17 +130,18 @@ let test71 =
   then
     "test71 passed"
   else
-    ("test71 failed, dbm are " ^ (string_of_int (List.length found)) ^
-        " in number.\n" ^
-        "test71 failed, dbm are [" ^
-        (String.concat
-           "; "
-           (List.map
-              (function dbm -> raw_t_to_string [|"X"; "Y"|] dbm)
-              (List.filter (function dbm -> not (dbm_isEmpty dbm 2)) found)
-           )
-        )
-     ^ "]")
+    "test71 failed"
+    (* ("test71 failed, dbm are " ^ (string_of_int (List.length found)) ^ *)
+    (*     " in number.\n" ^ *)
+    (*     "test71 failed, dbm are [" ^ *)
+    (*     (String.concat *)
+    (*        "; " *)
+    (*        (List.map *)
+    (*           (function dbm -> raw_t_to_string [|"X"; "Y"|] dbm) *)
+    (*           (List.filter (function dbm -> not (dbm_isEmpty dbm 2)) found) *)
+    (*        ) *)
+    (*     ) *)
+    (*  ^ "]") *)
 
 let ta2 = {
   numlocations = 1;

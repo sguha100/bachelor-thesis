@@ -280,6 +280,24 @@ let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
         dbm_constraint2 j i (0-bound) (not strictness)]
     )
 
+let split_raw_t_on_raw_t dim dbm1 dbm2 =
+  if
+    not (dbm_haveIntersection dbm1 dbm2 dim)
+  then
+    [dbm1]
+  else
+    List.fold_left
+      (function dbm_list -> function (i, j, strictness, bound) ->
+        List.concat
+          (List.map
+             (function dbm ->
+               split_raw_t_on_constraint dim dbm (i, j, strictness, bound))
+             dbm_list
+          )
+      )
+      [dbm1]
+      (dbm_toConstraintList dbm2 dim)
+
 let split_raw_t_list_on_constraint
     dim
     dbm_list
@@ -305,10 +323,15 @@ let split_raw_t_list_on_raw_t
     dim
     dbm_list
     dbm =
-  split_raw_t_list_on_constraint_list
-    dim
-    dbm_list
-    (dbm_toConstraintList dbm dim)
+  (* split_raw_t_list_on_constraint_list *)
+  (*   dim *)
+  (*   dbm_list *)
+  (*   (dbm_toConstraintList dbm dim) *)
+  List.concat
+    (List.map
+       (function dbm1 -> split_raw_t_on_raw_t dim dbm1 dbm)
+       dbm_list
+    )
     
 let split_raw_t_list_on_clock_constraint
     clock_names

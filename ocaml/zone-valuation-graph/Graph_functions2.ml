@@ -410,6 +410,10 @@ let rec empty_queue2 ta (queue, zone_list_array) =
          self_split ta e.child changed_zone_list1
        in
        let
+           changed_zone_list3 =
+         maximum_constant_abstract_zone_list ta changed_zone_list2
+       in
+       let
            new_queue2 =
          Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
            (string_of_int (List.length changed_zone_list2))
@@ -417,16 +421,13 @@ let rec empty_queue2 ta (queue, zone_list_array) =
            (string_of_int (List.length zone_list_array.(e.child)))
          ;
          if
-           ((List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
+           ((List.length changed_zone_list3) > (List.length zone_list_array.(e.child))
             || e.parent = None
            (*When the parent is None, the zone is new anyway,
              so the successors should be enqueued.*)
            )
          then
-           (let
-               changed_zone_list3 =
-              maximum_constant_abstract_zone_list ta changed_zone_list2
-            in
+           (
             (* Printf.printf *)
             (*   "changed_zone_list2 = [%s]\n" *)
             (*   (String.concat *)

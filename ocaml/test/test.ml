@@ -209,4 +209,12 @@ let _ =
   print_newline ();
   print_string test75;
   print_newline ();
+  print_string test76;
+  print_newline ();
+  print_string test77;
+  print_newline ();
+  print_string test78;
+  print_newline ();
+  print_string test79;
+  print_newline ();
   exit 0

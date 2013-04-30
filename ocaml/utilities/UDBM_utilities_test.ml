@@ -222,7 +222,7 @@ let dim05 = dim04
 let dbm05 =
   match
     (constraint_list_to_raw_t_option
-       dim04
+       dim05
        [(1, 2, false, 2); (2, 1, false, 2)]
     )
   with
@@ -300,3 +300,81 @@ let test57 =
            )
         )
      ^ "]")
+
+let dim09 = dim04
+
+let dbm09 =
+  match
+    (constraint_list_to_raw_t_option
+       dim09
+       [(2, 1, false, -1); (1, 2, false, 1); (0, 1, true, -1)]
+    )
+  with
+  | None -> (dbm_init dim09) (* This is not supposed to happen! *)
+  | Some dbm09 -> dbm09
+
+let test76 =
+  if
+    verify_raw_t
+      dim09
+      dbm09
+      [(2, 1, false, -1); (1, 2, false, 1); (0, 1, true, -1)]
+  then
+    "test76 passed"
+  else
+    "test76 failed"
+
+let dim10 = dim04
+
+let dbm10 =
+  match
+    (constraint_list_to_raw_t_option
+       dim10
+       [(2, 0, false, 1); (1, 2, false, 0); (0, 1, false, -1)]
+    )
+  with
+  | None -> (dbm_init dim10) (* This is not supposed to happen! *)
+  | Some dbm10 -> dbm10
+
+let test77 =
+  if
+    verify_raw_t
+      dim10
+      dbm10
+      [(2, 0, false, 1); (1, 2, false, 0); (0, 1, false, -1)]
+  then
+    "test77 passed"
+  else
+    "test77 failed"
+
+let test78 =
+  let
+      found =
+    split_raw_t_on_raw_t 3 dbm09 dbm10
+  in
+  let
+      expected =
+    [[(1, 2, false, 1); (2, 1, false, -1); (0, 1, true, -1)]]
+  in
+  if
+    verify_split 3 found expected
+  then
+    "test78 passed"
+  else
+    ("test78 failed, dbm are [" ^
+        (String.concat
+           "; "
+           (List.map
+              (raw_t_to_string [|"X"; "Y"|])
+              found
+           )
+        )
+     ^ "]")
+
+let test79 =
+  if
+    dbm_haveIntersection dbm09 dbm10 3
+  then
+    "test79 failed"
+  else
+    "test79 passed"
