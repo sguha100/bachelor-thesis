@@ -149,11 +149,25 @@ extern "C" {
 #include <caml/alloc.h>
 #include <caml/custom.h>
 
+  /* Accessing the RAW_T * part of a Caml custom block */
+#define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
+
+  /* Accessing the CONSTRAINT_T * part of a Caml custom block */
+#define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
+
+  void raw_t_finalize (value v) {
+    free(raw_t_val(v));
+  }
+
+  void constraint_t_finalize (value v) {
+    free(constraint_t_val(v));
+  }
+
   /* Encapsulation of opaque handles (of type RAW_T *)
      as Caml custom blocks. */
   static struct custom_operations udbm_raw_t_ops = {
     "fr.inria.caml.udbm_raw_t",
-    custom_finalize_default,
+    raw_t_finalize,
     custom_compare_default,
     custom_hash_default,
     custom_serialize_default,
@@ -164,18 +178,12 @@ extern "C" {
      as Caml custom blocks. */
   static struct custom_operations udbm_constraint_t_ops = {
     "fr.inria.caml.udbm_constraint_t",
-    custom_finalize_default,
+    constraint_t_finalize,
     custom_compare_default,
     custom_hash_default,
     custom_serialize_default,
     custom_deserialize_default
   };
-
-  /* Accessing the RAW_T * part of a Caml custom block */
-#define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
-
-  /* Accessing the CONSTRAINT_T * part of a Caml custom block */
-#define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
 
   /* Allocating a Caml custom block to hold the given RAW_T * */
   static value alloc_raw_t(raw_t * w)
