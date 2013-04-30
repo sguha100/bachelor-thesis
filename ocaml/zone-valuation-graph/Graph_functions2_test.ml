@@ -141,3 +141,28 @@ let test71 =
            )
         )
      ^ "]")
+
+let ta2 = {
+  numlocations = 1;
+  numtrans = 1;
+  numclocks = 2;
+  numactions = 1;
+  numinit = 0;
+  clock_names = [|"X"; "Y"|];
+  locations =
+    [|
+      {
+        location_index = 0;
+        invariant = [True];
+        departures =
+          [|
+            {
+              action = 0;
+              condition = [Eq("Y", 1)];
+              clock_resets = [|"Y"|];
+              next_location = 0
+            }
+          |]
+      }
+    |]
+}

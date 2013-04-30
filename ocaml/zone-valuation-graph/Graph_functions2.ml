@@ -88,14 +88,165 @@ let useful_predecessor_zones
     )
     predecessor_zone_list
 
+let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
+  let
+      abstraction = ref false
+  in
+  let
+      maxcon = maximum_constant ta
+  in
+  let
+      dim = 1+ta.numclocks
+  in
+  let
+      constraint_list_without_abstraction =
+    dbm_toConstraintList raw_t_without_abstraction dim
+  in
+  let
+      constraint_list_with_abstraction =
+    List.concat 
+      (List.map
+         (function (i, j, strictness, bound) ->
+           if
+             (bound > maxcon)
+           then
+             (abstraction := true;
+              Printf.printf "%s\n" "ABSTRACTION!";
+              flush stdout;
+              [])
+           else
+             if
+               (bound < (-maxcon))
+             then
+               (abstraction := true;
+                Printf.printf "%s\n" "ABSTRACTION!";
+                flush stdout;
+                [(i, j, true, -maxcon)])
+             else
+               [(i, j, strictness, bound)]
+         )
+         constraint_list_without_abstraction
+      )
+  in
+  let
+      raw_t_with_abstraction =
+    match
+      (constraint_list_to_raw_t_option dim constraint_list_with_abstraction)
+    with
+    | Some dbm -> dbm
+    | None ->
+      raise
+        (Invalid_argument
+           ("Abstraction failed, Constraint_list_without_abstraction = "
+            ^ (constraint_list_to_string
+                 ta.clock_names
+                 constraint_list_without_abstraction
+            ) ^ ", constraint_list_with_abstraction = " ^
+              (constraint_list_to_string
+                 ta.clock_names
+                 constraint_list_with_abstraction
+              )
+           )
+        )
+  in
+  (raw_t_with_abstraction, !abstraction)
+
+let rec maximum_constant_abstract_zone_list ta zone_list =
+  let
+      dim = 1 + ta.numclocks
+  in
+  let
+      (abstracted_zones, unabstracted_zones) =
+    List.fold_left
+      (function (abstracted_zones, unabstracted_zones) ->
+        function next_zone ->
+          match
+            maximum_constant_abstract_dbm ta next_zone.zone_constraint2
+          with
+          | (_, false) ->
+            Printf.printf "The zone (%s, %s) did not get abstracted.\n"
+              (string_of_int next_zone.zone_location2)
+              (raw_t_to_string ta.clock_names next_zone.zone_constraint2);
+            (abstracted_zones, next_zone::unabstracted_zones)
+          | (abstracted_raw_t, true) ->
+            Printf.printf "The zone (%s, %s) got abstracted to (%s, %s)\n"
+              (string_of_int next_zone.zone_location2)
+              (raw_t_to_string ta.clock_names next_zone.zone_constraint2)
+              (string_of_int next_zone.zone_location2)
+              (raw_t_to_string ta.clock_names abstracted_raw_t)
+            ;
+            ({zone_location2 = next_zone.zone_location2;
+              zone_constraint2 = abstracted_raw_t}::abstracted_zones,
+             unabstracted_zones
+            )
+      )
+      ([], [])
+      zone_list
+  in
+  let
+      new_zone_list =
+    List.fold_left
+      (function old_zone_list ->
+        function abstracted_zone ->
+          let
+              abstracted_zone_after_split = 
+            (List.filter
+               (function zone1 ->
+                 List.for_all
+                   (function zone2 ->
+                     not
+                       (dbm_haveIntersection
+                          zone1.zone_constraint2
+                          zone2.zone_constraint2
+                          dim
+                       )
+                   )
+                   old_zone_list
+               )
+               (split_zone_list_on_raw_t_list
+                  dim
+                  abstracted_zone.zone_location2
+                  [abstracted_zone]
+                  (List.map
+                     (function zone -> zone.zone_constraint2)
+                     old_zone_list
+                  )
+               )
+            )
+          in
+          Printf.printf
+            "The abstracted zone (%s, %s) got split into [%s]\n"
+            (string_of_int abstracted_zone.zone_location2)
+            (raw_t_to_string
+               ta.clock_names
+               abstracted_zone.zone_constraint2)
+            (String.concat
+               "; "
+               (List.map
+                  (function zone ->
+                    "(" ^
+                      (string_of_int zone.zone_location2)
+                    ^ ", " ^
+                      (raw_t_to_string ta.clock_names zone.zone_constraint2)
+                    ^ ")"
+                  )
+                  abstracted_zone_after_split
+               )
+            )
+          ;
+          abstracted_zone_after_split @ old_zone_list
+      )
+      unabstracted_zones
+      abstracted_zones
+  in
+  new_zone_list
+    
 let successor_zones_from_predecessor
     ta
     predecessor_zone_list
     edge =
   let dim = 1 + ta.numclocks in
-  let
-      max = maximum_constant ta
-  in
+  let maxcon = maximum_constant ta in
   match
     clock_constraint_to_raw_t_option
       ta.clock_names
@@ -121,56 +272,7 @@ let successor_zones_from_predecessor
                 )
                 dim
             in
-            let
-                constraint_list_without_abstraction =
-              dbm_toConstraintList raw_t_without_abstraction dim
-            in
-            let
-                constraint_list_with_abstraction =
-              List.concat 
-                (List.map
-                   (function (i, j, strictness, bound) ->
-                     if
-                       (bound > max)
-                     then
-                       (Printf.printf "%s\n" "ABSTRACTION!";
-                        flush stdout;
-                        [])
-                     else
-                       if
-                         (bound < -max)
-                       then
-                         (Printf.printf "%s\n" "ABSTRACTION!";
-                          flush stdout;
-                          [(i, j, true, -max)])
-                       else
-                         [(i, j, strictness, bound)]
-                   )
-                   constraint_list_without_abstraction
-                )
-            in
-            let
-                raw_t_with_abstraction =
-              match
-                (constraint_list_to_raw_t_option dim constraint_list_with_abstraction)
-              with
-              | Some dbm -> dbm
-              | None ->
-                raise
-                  (Invalid_argument
-                     ("Abstraction failed, constraint_list_without_abstraction = "
-                      ^ (constraint_list_to_string
-                           ta.clock_names
-                           constraint_list_without_abstraction
-                      ) ^ ", constraint_list_with_abstraction = " ^
-                        (constraint_list_to_string
-                           ta.clock_names
-                           constraint_list_with_abstraction
-                        )
-                     )
-                  )
-            in
-            raw_t_with_abstraction
+            raw_t_without_abstraction
         }
       )
       (useful_predecessor_zones
@@ -267,13 +369,13 @@ let rec empty_queue2 ta (queue, zone_list_array) =
      with
      | (e, new_queue1) ->
        (Printf.printf "new_queue1 = [%s]\n"
-         (String.concat
-            "; "
-            (List.map
-               (function e -> string_of_int e.child)
-               new_queue1
-            )
-         )
+          (String.concat
+             "; "
+             (List.map
+                (function e -> string_of_int e.child)
+                new_queue1
+             )
+          )
        );
        let
            changed_zone_list1 =
@@ -316,12 +418,42 @@ let rec empty_queue2 ta (queue, zone_list_array) =
          ;
          if
            ((List.length changed_zone_list2) > (List.length zone_list_array.(e.child))
-               || e.parent = None
+            || e.parent = None
            (*When the parent is None, the zone is new anyway,
              so the successors should be enqueued.*)
            )
          then
-           (zone_list_array.(e.child) <- changed_zone_list2;
+           (let
+               changed_zone_list3 =
+              maximum_constant_abstract_zone_list ta changed_zone_list2
+            in
+            (* Printf.printf *)
+            (*   "changed_zone_list2 = [%s]\n" *)
+            (*   (String.concat *)
+            (*      "; " *)
+            (*      (List.map *)
+            (*         (function zone -> *)
+            (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
+            (*             (raw_t_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
+            (*         ) *)
+            (*         changed_zone_list2 *)
+            (*      ) *)
+            (*   ) *)
+            (* ; *)
+            (* Printf.printf *)
+            (*   "changed_zone_list3 = [%s]\n" *)
+            (*   (String.concat *)
+            (*      "; " *)
+            (*      (List.map *)
+            (*         (function zone -> *)
+            (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
+            (*             (raw_t_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
+            (*         ) *)
+            (*         changed_zone_list3 *)
+            (*      ) *)
+            (*   ) *)
+            (* ; *)
+            zone_list_array.(e.child) <- changed_zone_list3;
             List.fold_left
               (function new_queue1 -> function departure ->
                 enqueue
@@ -338,13 +470,13 @@ let rec empty_queue2 ta (queue, zone_list_array) =
            new_queue1
        in
        (Printf.printf "new_queue2 = [%s]\n"
-         (String.concat
-            "; "
-            (List.map
-               (function e -> string_of_int e.child)
-               new_queue2
-            )
-         )
+          (String.concat
+             "; "
+             (List.map
+                (function e -> string_of_int e.child)
+                new_queue2
+             )
+          )
        );
        empty_queue2 ta (new_queue2, zone_list_array)
     )
@@ -359,12 +491,12 @@ let generate_zone_valuation_graph ta =
   let zone_list_array = 
     match
       Printf.printf "%s\n" "Calling empty_queue2!";
-      (empty_queue2
-         ta
-         (enqueue empty {parent = None; edge = None; child = ta.numinit},
-          (init_zone_list_array ta)
-         )
-      )
+    (empty_queue2
+       ta
+       (enqueue empty {parent = None; edge = None; child = ta.numinit},
+        (init_zone_list_array ta)
+       )
+    )
     with
       (_, zone_list_array) -> zone_list_array
   in
