@@ -250,7 +250,8 @@ let constraint_list_to_raw_t_option dim constraint_list =
         if
           dbm_isEmpty dbm dim
         then
-          None
+          (dbm_finish dbm;
+           None)
         else
           Some dbm
       )
