@@ -273,7 +273,8 @@ let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
          if
            dbm_isEmpty dbm dim
          then
-           []
+           (dbm_finish dbm;
+            [])
          else
            [dbm]
         )
