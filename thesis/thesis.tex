@@ -9,6 +9,8 @@
 \usetikzlibrary{arrows,automata}
 \usepackage{graphicx}
 \usepackage{sidecap}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \begin{document}
 
@@ -323,7 +325,7 @@ This generates the zone valuation graph.
         reachable from $Z_{parent}$ are represented\;
         Abstract if necessary\;
         Update edges from $Z_{parent}$ to the new zones of $l_{child}$
-        \If{new zones are created in $l_{child}$}{
+        \If{new zones are created in $l_{child}$ or $l_{parent}$ is null}{
           \ForEach{outgoing transition $t'$ of $l_{child}$}{
             Enqueue $(l_{child}, t', t'.target)$ in $Q$\;
           }
@@ -370,6 +372,57 @@ This generates the zone valuation graph.
   respect to itself after this last iteration.
 
 \end{itemize}
+
+\subsection{Abstraction}
+
+\subsubsection{Overview}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{breaking2}
+    \caption{Example of a timed automaton with a potentially infinite
+      set of zones, taken from \cite{Behrmann03staticguard}.}
+    \label{breaking2}
+  \end{subfigure}%
+  %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{breaking2-zones01}
+    \caption{Zones of Figure~\ref{breaking2} after 1 iteration.}
+    \label{breaking2-zones01}
+  \end{subfigure}
+  ~ %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{breaking2-zones02}
+    \caption{Zones of Figure~\ref{breaking2} after 2 iterations.}
+    \label{breaking2-zones02}
+  \end{subfigure}
+  ~ %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{breaking2-zones02}
+    \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
+    \label{breaking2-zones03}
+  \end{subfigure}
+  \caption{Timed automaton with potentially infinite state space.}\label{breaking2withzones}
+\end{figure}
+
+From the description of the above algorithm, it is evident that the
+forward propagation may continue indefinitely if implemented in a
+naive fashion. For example, in the automaton in
+Figure~\ref{breaking2}, the number of zones may expand in each
+iteration, as shown in Figure~\ref{breaking2-zones01},
+Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
 
 \bibliographystyle{ieeetr}
 \bibliography{thesis}
