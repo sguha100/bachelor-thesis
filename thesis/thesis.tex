@@ -26,8 +26,8 @@
 \author{Mihir Mehta}
 
 \institute{Department of Computer Science and Engineering,\\
-Indian Institute of Technology, Delhi.\\
-\mailsa\\
+  Indian Institute of Technology, Delhi.\\
+  \mailsa\\
 }
 
 %% \date{April 2013}
@@ -52,13 +52,13 @@ Indian Institute of Technology, Delhi.\\
 The work described in this thesis builds on the work of
 \cite{DBLP:conf/cav/GuhaNA12} in which Guha et al described an
 algorithm to generate \emph{zone valuation graphs} for timed automata
-and an algorithm to use such zone-valuation graphs to perform an
-on-the-fly analysis to determine \emph{timed performance
-  prebisimilarity} on pairs of timed automata. Our aim was to
-implement these algorithms in a generalised manner in order to verify
-various other timed relations, such as time abstracted bisimulations
-\cite{tripakis2001analysis} and timed simulation equivalence. Towards
-this end, we studied the literature about various kinds of timed and
+and an algorithm to use such zone-valuation graphs to determine
+\emph{timed performance prebisimilarity} on pairs of timed
+automata. Our aim was to implement these algorithms in a generalised
+manner in order to verify various other time abstracted relations,
+such as time abstracted bisimulations \cite{tripakis2001analysis} and
+time abstracted simulation equivalence. Towards
+this end, we studied the literature about timed
 untimed automata as well as various existing tools for verifying these
 equivalences (such as \texttt{minim}, described in
 \cite{tripakis2001analysis}). Our implementation, in OCaml, implements
@@ -75,10 +75,12 @@ several of these relations and leaves some scope for implementing others.
   \label{lts01}
 \end{SCfigure}
 
-A labelled transition system (LTS) \cite{aceto2007reactive} is an automaton
-which is described by a set of \emph{states}, a set of \emph{actions},
-and a \emph{transition relation} from the set of states to the set of
-states, labelled by actions. \\
+\begin{definition}
+  \emph{Labelled Transition System}: A labelled transition system (LTS)
+  \cite{aceto2007reactive} is an automaton which is described by a set
+  of \emph{states}, a set of \emph{actions}, and a \emph{transition
+    relation} from the set of states to the set of states, labelled by actions.
+\end{definition}
 
 \section{Equivalences on labelled transition systems}
 
@@ -90,20 +92,22 @@ states, labelled by actions. \\
   \caption{Strong bisimilarity quotient of the LTS in Figure~\ref{lts01}.}
 \end{SCfigure}
 
-\begin{itemize}
-\item \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
-  bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+\begin{definition} 
+  \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
+    bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
   . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
   \wedge $ \\
   $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
   . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
-\item \emph{Strong bisimilarity}: It can be shown that the union of
-  all strong bisimulationsc over the set of states is a strong
+\end{definition}
+
+\begin{definition}
+  \emph{Strong bisimilarity}: It can be shown that the union of
+  all strong bisimulations over the set of states is a strong
   bisimulation. This binary relation is called \textit{strong
     bisimilarity}, denoted by $\sim$.
-
-\end{itemize}
+\end{definition}
 
 \section{Timed automata}
 
@@ -128,27 +132,29 @@ states, labelled by actions. \\
     brightness settings, example taken from \cite{aceto2007reactive}}
 \end{SCfigure}
 
-\begin{itemize}
-\item Formally, a timed automaton over a finite set of clocks $C$
+\begin{definition}
+  \emph{Timed Automaton}: timed automaton over a finite set of clocks $C$
   and a finite set of actions $Act$ is a 4-tuple $(L, l_{0}, E, I)$.
-\item $L$ is a finite set of locations.
-\item $l_{0}$ is the initial location.
-\item $E \subseteq L \times B(C) \times Act \times 2^{C} \times L$
-  is a finite set of edges.
-\item $I: L \rightarrow B(C)$ assigns invariants to each edge
-  location.
-\item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
-  can be an equality, a slack inequality, or a strict inequality on
-  $v(x)$ for some $x$ $\epsilon$ $C$, or
-  an AND combination of such constraints.
-\item The state of the automaton at any particular instant is given
-  by the ordered pair $(l, v)$ which gives the location and assigns
-  a value to each clock. 
-\item A transition is either a delay transition where the automaton
-  stays at the same location while advancing each clock by the same
-  time delay, or an action transition where the automaton performs a
-  state change while resetting some of its clocks.
-\end{itemize}
+  \begin{itemize}
+  \item $L$ is a finite set of locations.
+  \item $l_{0}$ is the initial location.
+  \item $E \subseteq L \times B(C) \times Act \times 2^{C} \times L$
+    is a finite set of edges.
+  \item $I: L \rightarrow B(C)$ assigns invariants to each edge
+    location.
+  \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
+    can be an equality, a slack inequality, or a strict inequality on
+    $v(x)$ for some $x$ $\epsilon$ $C$, or
+    an AND combination of such constraints.
+  \item The state of the automaton at any particular instant is given
+    by the ordered pair $(l, v)$ which gives the location and assigns
+    a value to each clock. 
+  \item A transition is either a delay transition where the automaton
+    stays at the same location while advancing each clock by the same
+    time delay, or an action transition where the automaton performs a
+    state change while resetting some of its clocks.
+  \end{itemize}
+\end{definition}
 
 It is evident that the state space in a timed automaton is, in
 general, uncountably infinite. This makes it impossible for any
@@ -176,9 +182,8 @@ space of timed automata exist, which we elaborate on, below.
 
 \subsection{Time abstracted bisimilarity}
 
-\begin{itemize}
-  
-\item \emph{Strong time abstracted bisimulation}: A binary relation
+\begin{definition}  
+\emph{Strong time abstracted bisimulation}: A binary relation
   $R$ is a strong time abstracted bisimulation (STaB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
@@ -192,13 +197,17 @@ space of timed automata exist, which we elaborate on, below.
   \wedge $ \\
   $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
 
-\item It can be shown that the union of all strong time abstracted
+\begin{definition}
+\emph{Strong time abstracted bisimilarity}: It can be shown that the union of all strong time abstracted
   bisimulations over the set of (location, valuation) pairs is a
   strong time abstracted bisimulation. This binary relation is called
   \textit{strong time abstracted bisimilarity}.
+\end{definition}
 
-\item \emph{Time abstracted delay bisimulation}: A binary relation
+\begin{definition}
+\emph{Time abstracted delay bisimulation}: A binary relation
   $R$ is a time abstracted delay bisimulation (TadB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2', d)
@@ -214,13 +223,18 @@ space of timed automata exist, which we elaborate on, below.
   \wedge $ \\
   $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
 
-\item It can be shown that the union of all time abstracted delay
-  bisimulations over the set of (location, valuation) pairs is a
-  time abstracted delay bisimulation. This binary relation is called
-  \textit{time abstracted delay bisimilarity}.
+\begin{definition}
+\emph{Time abstracted delay bisimilarity}: It can be shown that the
+union of all time abstracted delay bisimulations over the set of
+(location, valuation) pairs is a time abstracted delay
+bisimulation. This binary relation is called \textit{time abstracted
+  delay bisimilarity}.
+\end{definition}
 
-\item \emph{Time abstracted observational bisimulation}: A binary relation
+\begin{definition}
+\emph{Time abstracted observational bisimulation}: A binary relation
   $R$ is a time abstracted observational bisimulation (TaoB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2',
@@ -235,13 +249,15 @@ space of timed automata exist, which we elaborate on, below.
   \wedge $ \\
   $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
 
-\item It can be shown that the union of all time abstracted observational
-  bisimulations over the set of (location, valuation) pairs is a
-  time abstracted observational bisimulation. This binary relation is called
-  \textit{time abstracted observational bisimilarity}.
-
-\end{itemize}
+\begin{definition}
+\emph{Time abstracted observational bisimilarity}: It can be shown that
+the union of all time abstracted observational bisimulations over the
+set of (location, valuation) pairs is a time abstracted observational
+bisimulation. This binary relation is called \textit{time abstracted
+  observational bisimilarity}.
+\end{definition}
 
 \section{Algorithms}
 
