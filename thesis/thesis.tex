@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[a4paper]{llncs}
 \usepackage[latin1]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -9,20 +9,28 @@
 \usetikzlibrary{arrows,automata}
 \usepackage{graphicx}
 \usepackage{sidecap}
-\usepackage{caption}
+%% \usepackage{caption}
 \usepackage{subcaption}
+
+\usepackage{url}
+\urldef{\mailsa}\path|cs1090197@cse.iitd.ac.in|
+
+\setcounter{tocdepth}{3}
 
 \begin{document}
 
+\mainmatter
+
 \title{Tools and Algorithms for Deciding Relations on Timed Automata}
 
-\author{Mihir Mehta\\
-  Department of Computer Science and Engineering,\\
-  Indian Institute of Technology, Delhi.\\
-  \texttt{cs1090197@cse.iitd.ac.in}
+\author{Mihir Mehta}
+
+\institute{Department of Computer Science and Engineering,\\
+Indian Institute of Technology, Delhi.\\
+\mailsa\\
 }
 
-\date{April 2013}
+%% \date{April 2013}
 
 \maketitle
 
@@ -53,7 +61,7 @@ various other timed relations, such as time abstracted bisimulations
 this end, we studied the literature about various kinds of timed and
 untimed automata as well as various existing tools for verifying these
 equivalences (such as \texttt{minim}, described in
-\cite{tripakis2001analysis}. Our implementation, in OCaml, implements
+\cite{tripakis2001analysis}). Our implementation, in OCaml, implements
 several of these relations and leaves some scope for implementing others.
 
 \section{Labelled transition systems}
@@ -432,7 +440,7 @@ Figure~\ref{breaking2}, the number of zones may expand in each
 iteration, as shown in Figure~\ref{breaking2-zones01},
 Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
 
-\bibliographystyle{ieeetr}
+\bibliographystyle{splncs}
 \bibliography{thesis}
 
 \end{document}
