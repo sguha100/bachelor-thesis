@@ -14,7 +14,7 @@
 
 \begin{document}
 
-\title{Tools and Algorithms for Deciding Timed Relations}
+\title{Tools and Algorithms for Deciding Relations on Timed Automata}
 
 \author{Mihir Mehta\\
   Department of Computer Science and Engineering,\\
@@ -27,9 +27,11 @@
 \maketitle
 
 \begin{abstract}
-  This is a report summarising the author's project on their B Tech
-  Project for the academic year 2012-2013.
+  This describes the author's work in implementing the construction of
+  zone-valuation graphs for timed automata and using these to verify
+  certain relations on pairs of timed automata.
 \end{abstract}
+\pagebreak
 
 \tableofcontents
 \pagebreak
@@ -379,11 +381,11 @@ This generates the zone valuation graph.
 
 \begin{figure}
   \centering
-  \begin{subfigure}[b]{\textwidth}
+  \begin{subfigure}[b]{0.5\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{breaking2}
-    \caption{Example of a timed automaton with a potentially infinite
-      set of zones, taken from \cite{Behrmann03staticguard}.}
+    \def\svgwidth{\columnwidth}
+    \input{breaking2.pdf_tex}
+    \caption{Timed automaton with potentially infinite state space.}
     \label{breaking2}
   \end{subfigure}%
   %add desired spacing between images, e. g. ~, \quad, \qquad
@@ -392,29 +394,35 @@ This generates the zone valuation graph.
 
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{breaking2-zones01}
+    \def\svgwidth{\columnwidth}
+    \input{breaking2-zones01.pdf_tex}
     \caption{Zones of Figure~\ref{breaking2} after 1 iteration.}
     \label{breaking2-zones01}
   \end{subfigure}
   ~ %add desired spacing between images, e. g. ~, \quad, \qquad
   %etc.
   %(or a blank line to force the subfigure onto a new line)
-  \begin{subfigure}[b]{0.3\textwidth}
+  \begin{subfigure}[b]{0.6\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{breaking2-zones02}
+    \def\svgwidth{\columnwidth}
+    \input{breaking2-zones02.pdf_tex}
     \caption{Zones of Figure~\ref{breaking2} after 2 iterations.}
     \label{breaking2-zones02}
   \end{subfigure}
-  ~ %add desired spacing between images, e. g. ~, \quad, \qquad
+  %add desired spacing between images, e. g. ~, \quad, \qquad
   %etc.
   %(or a blank line to force the subfigure onto a new line)
-  \begin{subfigure}[b]{0.3\textwidth}
+
+  \begin{subfigure}[b]{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{breaking2-zones02}
+    \def\svgwidth{0.9\columnwidth}
+    \input{breaking2-zones03.pdf_tex}
     \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
     \label{breaking2-zones03}
   \end{subfigure}
-  \caption{Timed automaton with potentially infinite state space.}\label{breaking2withzones}
+  \caption{Timed automaton with a potentially infinite
+    set of zones, example taken from \cite{Behrmann03staticguard}.}
+  \label{breaking2withzones}
 \end{figure}
 
 From the description of the above algorithm, it is evident that the
