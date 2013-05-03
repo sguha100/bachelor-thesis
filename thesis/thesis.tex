@@ -150,7 +150,8 @@ can be reduced to equivalent LTS.
 \end{SCfigure}
 
 \begin{definition}
-  \emph{Timed Automaton}: timed automaton over a finite set of clocks $C$
+  \emph{Timed Automaton}: A timed automaton
+  \cite{Alur94atheory} over a finite set of clocks $C$
   and a finite set of actions $Act$ is a 4-tuple $(L, l_{0}, E, I)$.
   \begin{itemize}
   \item $L$ is a finite set of locations.
@@ -472,6 +473,34 @@ naive fashion. For example, in the automaton in
 Figure~\ref{breaking2}, the number of zones may expand in each
 iteration, as shown in Figure~\ref{breaking2-zones01},
 Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
+
+However, this is inconsistent with what
+we know about region graphs \cite{Alur94atheory} and their
+implication of finiteness for the state spaces of timed automata,
+thus, we have abstractions which serve to cap the number of zones in a
+zone graph by reducing zones to equivalent regions which contain them,
+thus ensuring termination of zone creation algorithms.
+
+In this implementation we use a simplified version of the
+\emph{maximum constants} abstraction described in
+\cite{Behrmann03staticguard}.
+
+Algebraically, our abstraction can be thus described: given a set of
+clocks $\{x_i | 1 \leq i \leq n \}$, a maximum constant $k$ over all
+clocks, and a DBM $M = \langle m_{ij}, \smile _{ij}\rangle _{0 \leq
+  i,j \leq n} $, we can replace $M$ with $M' = \langle m'_{ij}, \smile
+'_{ij}\rangle _{0 \leq i,j \leq n} $ where
+\begin{displaymath}
+  (m'_{ij}, \smile'_{ij}) =
+  \left{
+    \begin{array}{ll}
+      (\infty, <)  & \mbox{if } m_{ij} > k \\
+      (-k, <)  & \mbox{if } m_{ij} < -k \\
+      m_{ij}, \smile _{ij} & \mbox{if } -k \leq m_{ij} \leq k
+    \end{array}
+  }
+  \right
+\end{displaymath}
 
 \bibliographystyle{splncs}
 \bibliography{thesis}
