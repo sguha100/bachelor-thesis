@@ -78,10 +78,24 @@ several of these relations and leaves some scope for implementing others.
 
 \begin{definition}
   \emph{Labelled Transition System}: A labelled transition system (LTS)
-  \cite{aceto2007reactive} is an automaton which is described by a set
-  of \emph{states}, a set of \emph{actions}, and a \emph{transition
-    relation} from the set of states to the set of states, labelled by actions.
+  \cite{Keller:1976:FVP:360248.360251} is an automaton which is
+  described by
+  \begin{itemize}
+  \item $S$, a set of \emph{states} 
+  \item $Act$, a set of \emph{actions}
+  \item $\rightarrow \subseteq S \times Act \times S$, a \emph{transition
+    relation}.
+  \item optionally, $I \subseteq S$ ,a set of initial states.
+  \end{itemize}
 \end{definition}
+
+LTS are useful for describing the behaviour of untimed systems, and
+serve as the foundation for the development of more complex models
+such as CCS and timed automata. Thus, equivalences on LTS serve
+as the theoretical foundation for many timed and time abstracted
+equivalences on timed automata, and also have direct applications in
+determining some of these equivalences in cases where timed automata
+can be reduced to equivalent LTS.
 
 \section{Equivalences on labelled transition systems}
 

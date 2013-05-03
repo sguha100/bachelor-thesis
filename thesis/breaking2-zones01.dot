@@ -1,7 +1,7 @@
 digraph {
-"0 $(X = Y) < 1$";
-"0 $(X = Y) = 1$";
-"0 $(X = Y) > 1$";
+"0 $(X = Y) < 1$" [style=filled,color=tomato];
+"0 $(X = Y) = 1$" [style=filled,color=tomato];
+"0 $(X = Y) > 1$" [style=filled,color=tomato];
 "0 $(X = Y) < 1$" -> "0 $(X = Y) = 1$" [label = "$\\delta$"]
 "0 $(X = Y) = 1$" -> "0 $(X = Y) > 1$" [label = "$\\delta$"]
 }

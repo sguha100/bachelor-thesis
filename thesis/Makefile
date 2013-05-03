@@ -12,6 +12,9 @@ $(TARGETS): Makefile
 %.svg : %.dot
 	dot -Tsvg $< -o $@
 
+%.png : %.dot
+	dot -Tpng $< -o $@
+
 %.pdf_tex: %.svg
 	inkscape -D -z --file=$< --export-pdf=$(subst pdf_tex,pdf,$@) --export-latex
 
