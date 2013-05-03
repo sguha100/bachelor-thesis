@@ -68,7 +68,8 @@ several of these relations and leaves some scope for implementing others.
 
 \begin{SCfigure}
   \centering
-  \includegraphics[scale=0.5]{lts01}
+  \def\svgwidth{0.3\columnwidth}
+  \input{lts01.pdf_tex}
   \caption{An example of a labelled transition system. Here, the
     states are $\{0, 1, 2, \ldots 7\}$ and the actions are $\{0,
     1\}$.}
@@ -88,7 +89,8 @@ several of these relations and leaves some scope for implementing others.
 
 \begin{SCfigure}
   \centering
-  \includegraphics[scale=0.5]{lts01quotient}
+  \def\svgwidth{0.5\columnwidth}
+  \input{lts01quotient.pdf_tex}
   \caption{Strong bisimilarity quotient of the LTS in Figure~\ref{lts01}.}
 \end{SCfigure}
 
@@ -183,7 +185,7 @@ space of timed automata exist, which we elaborate on, below.
 \subsection{Time abstracted bisimilarity}
 
 \begin{definition}  
-\emph{Strong time abstracted bisimulation}: A binary relation
+  \emph{Strong time abstracted bisimulation}: A binary relation
   $R$ is a strong time abstracted bisimulation (STaB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
@@ -200,14 +202,14 @@ space of timed automata exist, which we elaborate on, below.
 \end{definition}
 
 \begin{definition}
-\emph{Strong time abstracted bisimilarity}: It can be shown that the union of all strong time abstracted
+  \emph{Strong time abstracted bisimilarity}: It can be shown that the union of all strong time abstracted
   bisimulations over the set of (location, valuation) pairs is a
   strong time abstracted bisimulation. This binary relation is called
   \textit{strong time abstracted bisimilarity}.
 \end{definition}
 
 \begin{definition}
-\emph{Time abstracted delay bisimulation}: A binary relation
+  \emph{Time abstracted delay bisimulation}: A binary relation
   $R$ is a time abstracted delay bisimulation (TadB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2', d)
@@ -226,15 +228,15 @@ space of timed automata exist, which we elaborate on, below.
 \end{definition}
 
 \begin{definition}
-\emph{Time abstracted delay bisimilarity}: It can be shown that the
-union of all time abstracted delay bisimulations over the set of
-(location, valuation) pairs is a time abstracted delay
-bisimulation. This binary relation is called \textit{time abstracted
-  delay bisimilarity}.
+  \emph{Time abstracted delay bisimilarity}: It can be shown that the
+  union of all time abstracted delay bisimulations over the set of
+  (location, valuation) pairs is a time abstracted delay
+  bisimulation. This binary relation is called \textit{time abstracted
+    delay bisimilarity}.
 \end{definition}
 
 \begin{definition}
-\emph{Time abstracted observational bisimulation}: A binary relation
+  \emph{Time abstracted observational bisimulation}: A binary relation
   $R$ is a time abstracted observational bisimulation (TaoB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2',
@@ -252,11 +254,11 @@ bisimulation. This binary relation is called \textit{time abstracted
 \end{definition}
 
 \begin{definition}
-\emph{Time abstracted observational bisimilarity}: It can be shown that
-the union of all time abstracted observational bisimulations over the
-set of (location, valuation) pairs is a time abstracted observational
-bisimulation. This binary relation is called \textit{time abstracted
-  observational bisimilarity}.
+  \emph{Time abstracted observational bisimilarity}: It can be shown that
+  the union of all time abstracted observational bisimulations over the
+  set of (location, valuation) pairs is a time abstracted observational
+  bisimulation. This binary relation is called \textit{time abstracted
+    observational bisimilarity}.
 \end{definition}
 
 \section{Algorithms}
