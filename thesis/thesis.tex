@@ -16,7 +16,7 @@
 \urldef{\mailsa}\path|cs1090197@cse.iitd.ac.in|
 
 \setcounter{tocdepth}{3}
-\setcounter{lofdepth}{2}
+\setcounter{lofdepth}{1}
 
 \begin{document}
 
@@ -40,6 +40,10 @@
   zone-valuation graphs for timed automata and using these to verify
   certain relations on pairs of timed automata.
 \end{abstract}
+% timed automata - formalism for automata with timing
+% constraints. time abstracted relations. decidable using region
+% graphs. our tool checks for the existence of various kinds of timed
+% relations between timed automata using a zone-based. approach. 
 \pagebreak
 
 \tableofcontents
@@ -48,7 +52,7 @@
 \listoftables
 \pagebreak
 
-\section{Objectives}
+\section{Introduction}
 
 The work described in this thesis builds on the work of
 \cite{DBLP:conf/cav/GuhaNA12} in which Guha et al described an
@@ -59,11 +63,32 @@ automata. Our aim was to implement these algorithms in a generalised
 manner in order to verify various other time abstracted relations,
 such as time abstracted bisimulations \cite{tripakis2001analysis} and
 time abstracted simulation equivalence. Towards
-this end, we studied the literature about timed
-untimed automata as well as various existing tools for verifying these
+this end, we studied the literature about timed automata as well as
+various existing tools for verifying these
 equivalences (such as \texttt{minim}, described in
 \cite{tripakis2001analysis}). Our implementation, in OCaml, implements
-several of these relations and leaves some scope for implementing others.
+several of these relations and leaves some scope for implementing
+others.
+
+This document proceeds by developing the relevant theory for labelled transition
+systems and strong bisimilarity, and then continues with timed
+automata and time abstracted bisimilarity in analogous fashion. We 
+then detail several methods to discretise the state space of timed
+automata, including region graphs, zone graphs, and zone valuation
+graphs, and use region graphs to show that a finite representation of
+the state space of a timed automaton is always decidable. We mention
+difference bound matrices (DBM), a widely used representation for the time
+constraints (i. e. convex polyhedra) that are used to describe
+zones. Then, we explain abstractions, which are transformations on DBM
+that replace each DBM by a DBM which is its superset and
+which in equivalent to it modulo strong time abstracted
+bisimilarity. This helps us prevent state space explosion in our
+exploration algorithms which build the state space of a timed
+automaton. We then explain the common features of certain time
+abstracted relations which allow us to verify them in a generalised
+manner, and explain our implementation.
+
+%Include the organisation of the thesis.
 
 \section{Labelled transition systems}
 
@@ -174,27 +199,147 @@ can be reduced to equivalent LTS.
   \end{itemize}
 \end{definition}
 
+\section{Difference bound matrices}
+\begin{definition}
+  \emph{Difference bound matrix}: A difference bound matrix (DBM) is a
+  representation of a convex polyhedron on a set of clocks $\{x_{1},
+  \ldots x_{n}\}$ in the form of an $(n+1) \times (n+1)$
+  matrix $M$, each element of which takes the form $(m_{ij}, \smile
+  _{ij})$, where $m_{ij}$ is an integer and $\smile_{ij}$ $\epsilon$
+  $\{ <, \leq\}$. Assuming $x_0$ to be a clock always valued at zero,
+  the associated polyhedron is given by
+  \begin{displaymath}
+    \bigcap_{0 \leq i, j \leq n}(x_{i} - x_{j} \smile_{ij} m_{ij})
+  \end{displaymath}
+\end{definition}
+
+DBM offer a convenient method to represent polyhedra for most of the
+common operations required on zones, including intersection, clock
+resets, future, and abstraction. The UPPAAL DBM libraries
+\cite{bengtsson2004timed} implement many common functions on DBM and
+have been extensively used in our implementation.
+% elaborate on the operations for DBM.
+
+\section{Zone graphs}
+
 It is evident that the state space in a timed automaton is, in
 general, uncountably infinite. This makes it impossible for any
 algorithm to terminate which explores the state space in a naive
 manner. However, some standard techniques to discretise the state
 space of timed automata exist, which we elaborate on, below.
 
-\begin{itemize}
-
-\item \emph{State}: A state of a timed automaton is a pair $(l, v)$
+\begin{definition}
+  \emph{State}: A state of a timed automaton is a pair $(l, v)$
   where $l$ is a location in the automaton and $v$ is a clock
   valuation satisfying $l.invar$
+\end{definition}
 
-\item \emph{Symbolic state}: A symbolic state is a set of states in
+\begin{definition}
+  \emph{Symbolic state}: A symbolic state is a set of states in
   the timed automaton. The constituent states do not necessarily share
   a location.
+\end{definition}
 
-\item \emph{Zone}: A zone is a symbolic state where the all the
+\begin{definition}
+  \emph{Zone}: A zone is a symbolic state where the all the
   constituent states share a location and the set of valuations of
   these states forms a convex polyhedron on the valuation space.
+\end{definition}
 
-\end{itemize}
+\begin{definition}
+  \emph{Zone graph}: A zone graph of a timed automaton is an LTS, where
+  the states are zones, the actions consist of the actions of the
+  timed automaton and an $\epsilon$ action, which represents a timed
+  transition, and the transition relation respects the invariants,
+  guards and clock resets of the original timed automaton.
+\end{definition}
+%also talk about region graphs.
+
+\section{Abstraction}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.5\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{breaking2.pdf_tex}
+    \caption{Timed automaton with potentially infinite state space.}
+    \label{breaking2}
+  \end{subfigure}%
+  %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{breaking2-zones01.pdf_tex}
+    \caption{Zones of Figure~\ref{breaking2} after 1 iteration.}
+    \label{breaking2-zones01}
+  \end{subfigure}
+  ~ %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.6\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{breaking2-zones02.pdf_tex}
+    \caption{Zones of Figure~\ref{breaking2} after 2 iterations.}
+    \label{breaking2-zones02}
+  \end{subfigure}
+  %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \def\svgwidth{0.9\columnwidth}
+    \input{breaking2-zones03.pdf_tex}
+    \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
+    \label{breaking2-zones03}
+  \end{subfigure}
+  \caption{Timed automaton with a potentially infinite
+    set of zones, example taken from \cite{Behrmann03staticguard}.}
+  \label{breaking2withzones}
+\end{figure}
+
+A common feature of algorithms that generate zone graphs for timed
+automata is a \emph{forward propagation} step in which the algorithsm attempts to
+create reachable zones in reachable locations by traversing the timed
+automaton. However, this introduces a vulnerability to certain
+pathological cases in which the number of zones expands indefinitely,
+preventing termination of the algorithm. For example, in the automaton in
+Figure~\ref{breaking2}, the number of zones may expand in each
+iteration, as shown in Figure~\ref{breaking2-zones01},
+Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
+
+However, this is inconsistent with what
+we know about region graphs \cite{Alur94atheory} and their
+implication of finiteness for the state spaces of timed automata,
+thus, we have abstractions which serve to cap the number of zones in a
+zone graph by reducing zones to equivalent regions which contain them,
+thus ensuring termination of zone creation algorithms.
+
+In this implementation we use a simplified version of the
+\emph{maximum constants} abstraction described in
+\cite{Behrmann03staticguard}.
+
+Algebraically, our abstraction can be thus described: given a set of
+clocks $\{x_i | 1 \leq i \leq n \}$, a maximum constant $k$ over all
+clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
+  i,j \leq n} $, we can replace $M$ with $M' = \langle m'_{ij}, \smile
+'_{ij}\rangle _{0 \leq i,j \leq n} $ where
+\begin{displaymath}
+  (m'_{ij}, \smile'_{ij}) =
+  \left{
+    \begin{array}{ll}
+      (\infty, <)  & \mbox{if } m_{ij} > k \\
+      (-k, <)  & \mbox{if } m_{ij} < -k \\
+      m_{ij}, \smile _{ij} & \mbox{if } -k \leq m_{ij} \leq k
+    \end{array}
+  }
+  \right
+\end{displaymath}
 
 \section{Timed relations on timed automata}
 
@@ -277,6 +422,8 @@ space of timed automata exist, which we elaborate on, below.
     observational bisimilarity}.
 \end{definition}
 
+%give examples.
+
 \section{Algorithms}
 
 \subsection{Creation of the zone valuation graph}
@@ -319,6 +466,7 @@ new zones in $l_{succ}$ will cover
   \zeta _{succ_{new}} = (\bigcup _{i} \zeta_{succ_{i}}) - (\bigcup _{j} \zeta_{succ_{j}})
 \end{displaymath} 
 
+% define convex polyhedra, future operators, etc.
 Since $\zeta _{succ_{new}}$ is not necessarily convex, we may need to
 split it into multiple convex polyhedra before creating the
 corresponding zones in the $l_{succ}$. Then, we split the zones of
@@ -417,92 +565,97 @@ This generates the zone valuation graph.
 
 \end{itemize}
 
-\subsection{Abstraction}
+\subsection{Checking timed and untimed relations on timed automata}
 
 \subsubsection{Overview}
 
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.5\textwidth}
-    \centering
-    \def\svgwidth{\columnwidth}
-    \input{breaking2.pdf_tex}
-    \caption{Timed automaton with potentially infinite state space.}
-    \label{breaking2}
-  \end{subfigure}%
-  %add desired spacing between images, e. g. ~, \quad, \qquad
-  %etc.
-  %(or a blank line to force the subfigure onto a new line)
+Many important relations on timed automata can be verified by arguing
+about the existence of winning strategies on two-player games. The
+algorithm described here uses this fact to verify these relations
+by simulating the two-player games, using a memoisation approach.
 
-  \begin{subfigure}[b]{0.3\textwidth}
-    \centering
-    \def\svgwidth{\columnwidth}
-    \input{breaking2-zones01.pdf_tex}
-    \caption{Zones of Figure~\ref{breaking2} after 1 iteration.}
-    \label{breaking2-zones01}
-  \end{subfigure}
-  ~ %add desired spacing between images, e. g. ~, \quad, \qquad
-  %etc.
-  %(or a blank line to force the subfigure onto a new line)
-  \begin{subfigure}[b]{0.6\textwidth}
-    \centering
-    \def\svgwidth{\columnwidth}
-    \input{breaking2-zones02.pdf_tex}
-    \caption{Zones of Figure~\ref{breaking2} after 2 iterations.}
-    \label{breaking2-zones02}
-  \end{subfigure}
-  %add desired spacing between images, e. g. ~, \quad, \qquad
-  %etc.
-  %(or a blank line to force the subfigure onto a new line)
+The relations which can be verified in this fashion are those in which
+functions $f, G, F, g$ exist such that
+the question `Are states $s_P$ and $s_Q$ in timed automata $P$ and $Q$
+related under $R$? ` can have three possible answers:
+\begin{enumerate}
+\item yes
+\item no
+\item if and only if each state from the sequence $f(s_P)$ is
+  related under R to at least one element from the corresponding
+  set from the sequence $G(s_Q)$ and at least one element from each
+  set in the sequence $F(s_P)$ is related to the corresponding state
+  from the sequence $g(s_Q)$.
+\end{enumerate}
 
-  \begin{subfigure}[b]{\textwidth}
-    \centering
-    \def\svgwidth{0.9\columnwidth}
-    \input{breaking2-zones03.pdf_tex}
-    \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
-    \label{breaking2-zones03}
-  \end{subfigure}
-  \caption{Timed automaton with a potentially infinite
-    set of zones, example taken from \cite{Behrmann03staticguard}.}
-  \label{breaking2withzones}
-\end{figure}
+This property is satisfied by timed bisimulation, STaB, TadB, TaoB,
+and the corresponding simulation equivalences, among others.
 
-From the description of the above algorithm, it is evident that the
-forward propagation may continue indefinitely if implemented in a
-naive fashion. For example, in the automaton in
-Figure~\ref{breaking2}, the number of zones may expand in each
-iteration, as shown in Figure~\ref{breaking2-zones01},
-Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
+This formulation naturally suggests an approach: use tables to store
+pairs of states in the two timed automata which are known to be
+related or known to be unrelated, and use a dynamic programming
+approach to verify the relation for any given pair of states.
 
-However, this is inconsistent with what
-we know about region graphs \cite{Alur94atheory} and their
-implication of finiteness for the state spaces of timed automata,
-thus, we have abstractions which serve to cap the number of zones in a
-zone graph by reducing zones to equivalent regions which contain them,
-thus ensuring termination of zone creation algorithms.
+\subsubsection{Pseudocode}
 
-In this implementation we use a simplified version of the
-\emph{maximum constants} abstraction described in
-\cite{Behrmann03staticguard}.
+\begin{procedure}
+  \caption{CheckStatesRelation($P$, $Q$, $s_{P}$, $s_{Q}$,
+    $yes\_ table$, $no\_ table$)}
+  \SetKwFunction{lookup}{lookup}
+  \SetKwFunction{insert}{insert}
+  \SetKwFunction{remove}{remove}
+  \Begin{
+      \eIf{\lookup{$yes\_ table$, $s_{P}$, $s_{Q}$}}{
+        \KwRet true\;
+      }{
+        \eIf{\lookup{$yes\_ table$, $s_{P}$, $s_{Q}$}}{
+          \KwRet false\;
+        }{
+          \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+          Set $v_P$\;
+          \ForEach{$(s_P', L_Q')$ in $(f(s_P), G(s_Q))$}{
+            Reset $v_P$\;
+            \ForEach{$s_Q'$ in $L_Q'$}{
+              \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
+                  $yes\_ table$, $no\_ table$}}{
+                Set $v_P$\;
+              }
+            }
+          }
+          Set $v_Q$\;
+          \ForEach{$(s_Q', L_P')$ in $(F(s_P), g(s_Q))$}{
+            Reset $v_Q$\;
+            \ForEach{$s_P'$ in $L_P'$}{
+              \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
+                  $yes\_ table$, $no\_ table$}}{
+                Set $v_Q$\;
+              }
+            }
+          }
+          \eIf{$v_P$ $\wedge$ $v_Q$}{
+            \KwRet true\;
+          }{
+            \remove{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+            \KwRet false\;
+          }
+        }
+      }
+    }
 
-Algebraically, our abstraction can be thus described: given a set of
-clocks $\{x_i | 1 \leq i \leq n \}$, a maximum constant $k$ over all
-clocks, and a DBM $M = \langle m_{ij}, \smile _{ij}\rangle _{0 \leq
-  i,j \leq n} $, we can replace $M$ with $M' = \langle m'_{ij}, \smile
-'_{ij}\rangle _{0 \leq i,j \leq n} $ where
-\begin{displaymath}
-  (m'_{ij}, \smile'_{ij}) =
-  \left{
-    \begin{array}{ll}
-      (\infty, <)  & \mbox{if } m_{ij} > k \\
-      (-k, <)  & \mbox{if } m_{ij} < -k \\
-      m_{ij}, \smile _{ij} & \mbox{if } -k \leq m_{ij} \leq k
-    \end{array}
-  }
-  \right
-\end{displaymath}
+  \end{procedure}
 
-\bibliographystyle{splncs}
-\bibliography{thesis}
+  \begin{procedure}
+    \caption{CheckAutomataRelation($P$, $Q$)}
+    \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
+    \Begin{
+        Initialise $yes\_ table$ and $no\_ table$ to empty tables\;
+        \KwRet \CheckStatesRelation{$P$, $Q$, $P.init$, $Q.init$,
+          $yes\_ table$, $no\_ table$}\;
+      }
+  \end{procedure}
+
+    \pagebreak
+  \bibliographystyle{splncs}
+  \bibliography{thesis}
 
 \end{document}
