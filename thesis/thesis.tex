@@ -16,7 +16,7 @@
 \urldef{\mailsa}\path|cs1090197@cse.iitd.ac.in|
 
 \setcounter{tocdepth}{3}
-\setcounter{lofdepth}{1}
+%% \setcounter{lofdepth}{1}
 
 \begin{document}
 
@@ -151,6 +151,16 @@ can be reduced to equivalent LTS.
     bisimilarity}, denoted by $\sim$.
 \end{definition}
 
+Strong bisimilarity between two states in an LTS implies,
+intuitively, that any action performed by the one can be performed by
+the other and vice versa.
+
+An algorithm to evaluate strong bisimilarity was first given by
+Kanellakis and Smolka \cite{kanellakis1990ccs}. A faster algorithm for
+the special case having just one kind of action was given by Paige and
+Tarjan \cite{paige1987three} and made general by Fernandez
+\cite{fernandez1990implementation}.
+
 \section{Timed automata}
 
 \begin{SCfigure}
@@ -189,36 +199,43 @@ can be reduced to equivalent LTS.
     can be an equality, a slack inequality, or a strict inequality on
     $v(x)$ for some $x$ $\epsilon$ $C$, or
     an AND combination of such constraints.
-  \item The state of the automaton at any particular instant is given
-    by the ordered pair $(l, v)$ which gives the location and assigns
-    a value to each clock. 
-  \item A transition is either a delay transition where the automaton
-    stays at the same location while advancing each clock by the same
-    time delay, or an action transition where the automaton performs a
-    state change while resetting some of its clocks.
   \end{itemize}
 \end{definition}
 
-\section{Difference bound matrices}
+This is a useful formalism for describing the behaviour of a system
+with timing requirements on its behaviour. For a better understanding
+of its semantics, it is useful to describe a labeled transition system
+corresponding to it (called a timed LTS, or TLTS) that describes the
+behaviour of this timed automaton.
+
 \begin{definition}
-  \emph{Difference bound matrix}: A difference bound matrix (DBM) is a
-  representation of a convex polyhedron on a set of clocks $\{x_{1},
-  \ldots x_{n}\}$ in the form of an $(n+1) \times (n+1)$
-  matrix $M$, each element of which takes the form $(m_{ij}, \smile
-  _{ij})$, where $m_{ij}$ is an integer and $\smile_{ij}$ $\epsilon$
-  $\{ <, \leq\}$. Assuming $x_0$ to be a clock always valued at zero,
-  the associated polyhedron is given by
+  \emph{Timed LTS}: We define the timed LTS $T(A)$ defined by a timed
+  automaton $(L, l_{0}, E, I)$ over a set of clocks $C$ and a set of
+  actions $Act$ as 
   \begin{displaymath}
-    \bigcap_{0 \leq i, j \leq n}(x_{i} - x_{j} \smile_{ij} m_{ij})
+    T(A) = (Proc, Lab, \rightarrow)
   \end{displaymath}
+  where
+  \begin{itemize}
+  \item $Proc = \{(l, v) | l$ $\epsilon$ $L, v$ $\epsilon$ $I(l)\}$
+  \item $Lab = Act \cup R_{\ge 0}$
+  \item $\rightarrow$ is given by
+    \begin{itemize}
+    \item $(l, v) \xrightarrow{a} (l', v')$ iff $a$ $\epsilon$ $Act$, $\exists (l
+      \xrightarrow{g, a, r} l')$ $\epsilon$ $E$ such that $v$ $\models$
+      $g$ $\wedge$ $v'=v[r:=0]$ $\wedge$ $v'$ $\models$ $I(l')$
+    \item $(l, v) \xrightarrow{d} (l, v')$ iff $d$ $\epsilon$ $R_{\ge
+      0}$ $\wedge$ $v$ $\models$ $I(l)$ $\wedge$ $v'$ $\models$ $I(l)$
+    \end{itemize}
+  \end{itemize}
+
 \end{definition}
 
-DBM offer a convenient method to represent polyhedra for most of the
-common operations required on zones, including intersection, clock
-resets, future, and abstraction. The UPPAAL DBM libraries
-\cite{bengtsson2004timed} implement many common functions on DBM and
-have been extensively used in our implementation.
-% elaborate on the operations for DBM.
+We will use the object-oriented notation \texttt{l.invar} to refer to
+the invariant $I(l)$ of a location $l$ and \texttt{e.source}, \texttt{e.guard},
+\texttt{e.action}, \texttt{e.resets} and \texttt{e.target} to refer to
+$l$, $g$, $a$, $r$, $l'$ of
+an edge $e = l \xrightarrow{g, a, r} l'$ unless otherwise noted.
 
 \section{Zone graphs}
 
@@ -231,7 +248,7 @@ space of timed automata exist, which we elaborate on, below.
 \begin{definition}
   \emph{State}: A state of a timed automaton is a pair $(l, v)$
   where $l$ is a location in the automaton and $v$ is a clock
-  valuation satisfying $l.invar$
+  valuation satisfying \texttt{l.invar}.
 \end{definition}
 
 \begin{definition}
@@ -254,6 +271,27 @@ space of timed automata exist, which we elaborate on, below.
   guards and clock resets of the original timed automaton.
 \end{definition}
 %also talk about region graphs.
+
+\section{Difference bound matrices}
+\begin{definition}
+  \emph{Difference bound matrix}: A difference bound matrix (DBM) is a
+  representation of a convex polyhedron on a set of clocks $\{x_{1},
+  \ldots x_{n}\}$ in the form of an $(n+1) \times (n+1)$
+  matrix $M$, each element of which takes the form $(m_{ij}, \smile
+  _{ij})$, where $m_{ij}$ is an integer and $\smile_{ij}$ $\epsilon$
+  $\{ <, \leq\}$. Assuming $x_0$ to be a clock always valued at zero,
+  the associated polyhedron is given by
+  \begin{displaymath}
+    \bigcap_{0 \leq i, j \leq n}(x_{i} - x_{j} \smile_{ij} m_{ij})
+  \end{displaymath}
+\end{definition}
+
+DBM offer a convenient method to represent polyhedra for most of the
+common operations required on zones, including intersection, clock
+resets, future, and abstraction. The UPPAAL DBM libraries
+\cite{david2006uppaal} implement many common functions on DBM and
+have been extensively used in our implementation.
+% elaborate on the operations for DBM.
 
 \section{Abstraction}
 
@@ -426,6 +464,27 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
 
 \section{Algorithms}
 
+\subsection{Fernandez' algorithm}
+
+This algorithm is summarised here from
+\cite{fernandez1990implementation}. Details of the splitting operations
+and the proof of correctness are omitted for brevity.
+
+\begin{algorithm2e}[H]
+  Initialise $\pi = \{Pr\}$\;
+  Initialise W = $\{Pr\}$
+  \While{W is not empty}{
+    Choose a splitter B from W, removing it\;
+    \eIf{B is a simple splitter}{
+      Perform a two-way split on each action with respect to B and
+      update W\;
+    }{
+      Perform a three-way split on each action with respect to B and
+      update W\;
+    }
+  }
+\end{algorithm2e}
+
 \subsection{Creation of the zone valuation graph}
 
 \subsubsection{Overview}
@@ -454,7 +513,7 @@ Thus, for each predecessor zone $(l_{pred}, \zeta _{pred_{i}})$, the
 derived successor zone is $(l_{succ}, \zeta _{succ_{i}})$, where
 
 \begin{displaymath} 
-  \zeta _{succ_{i}} = ((\zeta _{pred_{i}} \uparrow \cap t.guard)[t.resets := 0]) \uparrow
+  \zeta _{succ_{i}} = ((\zeta _{pred_{i}} \uparrow \cap \texttt{t.guard})[\texttt{t.resets} := 0]) \uparrow
 \end{displaymath} 
 
 Thus, if we let  $(l_{pred}, \zeta _{pred_{i}})$ range over the
@@ -485,19 +544,19 @@ whenever we have an edge in the zone valuation graph from a zone
 $(l_{pred}, \zeta _{pred})$ to $(l_{succ}, \zeta _{succ})$
 corresponding to a transition $t$ in the timed automaton, we require 
 \begin{displaymath} 
-  \zeta _{pred} \subseteq t.guard
+  \zeta _{pred} \subseteq \texttt{t.guard}
   \wedge
-  \zeta _{pred} [t.resets := 0] \subseteq \zeta _{succ}
+  \zeta _{pred} [\texttt{t.resets} := 0] \subseteq \zeta _{succ}
 \end{displaymath} 
 Thus, when this does not hold, we split $(l_{pred}, \zeta _{pred})$
 into
 \begin{displaymath} 
-  (l_{pred}, \zeta _{pred} \cap (t.guard \cap [t.resets := 0] \zeta _{succ}))
+  (l_{pred}, \zeta _{pred} \cap (\texttt{t.guard} \cap [\texttt{t.resets} := 0] \zeta _{succ}))
 \end{displaymath} 
 (which is convex and has an edge to $(l_{succ}, \zeta _{succ})$)
 and
 \begin{displaymath} 
-  (l_{pred}, \zeta _{pred} - (t.guard \cap [t.resets := 0] \zeta _{succ}))
+  (l_{pred}, \zeta _{pred} - (\texttt{t.guard} \cap [\texttt{t.resets} := 0] \zeta _{succ}))
 \end{displaymath} 
 (which does not have an edge to $(l_{succ}, \zeta _{succ})$ and may
 need to be split into convex zones.) \\
@@ -519,7 +578,7 @@ This generates the zone valuation graph.
         Update edges from $Z_{parent}$ to the new zones of $l_{child}$
         \If{new zones are created in $l_{child}$ or $l_{parent}$ is null}{
           \ForEach{outgoing transition $t'$ of $l_{child}$}{
-            Enqueue $(l_{child}, t', t'.target)$ in $Q$\;
+            Enqueue $(l_{child}, t', \texttt{t'.target})$ in $Q$\;
           }
         }
       }
@@ -528,15 +587,16 @@ This generates the zone valuation graph.
     \While{$new\_zone$}{
       Reset $new\_zone$\;
       \ForEach{transition $t$ in the timed automaton}{
-        Split the zones of $t.source$ to be stable with respect to the
-        zones of $t.target$\;
+        Split the zones of \texttt{t.source} to be stable with respect to the
+        zones of \texttt{t.target}\;
         Update edges accordingly\;
-        \If{new zones are created in $t.source$}{
+        \If{new zones are created in \texttt{t.source}}{
           Set $new\_zone$\;
         }
       }
     }
   }
+  Generate $zone_valuation_graph$ by applying Fernandez' algorithm to $zone_graph$.
   Return $zone\_graph$\;
 \end{algorithm2e}
 
@@ -575,21 +635,59 @@ algorithm described here uses this fact to verify these relations
 by simulating the two-player games, using a memoisation approach.
 
 The relations which can be verified in this fashion are those in which
-functions $f, G, F, g$ exist such that
-the question `Are states $s_P$ and $s_Q$ in timed automata $P$ and $Q$
+functions $f_P, f_Q$ exist such that
+the question `Are symbolic states $s_P$ and $s_Q$ in timed automata $P$ and $Q$
 related under $R$? ` can have three possible answers:
 \begin{enumerate}
 \item yes
 \item no
-\item if and only if each state from the sequence $f(s_P)$ is
-  related under R to at least one element from the corresponding
-  set from the sequence $G(s_Q)$ and at least one element from each
-  set in the sequence $F(s_P)$ is related to the corresponding state
-  from the sequence $g(s_Q)$.
+\item if and only if 
+  \begin{align*} 
+    &\forall (s_P', L_Q') \epsilon f_P(s_P): \exists s_Q' \epsilon
+    L_Q': s_P' R s_Q' \quad \wedge \\
+    &\forall (L_P', s_Q') \epsilon f_Q(s_Q): \exists s_P' \epsilon
+    L_P': s_P' R s_Q'
+  \end{align*} 
 \end{enumerate}
 
 This property is satisfied by timed bisimulation, STaB, TadB, TaoB,
 and the corresponding simulation equivalences, among others.
+
+So, for STaB, we define $f_P$ and $f_Q$ as
+\begin{align*}
+  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{a} s_Q'\}\} \\
+  \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{a} s_P'\}\} \\
+  \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+\end{align*}
+
+For TadB, we define $f_P$ and $f_Q$ as
+\begin{align*}
+  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a} s_Q'\}\} \\
+  \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a} s_P'\}\} \\
+  \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+\end{align*}
+
+For TaoB, we define $f_P$ and $f_Q$ as
+\begin{align*}
+  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_Q'\}\} \\
+  \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+  L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_P'\}\} \\
+  \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+  L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+\end{align*}
 
 This formulation naturally suggests an approach: use tables to store
 pairs of states in the two timed automata which are known to be
@@ -613,7 +711,7 @@ approach to verify the relation for any given pair of states.
         }{
           \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
           Set $v_P$\;
-          \ForEach{$(s_P', L_Q')$ in $(f(s_P), G(s_Q))$}{
+          \ForEach{$(s_P', L_Q')$ in $f_P(s_P)$}{
             Reset $v_P$\;
             \ForEach{$s_Q'$ in $L_Q'$}{
               \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
@@ -623,7 +721,7 @@ approach to verify the relation for any given pair of states.
             }
           }
           Set $v_Q$\;
-          \ForEach{$(s_Q', L_P')$ in $(F(s_P), g(s_Q))$}{
+          \ForEach{$(s_Q', L_P')$ in $f_Q(s_Q)$}{
             Reset $v_Q$\;
             \ForEach{$s_P'$ in $L_P'$}{
               \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
@@ -636,26 +734,40 @@ approach to verify the relation for any given pair of states.
             \KwRet true\;
           }{
             \remove{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+            \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
             \KwRet false\;
           }
         }
       }
     }
 
-  \end{procedure}
+\end{procedure}
 
-  \begin{procedure}
-    \caption{CheckAutomataRelation($P$, $Q$)}
-    \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
-    \Begin{
-        Initialise $yes\_ table$ and $no\_ table$ to empty tables\;
-        \KwRet \CheckStatesRelation{$P$, $Q$, $P.init$, $Q.init$,
-          $yes\_ table$, $no\_ table$}\;
-      }
-  \end{procedure}
+\begin{procedure}
+  \caption{CheckAutomataRelation($T_P$, $T_Q$)}
+  \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
+  \Begin{
+      Create zone valuation graphs $G_P$, $G_Q$ of $T_P$, $T_Q$\;
+      Find the zone $s_P$ in $G_P$ which contains the initial
+      state of $T_P$\;
+      Find the zone $s_Q$ in $G_Q$ which contains the initial
+      state of $T_Q$\;
+      Initialise $yes\_ table$ and $no\_ table$ to empty tables\;
+      \KwRet \CheckStatesRelation{$G_P$, $G_Q$, $s_P$, $s_Q$,
+        $yes\_ table$, $no\_ table$}\;
+    }
+\end{procedure}
 
-    \pagebreak
+\subsubsection{Proof of correctness}
+Since a zone-valuation graph is minimal modulo strong time-abstracted
+bisimilarity, verifying a relation on two timed automata is equivalent
+to verifying it on the symbolic states containing
+the initial states of the timed automata in their respective
+zone-valuation graphs.
+
+When a zone is 
+
   \bibliographystyle{splncs}
   \bibliography{thesis}
-
+  
 \end{document}
