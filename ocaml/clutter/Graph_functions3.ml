@@ -575,7 +575,7 @@ let generate_zone_valuation_graph ta =
                               None -> false
                             | Some src ->
                               (dbm_haveIntersection
-                                 (dbm_up dst (1 + Array.length ta.clock_names))
+                                 (dbm_up dst)
                                  src)
                            )
                         )

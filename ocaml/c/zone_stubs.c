@@ -353,8 +353,8 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
-  CAMLprim value zone_dbm_up(value dbm, value dim) {
-    CAMLparam2(dbm, dim);
+  CAMLprim value zone_dbm_up(value dbm) {
+    CAMLparam1(dbm);
     dbm_struct_t s_dup;
     s_dup.dim = dbm_struct_t_val(dbm).dim;
     s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));

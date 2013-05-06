@@ -133,7 +133,7 @@ let test75 =
             (dbm_updateValue (dbm_init dim) 2 2)
             1
             2)
-         dim)
+      )
       dim
   then
     "test75 failed"
@@ -246,3 +246,24 @@ let test90 =
     "test90 passed"
   else
     "test90 failed"
+
+let dbm17 = dbm_up dbm14
+
+let test91 = 
+  if
+    verify_dbm 3 dbm17 [(2, 1, false, 5); (1, 2, false, -5)]
+  then
+    "test91 passed"
+  else
+    "test91 failed"
+
+let dbm18 = dbm_up dbm15
+
+let test92 = 
+  if
+    verify_dbm 3 dbm18 [(0, 2, false, -5)]
+  then
+    "test92 passed"
+  else
+    "test92 failed"
+

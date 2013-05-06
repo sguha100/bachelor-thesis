@@ -52,7 +52,7 @@ let init_zone_list_array ta =
        then
          [{zone_location2 = i;
            zone_constraint2 =
-             dbm_up (dbm_zero (dbm_init dim) dim) dim
+             dbm_up (dbm_zero (dbm_init dim) dim)
           }]
        else
          []
@@ -82,7 +82,7 @@ let useful_predecessor_zones
       | None -> false
       | Some edge_condition -> 
         dbm_haveIntersection
-          (dbm_up zone.zone_constraint2 dim)
+          (dbm_up zone.zone_constraint2)
           edge_condition
     )
     predecessor_zone_list
@@ -264,10 +264,9 @@ let successor_zones_from_predecessor
                    edge.clock_resets
                    (dbm_intersection
                       edge_condition
-                      (dbm_up zone.zone_constraint2 dim)
+                      (dbm_up zone.zone_constraint2)
                    )
                 )
-                dim
             in
             dbm_without_abstraction
         }
@@ -623,7 +622,7 @@ let generate_zone_valuation_graph ta =
                          (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
                          (*   arrival_zone.zone_constraint2 *)
                          (dbm_haveIntersection
-                            (dbm_up zone.zone_constraint2 dim)
+                            (dbm_up zone.zone_constraint2)
                             arrival_zone.zone_constraint2
                          )
                         )
