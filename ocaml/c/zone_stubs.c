@@ -333,8 +333,8 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(dst_dup));
   }
 
-  CAMLprim value zone_dbm_freeClock (value dbm, value dim, value k) {
-    CAMLparam3(dbm, dim, k);
+  CAMLprim value zone_dbm_freeClock (value dbm, value k) {
+    CAMLparam2(dbm, k);
     dbm_struct_t s_dup;
     s_dup.dim = dbm_struct_t_val(dbm).dim;
     s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
@@ -343,8 +343,8 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
-  CAMLprim value zone_dbm_updateValue (value dbm, value dim, value k, value val) {
-    CAMLparam4(dbm, dim, k, val);
+  CAMLprim value zone_dbm_updateValue (value dbm, value k, value val) {
+    CAMLparam3(dbm, k, val);
     dbm_struct_t s_dup;
     s_dup.dim = dbm_struct_t_val(dbm).dim;
     s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));

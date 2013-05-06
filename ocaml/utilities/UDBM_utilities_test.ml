@@ -10,11 +10,9 @@ let dbm01 =
   (dbm_updateValue
        (dbm_updateValue
           (dbm_init dim01)
-          dim01
           2
           3
        )
-       dim01
        1
        2
     )

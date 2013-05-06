@@ -118,7 +118,7 @@ let test73 =
 let test74 =
   let dim = 3 in
   if
-    dbm_isZeroIncluded (dbm_updateValue (dbm_init dim) dim 1 2) dim
+    dbm_isZeroIncluded (dbm_updateValue (dbm_init dim) 1 2) dim
   then
     "test74 failed"
   else
@@ -130,8 +130,7 @@ let test75 =
     dbm_isZeroIncluded
       (dbm_up
          (dbm_updateValue
-            (dbm_updateValue (dbm_init dim) dim 2 2)
-            dim
+            (dbm_updateValue (dbm_init dim) 2 2)
             1
             2)
          dim)
@@ -159,7 +158,7 @@ let test81 =
 
 let test82 = 
   if
-    dbm_updateValue (dbm_init 3) 3 1 5 <> dbm_updateValue (dbm_init 3) 3 2 5
+    dbm_updateValue (dbm_init 3) 1 5 <> dbm_updateValue (dbm_init 3) 2 5
   then
     "test82 passed"
   else
@@ -167,8 +166,8 @@ let test82 =
 
 let test83 = 
   if
-    dbm_updateValue (dbm_updateValue (dbm_init 3) 3 1 5) 3 2 5
-    = dbm_updateValue (dbm_updateValue (dbm_init 3) 3 2 5) 3 1 5
+    dbm_updateValue (dbm_updateValue (dbm_init 3) 1 5) 2 5
+    = dbm_updateValue (dbm_updateValue (dbm_init 3) 2 5) 1 5
   then
     "test83 passed"
   else
@@ -215,11 +214,35 @@ let test87 =
   else
     "test87 failed"
 
+let dbm14 = 
+  dbm_intersection dbm11 dbm13
+
 let test88 = 
   if
-    verify_dbm 3 (dbm_intersection dbm11 dbm13) [(2, 1, false, 5); (1, 2, false, -5)]
+    verify_dbm 3 dbm14 [(2, 1, false, 5); (1, 2, false, -5)]
   then
     "test88 passed"
   else
     "test88 failed"
 
+let dbm15 =
+  dbm_freeClock dbm14 1
+
+let test89 = 
+  if
+    verify_dbm 3 dbm15 [(0, 2, false, -5)]
+  then
+    "test89 passed"
+  else
+    "test89 failed"
+
+let dbm16 =
+  dbm_freeClock dbm14 2
+
+let test90 = 
+  if
+    verify_dbm 3 dbm16 []
+  then
+    "test90 passed"
+  else
+    "test90 failed"

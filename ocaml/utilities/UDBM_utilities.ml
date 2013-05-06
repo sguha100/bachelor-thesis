@@ -29,7 +29,6 @@ let dbm_after_clock_resets clock_names =
     (function dbm -> function cn ->
       dbm_updateValue
         dbm
-        dim
         (1 + (clock_name_to_index cn clock_names))
         0
     )
@@ -43,7 +42,6 @@ let dbm_without_reset_clocks clock_names =
     (function dbm -> function cn ->
       dbm_freeClock
         dbm
-        dim
         (1 + (clock_name_to_index cn clock_names))
     )
     clock_names
