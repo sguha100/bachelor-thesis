@@ -10,6 +10,11 @@
 #ifdef __cplusplus
 using namespace dbm;
 
+typedef struct dbm_struct_t {
+  cindex_t dim;
+  raw_t *dbm;
+} dbm_struct_t;
+
 std::string getClockName(cindex_t index) 
 {
   char str1[4];
@@ -149,19 +154,42 @@ extern "C" {
 #include <caml/alloc.h>
 #include <caml/custom.h>
 
+  /* Accessing the DBM_STRUCT_T * part of a Caml custom block */
+#define dbm_struct_t_val(v) (*((dbm_struct_t **) Data_custom_val(v)))
+
   /* Accessing the RAW_T * part of a Caml custom block */
 #define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
 
   /* Accessing the CONSTRAINT_T * part of a Caml custom block */
 #define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
 
+  /* Freeing the DBM_STRUCT_T * part of a Caml custom block and its
+     RAW_T part while garbage collecting. */
+  void dbm_struct_t_finalize (value v) {
+    free(dbm_struct_t_val(v)->dbm);
+    free(dbm_struct_t_val(v));
+  }
+
+  /* Freeing the RAW_T * part of a Caml custom block while garbage collecting. */
   void raw_t_finalize (value v) {
     free(raw_t_val(v));
   }
 
+  /* Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting. */
   void constraint_t_finalize (value v) {
     free(constraint_t_val(v));
   }
+
+  /* Encapsulation of opaque handles (of type DBM_STRUCT_T *)
+     as Caml custom blocks. */
+  static struct custom_operations udbm_dbm_struct_t_ops = {
+    "fr.inria.caml.udbm_dbm_struct_t",
+    dbm_struct_t_finalize,
+    custom_compare_default,
+    custom_hash_default,
+    custom_serialize_default,
+    custom_deserialize_default
+  };
 
   /* Encapsulation of opaque handles (of type RAW_T *)
      as Caml custom blocks. */
