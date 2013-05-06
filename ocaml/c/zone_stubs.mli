@@ -1,4 +1,6 @@
 type raw_t (*This usually stores pointers to raw_t*)
+type dbm_struct_t (*This usually dbm_struct_t values, which
+                    themselves contain malloc()-ated pointers.*)
 type constraint_t
 external dbm_init: int -> raw_t = "zone_dbm_init"
 external dbm_finish: raw_t -> unit = "zone_dbm_finish"

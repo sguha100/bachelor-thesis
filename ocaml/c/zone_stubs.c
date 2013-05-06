@@ -154,8 +154,8 @@ extern "C" {
 #include <caml/alloc.h>
 #include <caml/custom.h>
 
-  /* Accessing the DBM_STRUCT_T * part of a Caml custom block */
-#define dbm_struct_t_val(v) (*((dbm_struct_t **) Data_custom_val(v)))
+  /* Accessing the DBM_STRUCT_T part of a Caml custom block */
+#define dbm_struct_t_val(v) (*((dbm_struct_t *) Data_custom_val(v)))
 
   /* Accessing the RAW_T * part of a Caml custom block */
 #define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
@@ -163,11 +163,38 @@ extern "C" {
   /* Accessing the CONSTRAINT_T * part of a Caml custom block */
 #define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
 
-  /* Freeing the DBM_STRUCT_T * part of a Caml custom block and its
-     RAW_T part while garbage collecting. */
+  /* Freeing the RAW_T * part of the DBM_STRUCT_T part of a Caml custom block
+      while garbage collecting. */
   void dbm_struct_t_finalize (value v) {
-    free(dbm_struct_t_val(v)->dbm);
-    free(dbm_struct_t_val(v));
+    free(dbm_struct_t_val(v).dbm);
+  }
+
+  long dbm_struct_t_hash(value v) {
+    return ((long) dbm_hash(dbm_struct_t_val(v).dbm, dbm_struct_t_val(v).dim));
+  }
+
+  int dbm_struct_t_compare (value v1, value v2) {
+    raw_t *dbm1 = dbm_struct_t_val(v1).dbm;
+    cindex_t dim1 = dbm_struct_t_val(v1).dim;
+    raw_t *dbm2 = dbm_struct_t_val(v2).dbm;
+    cindex_t dim2 = dbm_struct_t_val(v2).dim;
+    if (dim1 != dim2) {
+      if (dim1 > dim2) {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else {
+      if (dbm_hash(dbm1, dim1) == dbm_hash(dbm1, dim1)) {
+        return 0;
+      } else {
+        if (dbm_hash(dbm1, dim1) > dbm_hash(dbm1, dim1)) {
+          return 1;
+        } else {
+          return -1;
+        }
+      }
+    }
   }
 
   /* Freeing the RAW_T * part of a Caml custom block while garbage collecting. */
@@ -185,8 +212,8 @@ extern "C" {
   static struct custom_operations udbm_dbm_struct_t_ops = {
     "fr.inria.caml.udbm_dbm_struct_t",
     dbm_struct_t_finalize,
-    custom_compare_default,
-    custom_hash_default,
+    dbm_struct_t_compare,
+    dbm_struct_t_hash,
     custom_serialize_default,
     custom_deserialize_default
   };
@@ -212,6 +239,14 @@ extern "C" {
     custom_serialize_default,
     custom_deserialize_default
   };
+
+  /* Allocating a Caml custom block to hold the given DBM_STRUCT_T */
+  static value alloc_dbm_struct_t(dbm_struct_t  w)
+  {
+    value v = alloc_custom(&udbm_dbm_struct_t_ops, sizeof(dbm_struct_t), 0, 1);
+    dbm_struct_t_val(v) = w;
+    return v;
+  }
 
   /* Allocating a Caml custom block to hold the given RAW_T * */
   static value alloc_raw_t(raw_t * w)
