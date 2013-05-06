@@ -140,3 +140,36 @@ let test75 =
     "test75 failed"
   else
     "test75 passed"
+
+let test80 = 
+  if
+    dbm_init 2 < dbm_init 3 || dbm_init 2 > dbm_init 3
+  then
+    "test80 passed"
+  else
+    "test80 failed"
+
+let test81 = 
+  if
+    dbm_init 3 = dbm_init 3
+  then
+    "test81 passed"
+  else
+    "test81 failed"
+
+let test82 = 
+  if
+    dbm_updateValue (dbm_init 3) 3 1 5 <> dbm_updateValue (dbm_init 3) 3 2 5
+  then
+    "test82 passed"
+  else
+    "test82 failed"
+
+let test83 = 
+  if
+    dbm_updateValue (dbm_updateValue (dbm_init 3) 3 1 5) 3 2 5
+    = dbm_updateValue (dbm_updateValue (dbm_init 3) 3 2 5) 3 1 5
+  then
+    "test83 passed"
+  else
+    "test83 failed"

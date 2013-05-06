@@ -185,10 +185,10 @@ extern "C" {
         return -1;
       }
     } else {
-      if (dbm_hash(dbm1, dim1) == dbm_hash(dbm1, dim1)) {
+      if (dbm_hash(dbm1, dim1) == dbm_hash(dbm2, dim2)) {
         return 0;
       } else {
-        if (dbm_hash(dbm1, dim1) > dbm_hash(dbm1, dim1)) {
+        if (dbm_hash(dbm1, dim1) > dbm_hash(dbm2, dim2)) {
           return 1;
         } else {
           return -1;
@@ -266,26 +266,23 @@ extern "C" {
 
   CAMLprim value zone_dbm_init (value dim) {
     CAMLparam1(dim);
-    raw_t *dbm = (raw_t *)malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_init(dbm, Int_val(dim));
-    CAMLreturn (alloc_raw_t(dbm));
-  }
-
-  /*No idea how this will ever be used.*/
-  CAMLprim value zone_dbm_finish (value dbm) {
-    CAMLparam1(dbm);
-    free((raw_t *)raw_t_val(dbm));
-    CAMLreturn (Val_unit);
+    dbm_struct_t s;
+    s.dim = Int_val(dim);
+    s.dbm = (raw_t *)malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    dbm_init(s.dbm, s.dim);
+    CAMLreturn (alloc_dbm_struct_t(s));
   }
 
   CAMLprim value zone_dbm_constrainC (value dbm, value dim, value c) {
     CAMLparam3(dbm, dim, c);
-    /* printf("(constraint_t_val(c))->i = %d\n", (constraint_t_val(c))->i); */
-    /* printf("(constraint_t_val(c))->j = %d\n", (constraint_t_val(c))->j); */
-    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
-    dbm_constrainC(dbm_dup, Int_val(dim), *(constraint_t_val(c)));
-    CAMLreturn (alloc_raw_t(dbm_dup));
+    /*Ignoring the argument dim.*/
+    dbm_struct_t s, s_dup;
+    s = dbm_struct_t_val(dbm);
+    s_dup.dim = s.dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, s.dbm, s_dup.dim);
+    dbm_constrainC(s_dup.dbm, s_dup.dim, *(constraint_t_val(c)));
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
   CAMLprim value zone_dbm_constraint2 (value i,
@@ -303,7 +300,9 @@ extern "C" {
 
   CAMLprim value zone_dbm_isEmpty (value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    if (dbm_isEmpty(raw_t_val(dbm), Int_val(dim)) == TRUE) {
+    dbm_struct_t s = dbm_struct_t_val(dbm);
+    /*Ignoring the argument dim.*/
+    if (dbm_isEmpty(s.dbm, s.dim) == TRUE) {
       CAMLreturn (Val_int(1)); //ocaml true
     } else {
       CAMLreturn (Val_int(0)); //ocaml false
@@ -312,70 +311,80 @@ extern "C" {
 
   CAMLprim value zone_dbm_haveIntersection (value dst, value src, value dim) {
     CAMLparam3(dst, src, dim);
-    raw_t *dst_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dst_dup, raw_t_val(dst), Int_val(dim));
-    if (dbm_intersection(dst_dup, raw_t_val(src), Int_val(dim)) == TRUE) {
-      free(dst_dup);
+    dbm_struct_t dst_dup;
+    dst_dup.dim = dbm_struct_t_val(dst).dim;
+    dst_dup.dbm = (raw_t *) malloc(dst_dup.dim*dst_dup.dim*sizeof(raw_t));
+    dbm_copy(dst_dup.dbm, dbm_struct_t_val(dst).dbm, dst_dup.dim);
+    if (dbm_intersection(dst_dup.dbm, dbm_struct_t_val(src).dbm, dst_dup.dim) == TRUE) {
+      free(dst_dup.dbm);
       CAMLreturn (Val_int(1)); //ocaml true
     } else {
-      free(dst_dup);
+      free(dst_dup.dbm);
       CAMLreturn (Val_int(0)); //ocaml false
     }
   }
 
   CAMLprim value zone_dbm_intersection (value dst, value src, value dim) {
     CAMLparam3(dst, src, dim);
-    raw_t *dst_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dst_dup, raw_t_val(dst), Int_val(dim));
-    dbm_intersection(dst_dup, raw_t_val(src), Int_val(dim));
-    CAMLreturn (alloc_raw_t(dst_dup));
+    dbm_struct_t dst_dup;
+    dst_dup.dim = dbm_struct_t_val(dst).dim;
+    dst_dup.dbm = (raw_t *) malloc(dst_dup.dim*dst_dup.dim*sizeof(raw_t));
+    dbm_copy(dst_dup.dbm, dbm_struct_t_val(dst).dbm, dst_dup.dim);
+    dbm_intersection(dst_dup.dbm, dbm_struct_t_val(src).dbm, dst_dup.dim);
+    CAMLreturn (alloc_dbm_struct_t(dst_dup));
   }
 
   CAMLprim value zone_dbm_freeClock (value dbm, value dim, value k) {
     CAMLparam3(dbm, dim, k);
-    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
-    dbm_freeClock(dbm_dup, Int_val(dim), Int_val(k));
-    CAMLreturn (alloc_raw_t(dbm_dup));
+    dbm_struct_t s_dup;
+    s_dup.dim = dbm_struct_t_val(dbm).dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
+    dbm_freeClock(s_dup.dbm, s_dup.dim, Int_val(k));
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
   CAMLprim value zone_dbm_updateValue (value dbm, value dim, value k, value val) {
     CAMLparam4(dbm, dim, k, val);
-    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
-    dbm_updateValue(dbm_dup, Int_val(dim), Int_val(k), Int_val(val));
-    CAMLreturn (alloc_raw_t(dbm_dup));
+    dbm_struct_t s_dup;
+    s_dup.dim = dbm_struct_t_val(dbm).dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
+    dbm_updateValue(s_dup.dbm, s_dup.dim, Int_val(k), Int_val(val));
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
   CAMLprim value zone_dbm_up(value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
-    dbm_up(dbm_dup, Int_val(dim));
-    CAMLreturn (alloc_raw_t(dbm_dup));
+    dbm_struct_t s_dup;
+    s_dup.dim = dbm_struct_t_val(dbm).dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
+    dbm_up(s_dup.dbm, s_dup.dim);
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
   CAMLprim value zone_dbm_toString(value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    CAMLreturn (caml_copy_string(dbm_toString(raw_t_val(dbm), Int_val(dim))));
+    CAMLreturn (caml_copy_string(dbm_toString(dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
   }
 
   CAMLprim value zone_dbm_zero(value dbm, value dim) {
     CAMLparam2(dbm, dim);
-    raw_t *dbm_dup = (raw_t *) malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
-    dbm_copy(dbm_dup, raw_t_val(dbm), Int_val(dim));
-    dbm_zero(dbm_dup, Int_val(dim));
-    CAMLreturn (alloc_raw_t(dbm_dup));
-  }
-
-  CAMLprim value zone_dbm_raw2bound(value raw) {
-    CAMLparam1(raw);
-    CAMLreturn(Int_val(dbm_raw2bound(*(raw_t_val(raw)))));
+    dbm_struct_t s_dup;
+    s_dup.dim = dbm_struct_t_val(dbm).dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
+    dbm_zero(s_dup.dbm, Int_val(dim));
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
   CAMLprim value zone_dbm_areEqual(value dbm1, value dbm2, value dim) {
     CAMLparam3(dbm1, dbm2, dim);
-    switch (dbm_areEqual(raw_t_val(dbm1), raw_t_val(dbm2), Int_val(dim))) {
+    switch
+      (dbm_areEqual
+       (dbm_struct_t_val(dbm1).dbm, dbm_struct_t_val(dbm2).dbm, dbm_struct_t_val(dbm1).dim)
+       ) {
     case TRUE:
       CAMLreturn(Val_int(1));
       break;
@@ -395,7 +404,7 @@ extern "C" {
     for (ii = 0; ii++; ii < Int_val(dim)) {
       pt[ii] = 0;
     }
-    BOOL temp1 = dbm_isPointIncluded(pt, raw_t_val(dbm), Int_val(dim));
+    BOOL temp1 = dbm_isPointIncluded(pt, dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim);
     free(pt);
     switch (temp1) {
     case TRUE:
@@ -413,8 +422,8 @@ extern "C" {
   CAMLprim value zone_dbm_toConstraintList(value dbm_value, value dim_value) 
   {
     CAMLparam2(dbm_value, dim_value);
-    raw_t *dbm = raw_t_val(dbm_value);
-    cindex_t dim = Int_val(dim_value);
+    raw_t *dbm = dbm_struct_t_val(dbm_value).dbm;
+    cindex_t dim = dbm_struct_t_val(dbm_value).dim;
     assert (!dbm_isEmpty(dbm, dim));
       
     uint32_t mingraph[bits2intsize(dim*dim)];
@@ -462,8 +471,8 @@ extern "C" {
   CAMLprim value zone_dbm_toLargerConstraintList(value dbm_value, value dim_value) 
   {
     CAMLparam2(dbm_value, dim_value);
-    raw_t *dbm = raw_t_val(dbm_value);
-    cindex_t dim = Int_val(dim_value);
+    raw_t *dbm = dbm_struct_t_val(dbm_value).dbm;
+    cindex_t dim = dbm_struct_t_val(dbm_value).dim;
     assert (!dbm_isEmpty(dbm, dim));
       
     uint32_t mingraph[bits2intsize(dim*dim)];
