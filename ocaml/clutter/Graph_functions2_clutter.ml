@@ -45,7 +45,6 @@ let cut_and_uncut_successor_zones_from_predecessor
           dbm_haveIntersection
             z1.zone_constraint2
             z2.zone_constraint2
-            dim
         )
         successor_zone_list
     )
@@ -71,7 +70,6 @@ let new_successor_zones_from_predecessor
            not (dbm_haveIntersection
                   z1.zone_constraint2
                   z2.zone_constraint2
-                  dim
            )
          )
          successor_zone_list
@@ -269,7 +267,6 @@ let dequeue ta (queue, zone_list_array, tree_array) =
                     dbm_haveIntersection
                       (zone.zone_constraint2)
                       (departure_condition_dbm)
-                      dim
                 )
                 zone_list_array.(l1.location_index)
             in

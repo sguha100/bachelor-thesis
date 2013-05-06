@@ -84,7 +84,6 @@ let useful_predecessor_zones
         dbm_haveIntersection
           (dbm_up zone.zone_constraint2 dim)
           edge_condition
-          dim
     )
     predecessor_zone_list
 
@@ -199,7 +198,6 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
                        (dbm_haveIntersection
                           zone1.zone_constraint2
                           zone2.zone_constraint2
-                          dim
                        )
                    )
                    old_zone_list
@@ -298,7 +296,6 @@ let new_successor_zones
                (dbm_haveIntersection
                   z1.zone_constraint2
                   z2.zone_constraint2
-                  dim
                )
              )
              successor_zone_list
@@ -525,7 +522,6 @@ let generate_zone_valuation_graph ta =
                     dbm_haveIntersection
                       (zone.zone_constraint2)
                       (departure_condition_dbm)
-                      dim
                 )
                 zone_list_array.(l1.location_index)
             in
@@ -599,7 +595,6 @@ let generate_zone_valuation_graph ta =
                         dbm_haveIntersection
                           zone.zone_constraint2
                           departure_condition
-                          dim
                     )
                     (Array.to_list
                        ta.locations.(zone.zone_location2).departures)
@@ -618,7 +613,6 @@ let generate_zone_valuation_graph ta =
                               zone.zone_constraint2
                            )
                            arrival_zone.zone_constraint2
-                           dim
                        )
                        zone_list_array.(departure.next_location)
                     )
@@ -632,7 +626,7 @@ let generate_zone_valuation_graph ta =
                          (dbm_haveIntersection
                             (dbm_up zone.zone_constraint2 dim)
                             arrival_zone.zone_constraint2
-                            dim)
+                         )
                         )
                          zone_list_array.(departure.next_location)
                        )

@@ -7,7 +7,7 @@ external dbm_constrainC: dbm_struct_t -> constraint_t -> dbm_struct_t =
 external dbm_constraint2: int -> int -> int -> bool -> constraint_t =
   "zone_dbm_constraint2"
 external dbm_isEmpty: dbm_struct_t -> bool = "zone_dbm_isEmpty"
-external dbm_haveIntersection: dbm_struct_t -> dbm_struct_t -> int -> bool = "zone_dbm_haveIntersection"
+external dbm_haveIntersection: dbm_struct_t -> dbm_struct_t -> bool = "zone_dbm_haveIntersection"
 external dbm_intersection: dbm_struct_t -> dbm_struct_t -> int -> dbm_struct_t = "zone_dbm_intersection"
 external dbm_freeClock: dbm_struct_t -> int -> int -> dbm_struct_t =
   "zone_dbm_freeClock"

@@ -157,7 +157,6 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
             (dbm_haveIntersection
                dst
                partial_dbm
-               dim
             )
           then
             Some (dbm_intersection partial_dbm dst dim)
@@ -187,7 +186,7 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
              c2)
        with
          None -> false
-       | Some src -> (dbm_haveIntersection dst src (1 + Array.length clock_names))
+       | Some src -> (dbm_haveIntersection dst src)
       )
 
 let constraint_list_to_string clock_names constraint_list =
@@ -279,7 +278,7 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
 
 let split_dbm_on_dbm dim dbm1 dbm2 =
   if
-    not (dbm_haveIntersection dbm1 dbm2 dim)
+    not (dbm_haveIntersection dbm1 dbm2)
   then
     [dbm1]
   else

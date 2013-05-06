@@ -373,7 +373,7 @@ let test78 =
 
 let test79 =
   if
-    dbm_haveIntersection dbm09 dbm10 3
+    dbm_haveIntersection dbm09 dbm10
   then
     "test79 failed"
   else

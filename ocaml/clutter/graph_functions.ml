@@ -354,8 +354,7 @@ let generate_zone_valuation_graph ta =
                             | Some src ->
                               (dbm_haveIntersection
                                  (dbm_up dst (1 + Array.length ta.clock_names))
-                                 src
-                                 (1 + Array.length ta.clock_names))
+                                 src)
                            )
                         )
                          zone_list_array.(departure.next_location)

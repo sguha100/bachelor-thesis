@@ -308,8 +308,8 @@ extern "C" {
     }
   }
 
-  CAMLprim value zone_dbm_haveIntersection (value dst, value src, value dim) {
-    CAMLparam3(dst, src, dim);
+  CAMLprim value zone_dbm_haveIntersection (value dst, value src) {
+    CAMLparam2(dst, src);
     dbm_struct_t dst_dup;
     dst_dup.dim = dbm_struct_t_val(dst).dim;
     dst_dup.dbm = (raw_t *) malloc(dst_dup.dim*dst_dup.dim*sizeof(raw_t));
