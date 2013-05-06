@@ -246,7 +246,7 @@ let constraint_list_to_dbm_option dim constraint_list =
             )
         in
         if
-          dbm_isEmpty dbm dim
+          dbm_isEmpty dbm
         then
           None
         else
@@ -267,7 +267,7 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
              constraint_t
          in
          if
-           dbm_isEmpty dbm dim
+           dbm_isEmpty dbm
          then
            []
          else

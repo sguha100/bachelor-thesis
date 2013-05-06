@@ -298,10 +298,9 @@ extern "C" {
     CAMLreturn (alloc_constraint_t(constraint));
   }
 
-  CAMLprim value zone_dbm_isEmpty (value dbm, value dim) {
-    CAMLparam2(dbm, dim);
+  CAMLprim value zone_dbm_isEmpty (value dbm) {
+    CAMLparam1(dbm);
     dbm_struct_t s = dbm_struct_t_val(dbm);
-    /*Ignoring the argument dim.*/
     if (dbm_isEmpty(s.dbm, s.dim) == TRUE) {
       CAMLreturn (Val_int(1)); //ocaml true
     } else {

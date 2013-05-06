@@ -138,7 +138,7 @@ let test71 =
     (*        "; " *)
     (*        (List.map *)
     (*           (function dbm -> dbm_to_string [|"X"; "Y"|] dbm) *)
-    (*           (List.filter (function dbm -> not (dbm_isEmpty dbm 2)) found) *)
+    (*           (List.filter (function dbm -> not (dbm_isEmpty dbm)) found) *)
     (*        ) *)
     (*     ) *)
     (*  ^ "]") *)
