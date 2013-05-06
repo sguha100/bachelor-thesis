@@ -368,13 +368,13 @@ extern "C" {
     CAMLreturn (caml_copy_string(dbm_toString(dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
   }
 
-  CAMLprim value zone_dbm_zero(value dbm, value dim) {
-    CAMLparam2(dbm, dim);
+  CAMLprim value zone_dbm_zero(value dbm) {
+    CAMLparam1(dbm);
     dbm_struct_t s_dup;
     s_dup.dim = dbm_struct_t_val(dbm).dim;
     s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
     dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
-    dbm_zero(s_dup.dbm, Int_val(dim));
+    dbm_zero(s_dup.dbm, s_dup.dim);
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 

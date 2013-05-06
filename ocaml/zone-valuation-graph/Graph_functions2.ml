@@ -52,7 +52,7 @@ let init_zone_list_array ta =
        then
          [{zone_location2 = i;
            zone_constraint2 =
-             dbm_up (dbm_zero (dbm_init dim) dim)
+             dbm_up (dbm_zero (dbm_init dim))
           }]
        else
          []
