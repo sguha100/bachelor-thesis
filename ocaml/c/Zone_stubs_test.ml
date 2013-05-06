@@ -75,7 +75,7 @@ let test44 =
 let test58 =
   let dim = 3 in
   if
-    dbm_areEqual (dbm_init dim) (dbm_init dim) dim
+    dbm_init dim =  dbm_init dim
   then
     "test58 passed"
   else
@@ -84,7 +84,7 @@ let test58 =
 let test59 =
   let dim = 3 in
   if
-    dbm_areEqual (dbm_zero (dbm_init dim)) (dbm_zero (dbm_init dim)) dim
+    dbm_zero (dbm_init dim) = dbm_zero (dbm_init dim)
   then
     "test59 passed"
   else
@@ -93,7 +93,7 @@ let test59 =
 let test60 =
   let dim = 3 in
   if
-    dbm_areEqual (dbm_init dim) (dbm_zero (dbm_init dim)) dim
+    dbm_init dim = dbm_zero (dbm_init dim)
   then
     "test60 failed"
   else

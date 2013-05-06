@@ -378,24 +378,6 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
-  CAMLprim value zone_dbm_areEqual(value dbm1, value dbm2, value dim) {
-    CAMLparam3(dbm1, dbm2, dim);
-    switch
-      (dbm_areEqual
-       (dbm_struct_t_val(dbm1).dbm, dbm_struct_t_val(dbm2).dbm, dbm_struct_t_val(dbm1).dim)
-       ) {
-    case TRUE:
-      CAMLreturn(Val_int(1));
-      break;
-    case FALSE:
-      CAMLreturn(Val_int(0));
-      break;
-    default:
-      CAMLreturn(Val_int(0));
-      break;
-    }
-  }
-
   CAMLprim value zone_dbm_isZeroIncluded(value dbm, value dim) {
     CAMLparam2(dbm, dim);
     int32_t *pt = (int32_t *)malloc(Int_val(dim)*sizeof(int32_t));

@@ -22,5 +22,4 @@ external dbm_toConstraintList: dbm_struct_t -> int -> ((int * int * bool * int) 
 external dbm_toLargerConstraintList: dbm_struct_t -> int -> ((int * int * bool * int) list) =
   "zone_dbm_toLargerConstraintList"
 (*This is intended to be experimental in nature.*)
-external dbm_areEqual: dbm_struct_t -> dbm_struct_t -> int -> bool = "zone_dbm_areEqual"
 external int_toList: int -> (int * bool) list = "zone_int_toList"

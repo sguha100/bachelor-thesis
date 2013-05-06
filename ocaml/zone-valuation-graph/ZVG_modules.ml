@@ -18,10 +18,7 @@ struct
                }
   let node_equality =
     function l -> function zone1 -> function zone2 ->
-      (let dim = 1 + Array.length l.clock_names in
-       zone1.zone_location2 = zone2.zone_location2 &&
-          (dbm_areEqual zone1.zone_constraint2 zone2.zone_constraint2 dim)
-      )
+      zone1 = zone2
   let node_name =
     function l -> function zone -> ((string_of_int
                                        zone.zone_location2) ^ " " ^
