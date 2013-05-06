@@ -223,7 +223,7 @@ let dbm_to_string clock_names dbm =
   let
       dim = Array.length clock_names + 1
   in
-  constraint_list_to_string clock_names (dbm_toConstraintList dbm dim)
+  constraint_list_to_string clock_names (dbm_toConstraintList dbm)
 
 let constraint_list_to_dbm_option dim constraint_list =
   List.fold_left
@@ -290,7 +290,7 @@ let split_dbm_on_dbm dim dbm1 dbm2 =
           )
       )
       [dbm1]
-      (dbm_toConstraintList dbm2 dim)
+      (dbm_toConstraintList dbm2)
 
 let split_dbm_list_on_constraint
     dim
@@ -320,7 +320,7 @@ let split_dbm_list_on_dbm
   (* split_dbm_list_on_constraint_list *)
   (*   dim *)
   (*   dbm_list *)
-  (*   (dbm_toConstraintList dbm dim) *)
+  (*   (dbm_toConstraintList dbm) *)
   List.concat
     (List.map
        (function dbm1 -> split_dbm_on_dbm dim dbm1 dbm)

@@ -378,14 +378,15 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
-  CAMLprim value zone_dbm_isZeroIncluded(value dbm, value dim) {
-    CAMLparam2(dbm, dim);
-    int32_t *pt = (int32_t *)malloc(Int_val(dim)*sizeof(int32_t));
+  CAMLprim value zone_dbm_isZeroIncluded(value dbm) {
+    CAMLparam1(dbm);
+    dbm_struct_t s = dbm_struct_t_val(dbm);
+    int32_t *pt = (int32_t *)malloc(s.dim*sizeof(int32_t));
     int ii;
-    for (ii = 0; ii++; ii < Int_val(dim)) {
+    for (ii = 0; ii++; ii < s.dim) {
       pt[ii] = 0;
     }
-    BOOL temp1 = dbm_isPointIncluded(pt, dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim);
+    BOOL temp1 = dbm_isPointIncluded(pt, s.dbm, s.dim);
     free(pt);
     switch (temp1) {
     case TRUE:
@@ -400,9 +401,9 @@ extern "C" {
     }
   }
 
-  CAMLprim value zone_dbm_toConstraintList(value dbm_value, value dim_value) 
+  CAMLprim value zone_dbm_toConstraintList(value dbm_value) 
   {
-    CAMLparam2(dbm_value, dim_value);
+    CAMLparam1(dbm_value);
     raw_t *dbm = dbm_struct_t_val(dbm_value).dbm;
     cindex_t dim = dbm_struct_t_val(dbm_value).dim;
     assert (!dbm_isEmpty(dbm, dim));
@@ -449,9 +450,9 @@ extern "C" {
     CAMLreturn(current);
   }
 
-  CAMLprim value zone_dbm_toLargerConstraintList(value dbm_value, value dim_value) 
+  CAMLprim value zone_dbm_toLargerConstraintList(value dbm_value) 
   {
-    CAMLparam2(dbm_value, dim_value);
+    CAMLparam1(dbm_value);
     raw_t *dbm = dbm_struct_t_val(dbm_value).dbm;
     cindex_t dim = dbm_struct_t_val(dbm_value).dim;
     assert (!dbm_isEmpty(dbm, dim));

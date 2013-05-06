@@ -177,7 +177,7 @@ struct
               (function node_ref1 ->
                 (node_ref1.zone_location2 = ta1.numinit)
                 &&
-                  (dbm_isZeroIncluded node_ref1.zone_constraint2 (1+ta1.numclocks))
+                  (dbm_isZeroIncluded node_ref1.zone_constraint2)
               )
               q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list
           )
@@ -204,7 +204,7 @@ struct
               (function node_ref2 ->
                 (node_ref2.zone_location2 = ta2.numinit)
                 &&
-                  (dbm_isZeroIncluded node_ref2.zone_constraint2 (1+ta2.numclocks))
+                  (dbm_isZeroIncluded node_ref2.zone_constraint2)
               )
               q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list
           )

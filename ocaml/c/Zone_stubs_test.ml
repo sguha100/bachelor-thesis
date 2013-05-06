@@ -16,7 +16,7 @@ let test40 =
 
 let verify_dbm dim dbm expected =
   let
-      found = dbm_toConstraintList dbm dim
+      found = dbm_toConstraintList dbm
   in
   List.length found = List.length expected &&
   List.for_all
@@ -101,7 +101,8 @@ let test60 =
 
 let test72 =
   let dim = 3 in
-  if dbm_isZeroIncluded (dbm_init dim) dim
+  if
+    dbm_isZeroIncluded (dbm_init dim)
   then
     "test72 passed"
   else
@@ -109,7 +110,8 @@ let test72 =
 
 let test73 =
   let dim = 3 in
-  if dbm_isZeroIncluded (dbm_zero (dbm_init dim)) dim
+  if
+    dbm_isZeroIncluded (dbm_zero (dbm_init dim))
   then
     "test73 passed"
   else
@@ -118,7 +120,7 @@ let test73 =
 let test74 =
   let dim = 3 in
   if
-    dbm_isZeroIncluded (dbm_updateValue (dbm_init dim) 1 2) dim
+    dbm_isZeroIncluded (dbm_updateValue (dbm_init dim) 1 2)
   then
     "test74 failed"
   else
@@ -134,7 +136,6 @@ let test75 =
             1
             2)
       )
-      dim
   then
     "test75 failed"
   else
