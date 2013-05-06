@@ -69,9 +69,6 @@ let useful_predecessor_zones
     ta
     predecessor_zone_list
     edge_condition =
-  let
-      dim = 1 + ta.numclocks
-  in
   List.filter
     (function zone ->
       match
@@ -244,7 +241,6 @@ let successor_zones_from_predecessor
     ta
     predecessor_zone_list
     edge =
-  let dim = 1 + ta.numclocks in
   match
     clock_constraint_to_dbm_option
       ta.clock_names
