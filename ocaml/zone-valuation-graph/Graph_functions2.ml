@@ -247,7 +247,6 @@ let successor_zones_from_predecessor
     predecessor_zone_list
     edge =
   let dim = 1 + ta.numclocks in
-  let maxcon = maximum_constant ta in
   match
     clock_constraint_to_dbm_option
       ta.clock_names
