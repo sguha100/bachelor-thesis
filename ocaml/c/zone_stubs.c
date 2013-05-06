@@ -363,8 +363,8 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
-  CAMLprim value zone_dbm_toString(value dbm, value dim) {
-    CAMLparam2(dbm, dim);
+  CAMLprim value zone_dbm_toString(value dbm) {
+    CAMLparam1(dbm);
     CAMLreturn (caml_copy_string(dbm_toString(dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
   }
 

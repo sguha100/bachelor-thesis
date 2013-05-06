@@ -14,7 +14,7 @@ external dbm_freeClock: dbm_struct_t -> int -> dbm_struct_t =
 external dbm_updateValue: dbm_struct_t -> int -> int -> dbm_struct_t =
   "zone_dbm_updateValue"
 external dbm_up: dbm_struct_t -> dbm_struct_t = "zone_dbm_up"
-external dbm_toString: dbm_struct_t -> int -> string = "zone_dbm_toString"
+external dbm_toString: dbm_struct_t -> string = "zone_dbm_toString"
 external dbm_zero: dbm_struct_t -> int -> dbm_struct_t = "zone_dbm_zero"
 external dbm_isZeroIncluded: dbm_struct_t -> int -> bool = "zone_dbm_isZeroIncluded"
 external dbm_toConstraintList: dbm_struct_t -> int -> ((int * int * bool * int) list) =
