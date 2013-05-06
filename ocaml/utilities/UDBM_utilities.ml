@@ -15,34 +15,34 @@ let clock_name_to_index cn clock_names =
   in
   f 0 cn (Array.to_list clock_names)
 
-let raw_t_clock_reset_operation operation clock_names clock_resets raw_t =
+let dbm_clock_reset_operation operation clock_names clock_resets dbm =
   List.fold_left
     operation
-    raw_t
+    dbm
     (Array.to_list clock_resets)
 
-let raw_t_after_clock_resets clock_names =
+let dbm_after_clock_resets clock_names =
   let
       dim = 1 + (Array.length clock_names)
   in
-  raw_t_clock_reset_operation
-    (function raw_t -> function cn ->
+  dbm_clock_reset_operation
+    (function dbm -> function cn ->
       dbm_updateValue
-        raw_t
+        dbm
         dim
         (1 + (clock_name_to_index cn clock_names))
         0
     )
     clock_names
 
-let raw_t_without_reset_clocks clock_names =
+let dbm_without_reset_clocks clock_names =
   let
       dim = 1 + (Array.length clock_names)
   in
-  raw_t_clock_reset_operation
-    (function raw_t -> function cn ->
+  dbm_clock_reset_operation
+    (function dbm -> function cn ->
       dbm_freeClock
-        raw_t
+        dbm
         dim
         (1 + (clock_name_to_index cn clock_names))
     )
@@ -125,14 +125,14 @@ let rec unit_clock_constraint_to_udbm_constraint_list_option
 (*     [] *)
 (*     clock_constraint *)
 
-let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
+let rec clock_constraint_to_dbm_option clock_names clock_constraint =
   let
       dim = (1 + Array.length clock_names)
   in
   List.fold_left
     (function
     | None -> (function unit_clock_constraint -> None)
-    | (Some partial_raw_t) ->
+    | (Some partial_dbm) ->
       (function unit_clock_constraint -> 
         (match
           unit_clock_constraint_to_udbm_constraint_list_option
@@ -144,10 +144,10 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
           let
               dst =
             List.fold_left (*We just KNOW this folding will work.*)
-              (function partial_raw_t ->
+              (function partial_dbm ->
                 function constraint_t ->
                   dbm_constrainC
-                    partial_raw_t
+                    partial_dbm
                     dim
                     constraint_t
               )
@@ -157,17 +157,17 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
           if
             (dbm_haveIntersection
                dst
-               partial_raw_t
+               partial_dbm
                dim
             )
           then
-            Some (dbm_intersection partial_raw_t dst dim)
+            Some (dbm_intersection partial_dbm dst dim)
           else
             None
         )
       )
     )
-    (* (function partial_raw_t_option -> *)
+    (* (function partial_dbm_option -> *)
     (*   function unit_clock_constraint -> *)
     (*     None *)
     (* ) *)
@@ -176,14 +176,14 @@ let rec clock_constraint_to_raw_t_option clock_names clock_constraint =
 
 let clock_constraint_haveIntersection clock_names c1 c2 =
     match
-      (clock_constraint_to_raw_t_option
+      (clock_constraint_to_dbm_option
          clock_names
          c1)
     with
       None -> false
     | Some dst ->
       (match
-          (clock_constraint_to_raw_t_option
+          (clock_constraint_to_dbm_option
              clock_names
              c2)
        with
@@ -223,13 +223,13 @@ let constraint_list_to_string clock_names constraint_list =
        )
     ) ^ "]"  
 
-let raw_t_to_string clock_names raw_t =
+let dbm_to_string clock_names dbm =
   let
       dim = Array.length clock_names + 1
   in
-  constraint_list_to_string clock_names (dbm_toConstraintList raw_t dim)
+  constraint_list_to_string clock_names (dbm_toConstraintList dbm dim)
 
-let constraint_list_to_raw_t_option dim constraint_list =
+let constraint_list_to_dbm_option dim constraint_list =
   List.fold_left
     (function
     | None -> (function _ -> None)
@@ -258,7 +258,7 @@ let constraint_list_to_raw_t_option dim constraint_list =
     (Some (dbm_init dim))
     constraint_list
 
-let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
+let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
   List.concat
     (List.map
        (function constraint_t ->
@@ -280,7 +280,7 @@ let split_raw_t_on_constraint dim dbm (i, j, strictness, bound) =
         dbm_constraint2 j i (0-bound) (not strictness)]
     )
 
-let split_raw_t_on_raw_t dim dbm1 dbm2 =
+let split_dbm_on_dbm dim dbm1 dbm2 =
   if
     not (dbm_haveIntersection dbm1 dbm2 dim)
   then
@@ -291,49 +291,49 @@ let split_raw_t_on_raw_t dim dbm1 dbm2 =
         List.concat
           (List.map
              (function dbm ->
-               split_raw_t_on_constraint dim dbm (i, j, strictness, bound))
+               split_dbm_on_constraint dim dbm (i, j, strictness, bound))
              dbm_list
           )
       )
       [dbm1]
       (dbm_toConstraintList dbm2 dim)
 
-let split_raw_t_list_on_constraint
+let split_dbm_list_on_constraint
     dim
     dbm_list
     (i, j, strictness, bound) =
   List.concat
     (List.map
-       (function dbm -> split_raw_t_on_constraint dim dbm (i, j, strictness, bound))
+       (function dbm -> split_dbm_on_constraint dim dbm (i, j, strictness, bound))
        dbm_list
     )
 
-let split_raw_t_list_on_constraint_list
+let split_dbm_list_on_constraint_list
     dim
     dbm_list
     constraint_list =
   List.fold_left
-    (split_raw_t_list_on_constraint
+    (split_dbm_list_on_constraint
        dim
     )
     dbm_list
     constraint_list
 
-let split_raw_t_list_on_raw_t
+let split_dbm_list_on_dbm
     dim
     dbm_list
     dbm =
-  (* split_raw_t_list_on_constraint_list *)
+  (* split_dbm_list_on_constraint_list *)
   (*   dim *)
   (*   dbm_list *)
   (*   (dbm_toConstraintList dbm dim) *)
   List.concat
     (List.map
-       (function dbm1 -> split_raw_t_on_raw_t dim dbm1 dbm)
+       (function dbm1 -> split_dbm_on_dbm dim dbm1 dbm)
        dbm_list
     )
     
-let split_raw_t_list_on_clock_constraint
+let split_dbm_list_on_clock_constraint
     clock_names
     dbm_list
     clock_constraint =
@@ -341,7 +341,7 @@ let split_raw_t_list_on_clock_constraint
       dim = 1 + Array.length clock_names
   in
   match
-    (clock_constraint_to_raw_t_option clock_names clock_constraint)
+    (clock_constraint_to_dbm_option clock_names clock_constraint)
   with
   | None -> dbm_list
-  | Some dbm -> split_raw_t_list_on_raw_t dim dbm_list dbm
+  | Some dbm -> split_dbm_list_on_dbm dim dbm_list dbm

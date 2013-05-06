@@ -191,7 +191,7 @@ struct
         Printf.printf
           "node_ref1 = %s %s\n"
           (string_of_int node_ref1.zone_location2)
-          (raw_t_to_string ta1.clock_names node_ref1.zone_constraint2)
+          (dbm_to_string ta1.clock_names node_ref1.zone_constraint2)
         ;
       )
       q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list;
@@ -218,7 +218,7 @@ struct
         Printf.printf
           "node_ref2 = %s %s\n"
           (string_of_int node_ref2.zone_location2)
-          (raw_t_to_string ta2.clock_names node_ref2.zone_constraint2)
+          (dbm_to_string ta2.clock_names node_ref2.zone_constraint2)
         ;
       )
       q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list;

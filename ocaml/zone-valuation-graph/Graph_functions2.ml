@@ -16,7 +16,7 @@ let split_zone_list_on_constraint_list
   List.map
     (function dbm -> {zone_location2 = location; zone_constraint2 = dbm})
     (List.fold_left
-       (split_raw_t_list_on_clock_constraint clock_names)
+       (split_dbm_list_on_clock_constraint clock_names)
        (List.map
           (function zone -> zone.zone_constraint2)
           zone_list
@@ -24,7 +24,7 @@ let split_zone_list_on_constraint_list
        (constraint_list)
     )
 
-let split_zone_list_on_raw_t_list
+let split_zone_list_on_dbm_list
     dim
     location
     zone_list
@@ -32,7 +32,7 @@ let split_zone_list_on_raw_t_list
   List.map
     (function dbm -> {zone_location2 = location; zone_constraint2 = dbm})
     (List.fold_left
-       (split_raw_t_list_on_raw_t dim)
+       (split_dbm_list_on_dbm dim)
        (List.map
           (function zone -> zone.zone_constraint2)
           zone_list
@@ -75,7 +75,7 @@ let useful_predecessor_zones
   List.filter
     (function zone ->
       match
-        clock_constraint_to_raw_t_option
+        clock_constraint_to_dbm_option
           ta.clock_names
           edge_condition
       with
@@ -88,7 +88,7 @@ let useful_predecessor_zones
     )
     predecessor_zone_list
 
-let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
+let maximum_constant_abstract_dbm ta dbm_without_abstraction =
   let
       abstraction = ref false
   in
@@ -100,8 +100,8 @@ let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
   in
   let
       constraint_list_without_abstraction =
-    (* dbm_toConstraintList raw_t_without_abstraction dim *)
-    dbm_toLargerConstraintList raw_t_without_abstraction dim
+    (* dbm_toConstraintList dbm_without_abstraction dim *)
+    dbm_toLargerConstraintList dbm_without_abstraction dim
   in
   let
       constraint_list_with_abstraction =
@@ -130,9 +130,9 @@ let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
       )
   in
   let
-      raw_t_with_abstraction =
+      dbm_with_abstraction =
     match
-      (constraint_list_to_raw_t_option dim constraint_list_with_abstraction)
+      (constraint_list_to_dbm_option dim constraint_list_with_abstraction)
     with
     | Some dbm -> dbm
     | None ->
@@ -150,7 +150,7 @@ let maximum_constant_abstract_dbm ta raw_t_without_abstraction =
            )
         )
   in
-  (raw_t_with_abstraction, !abstraction)
+  (dbm_with_abstraction, !abstraction)
 
 let rec maximum_constant_abstract_zone_list ta zone_list =
   let
@@ -167,17 +167,17 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
           | (_, false) ->
             Printf.printf "The zone (%s, %s) did not get abstracted.\n"
               (string_of_int next_zone.zone_location2)
-              (raw_t_to_string ta.clock_names next_zone.zone_constraint2);
+              (dbm_to_string ta.clock_names next_zone.zone_constraint2);
             (abstracted_zones, next_zone::unabstracted_zones)
-          | (abstracted_raw_t, true) ->
+          | (abstracted_dbm, true) ->
             Printf.printf "The zone (%s, %s) got abstracted to (%s, %s)\n"
               (string_of_int next_zone.zone_location2)
-              (raw_t_to_string ta.clock_names next_zone.zone_constraint2)
+              (dbm_to_string ta.clock_names next_zone.zone_constraint2)
               (string_of_int next_zone.zone_location2)
-              (raw_t_to_string ta.clock_names abstracted_raw_t)
+              (dbm_to_string ta.clock_names abstracted_dbm)
             ;
             ({zone_location2 = next_zone.zone_location2;
-              zone_constraint2 = abstracted_raw_t}::abstracted_zones,
+              zone_constraint2 = abstracted_dbm}::abstracted_zones,
              unabstracted_zones
             )
       )
@@ -204,7 +204,7 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
                    )
                    old_zone_list
                )
-               (split_zone_list_on_raw_t_list
+               (split_zone_list_on_dbm_list
                   dim
                   abstracted_zone.zone_location2
                   [abstracted_zone]
@@ -218,7 +218,7 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
           Printf.printf
             "The abstracted zone (%s, %s) got split into [%s]\n"
             (string_of_int abstracted_zone.zone_location2)
-            (raw_t_to_string
+            (dbm_to_string
                ta.clock_names
                abstracted_zone.zone_constraint2)
             (String.concat
@@ -228,7 +228,7 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
                     "(" ^
                       (string_of_int zone.zone_location2)
                     ^ ", " ^
-                      (raw_t_to_string ta.clock_names zone.zone_constraint2)
+                      (dbm_to_string ta.clock_names zone.zone_constraint2)
                     ^ ")"
                   )
                   abstracted_zone_after_split
@@ -249,7 +249,7 @@ let successor_zones_from_predecessor
   let dim = 1 + ta.numclocks in
   let maxcon = maximum_constant ta in
   match
-    clock_constraint_to_raw_t_option
+    clock_constraint_to_dbm_option
       ta.clock_names
       edge.condition
   with
@@ -260,9 +260,9 @@ let successor_zones_from_predecessor
         {zone_location2 = edge.next_location;
          zone_constraint2 =
             let
-                raw_t_without_abstraction =
+                dbm_without_abstraction =
               dbm_up
-                (raw_t_after_clock_resets
+                (dbm_after_clock_resets
                    ta.clock_names
                    edge.clock_resets
                    (dbm_intersection
@@ -273,7 +273,7 @@ let successor_zones_from_predecessor
                 )
                 dim
             in
-            raw_t_without_abstraction
+            dbm_without_abstraction
         }
       )
       (useful_predecessor_zones
@@ -304,7 +304,7 @@ let new_successor_zones
              )
              successor_zone_list
          )
-         (split_zone_list_on_raw_t_list
+         (split_zone_list_on_dbm_list
             dim
             successor
             [z1]
@@ -315,7 +315,7 @@ let new_successor_zones
          )
       )
       @
-        (split_zone_list_on_raw_t_list
+        (split_zone_list_on_dbm_list
            dim
            successor
            successor_zone_list
@@ -392,7 +392,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
              (String.concat
                 "; "
                 (List.map
-                   (function zone -> raw_t_to_string ta.clock_names zone.zone_constraint2)
+                   (function zone -> dbm_to_string ta.clock_names zone.zone_constraint2)
                    zone_list_array.(parent)
                 )
              )
@@ -436,7 +436,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
             (*      (List.map *)
             (*         (function zone -> *)
             (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
-            (*             (raw_t_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
+            (*             (dbm_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
             (*         ) *)
             (*         changed_zone_list2 *)
             (*      ) *)
@@ -449,7 +449,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
             (*      (List.map *)
             (*         (function zone -> *)
             (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
-            (*             (raw_t_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
+            (*             (dbm_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
             (*         ) *)
             (*         changed_zone_list3 *)
             (*      ) *)
@@ -516,29 +516,29 @@ let generate_zone_valuation_graph ta =
               List.partition
                 (function zone ->
                   match
-                    (clock_constraint_to_raw_t_option
+                    (clock_constraint_to_dbm_option
                        ta.clock_names
                        departure.condition
                     )
                   with
                   | None -> false
-                  | Some departure_condition_raw_t -> 
+                  | Some departure_condition_dbm -> 
                     dbm_haveIntersection
                       (zone.zone_constraint2)
-                      (departure_condition_raw_t)
+                      (departure_condition_dbm)
                       dim
                 )
                 zone_list_array.(l1.location_index)
             in
             let
                 changed_zone_list =
-              split_zone_list_on_raw_t_list
+              split_zone_list_on_dbm_list
                 dim
                 l1.location_index
                 splittable
                 (List.map
                    (function zone ->
-                     (raw_t_without_reset_clocks
+                     (dbm_without_reset_clocks
                         ta.clock_names
                         departure.clock_resets
                         zone.zone_constraint2
@@ -591,7 +591,7 @@ let generate_zone_valuation_graph ta =
                  (List.filter
                     (function departure ->
                       match
-                        clock_constraint_to_raw_t_option
+                        clock_constraint_to_dbm_option
                           ta.clock_names
                           departure.condition
                       with
@@ -613,7 +613,7 @@ let generate_zone_valuation_graph ta =
                     (List.filter
                        (function arrival_zone ->
                          dbm_haveIntersection
-                           (raw_t_after_clock_resets
+                           (dbm_after_clock_resets
                               ta.clock_names
                               departure.clock_resets
                               zone.zone_constraint2

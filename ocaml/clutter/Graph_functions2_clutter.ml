@@ -76,7 +76,7 @@ let new_successor_zones_from_predecessor
          )
          successor_zone_list
      )
-     (split_zone_list_on_raw_t_list
+     (split_zone_list_on_dbm_list
         dim
         successor
         cut
@@ -259,29 +259,29 @@ let dequeue ta (queue, zone_list_array, tree_array) =
               List.partition
                 (function zone ->
                   match
-                    (clock_constraint_to_raw_t_option
+                    (clock_constraint_to_dbm_option
                        ta.clock_names
                        departure.condition
                     )
                   with
                   | None -> false
-                  | Some departure_condition_raw_t -> 
+                  | Some departure_condition_dbm -> 
                     dbm_haveIntersection
                       (zone.zone_constraint2)
-                      (departure_condition_raw_t)
+                      (departure_condition_dbm)
                       dim
                 )
                 zone_list_array.(l1.location_index)
             in
             let
                 changed_zone_list =
-              split_zone_list_on_raw_t_list
+              split_zone_list_on_dbm_list
                 dim
                 l1.location_index
                 splittable
                 (List.map
                    (function zone ->
-                     (raw_t_without_reset_clocks
+                     (dbm_without_reset_clocks
                         ta.clock_names
                         departure.clock_resets
                         zone.zone_constraint2

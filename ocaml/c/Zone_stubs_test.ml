@@ -14,7 +14,7 @@ let test40 =
   else
     "test40 failed"
 
-let verify_raw_t dim dbm expected =
+let verify_dbm dim dbm expected =
   let
       found = dbm_toConstraintList dbm dim
   in
@@ -27,16 +27,16 @@ let verify_raw_t dim dbm expected =
     )
     expected
     
-let verify_raw_t_translation clock_names clock_constraint expected =
+let verify_dbm_translation clock_names clock_constraint expected =
   match
-    (clock_constraint_to_raw_t_option clock_names clock_constraint)
+    (clock_constraint_to_dbm_option clock_names clock_constraint)
   with
   | None -> false
-  | Some dbm -> verify_raw_t (1 + Array.length clock_names) dbm expected
+  | Some dbm -> verify_dbm (1 + Array.length clock_names) dbm expected
     
 let test41 =
   if
-    verify_raw_t_translation [|"X"|] [Le ("X", 3)] [(1, 0, false, 3)]
+    verify_dbm_translation [|"X"|] [Le ("X", 3)] [(1, 0, false, 3)]
   then
     "test41 passed"
   else
@@ -44,7 +44,7 @@ let test41 =
 
 let test42 =
   if
-    verify_raw_t_translation [|"X"|] [Gt ("X", 3)] [(0, 1, true, -3)]
+    verify_dbm_translation [|"X"|] [Gt ("X", 3)] [(0, 1, true, -3)]
   then
     "test42 passed"
   else
@@ -52,7 +52,7 @@ let test42 =
 
 let test43 =
   if
-    verify_raw_t_translation
+    verify_dbm_translation
       [|"X"; "Y"|]
       [Gt ("Y", 3); Ge ("Y", 3)]
       [(0, 2, true, -3)]
@@ -63,7 +63,7 @@ let test43 =
 
 let test44 =
   if
-    verify_raw_t_translation
+    verify_dbm_translation
       [|"X"; "Y"|]
       [Lt ("X", 3); Gt ("Y", 3); Ge ("Y", 3); Le ("X", 2)]
       [(0, 2, true, -3); (1, 0, false, 2)]

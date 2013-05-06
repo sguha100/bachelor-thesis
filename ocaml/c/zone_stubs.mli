@@ -1,4 +1,3 @@
-type raw_t (*This usually stores pointers to raw_t*)
 type dbm_struct_t (*This usually dbm_struct_t values, which
                     themselves contain malloc()-ated pointers.*)
 type constraint_t

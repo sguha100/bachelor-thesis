@@ -9,10 +9,10 @@ open Graph
 
 module ZVGLT2 =
 struct
-  type node_ref_t = zone_using_raw_t
+  type node_ref_t = zone_using_dbm
   type action_t = int
-  type lts_t = {nodes:((zone_using_raw_t * ((transition *
-                                               (zone_using_raw_t list)) list)) list) array;
+  type lts_t = {nodes:((zone_using_dbm * ((transition *
+                                               (zone_using_dbm list)) list)) list) array;
                 action_count: int;
                 clock_names: string array
                }
@@ -25,7 +25,7 @@ struct
   let node_name =
     function l -> function zone -> ((string_of_int
                                        zone.zone_location2) ^ " " ^
-                                       (raw_t_to_string l.clock_names zone.zone_constraint2) )
+                                       (dbm_to_string l.clock_names zone.zone_constraint2) )
   let expand_action = function l -> function a -> string_of_int a
   let nodes =
     function l ->

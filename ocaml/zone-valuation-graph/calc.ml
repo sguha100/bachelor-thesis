@@ -21,7 +21,7 @@ let text_dump ta g =
         Printf.fprintf txt_out "\nlocation: %s\n" (string_of_int i);
         Printf.fprintf txt_out
           "invar: %s\n"
-          (raw_t_to_string ta.clock_names zone.zone_constraint2)
+          (dbm_to_string ta.clock_names zone.zone_constraint2)
         ;
         Printf.fprintf txt_out "trans:\n";
         List.iter
