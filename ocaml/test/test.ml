@@ -229,4 +229,10 @@ let _ =
   print_newline ();
   print_string test85;
   print_newline ();
+  print_string test86;
+  print_newline ();
+  print_string test87;
+  print_newline ();
+  print_string test88;
+  print_newline ();
   exit 0

@@ -159,7 +159,7 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
                partial_dbm
             )
           then
-            Some (dbm_intersection partial_dbm dst dim)
+            Some (dbm_intersection partial_dbm dst)
           else
             None
         )

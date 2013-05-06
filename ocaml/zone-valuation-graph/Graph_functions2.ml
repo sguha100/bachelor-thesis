@@ -265,7 +265,6 @@ let successor_zones_from_predecessor
                    (dbm_intersection
                       edge_condition
                       (dbm_up zone.zone_constraint2 dim)
-                      dim
                    )
                 )
                 dim

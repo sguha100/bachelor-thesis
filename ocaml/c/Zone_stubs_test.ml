@@ -175,18 +175,18 @@ let test83 =
     "test83 failed"
 
 let dbm11 = 
-  dbm_constrainC (dbm_init 3) (dbm_constraint2 2 1 4 false)
+  dbm_constrainC (dbm_init 3) (dbm_constraint2 2 1 5 false)
 
 let test84 = 
   if
-    verify_dbm 3 dbm11 [(2, 1, false, 4)]
+    verify_dbm 3 dbm11 [(2, 1, false, 5)]
   then
     "test84 passed"
   else
     "test84 failed"
 
 let dbm12 = 
-  dbm_constrainC dbm11 (dbm_constraint2 2 1 5 false)
+  dbm_constrainC dbm11 (dbm_constraint2 2 1 4 false)
 
 let test85 = 
   if
@@ -195,3 +195,31 @@ let test85 =
     "test85 passed"
   else
     "test85 failed"
+
+let dbm13 = 
+  dbm_constrainC (dbm_init 3) (dbm_constraint2 1 2 (-5) false)
+
+let test86 = 
+  if
+    not (dbm_haveIntersection dbm12 dbm13)
+  then
+    "test86 passed"
+  else
+    "test86 failed"
+
+let test87 = 
+  if
+    dbm_haveIntersection dbm12 dbm11
+  then
+    "test87 passed"
+  else
+    "test87 failed"
+
+let test88 = 
+  if
+    verify_dbm 3 (dbm_intersection dbm11 dbm13) [(2, 1, false, 5); (1, 2, false, -5)]
+  then
+    "test88 passed"
+  else
+    "test88 failed"
+
