@@ -2,7 +2,7 @@ type dbm_struct_t (*This usually dbm_struct_t values, which
                     themselves contain malloc()-ated pointers.*)
 type constraint_t
 external dbm_init: int -> dbm_struct_t = "zone_dbm_init"
-external dbm_constrainC: dbm_struct_t -> int -> constraint_t -> dbm_struct_t =
+external dbm_constrainC: dbm_struct_t -> constraint_t -> dbm_struct_t =
   "zone_dbm_constrainC"
 external dbm_constraint2: int -> int -> int -> bool -> constraint_t =
   "zone_dbm_constraint2"

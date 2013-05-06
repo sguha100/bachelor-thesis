@@ -148,7 +148,6 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
                 function constraint_t ->
                   dbm_constrainC
                     partial_dbm
-                    dim
                     constraint_t
               )
               (dbm_init dim)
@@ -239,7 +238,6 @@ let constraint_list_to_dbm_option dim constraint_list =
             dbm =
           dbm_constrainC
             dbm
-            dim
             (dbm_constraint2
 	       i
 	       j
@@ -266,7 +264,6 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
              dbm = 
            dbm_constrainC
              dbm
-             dim
              constraint_t
          in
          if
