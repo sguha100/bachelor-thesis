@@ -173,3 +173,25 @@ let test83 =
     "test83 passed"
   else
     "test83 failed"
+
+let dbm11 = 
+  dbm_constrainC (dbm_init 3) (dbm_constraint2 2 1 4 false)
+
+let test84 = 
+  if
+    verify_dbm 3 dbm11 [(2, 1, false, 4)]
+  then
+    "test84 passed"
+  else
+    "test84 failed"
+
+let dbm12 = 
+  dbm_constrainC dbm11 (dbm_constraint2 2 1 5 false)
+
+let test85 = 
+  if
+    verify_dbm 3 dbm12 [(2, 1, false, 4)]
+  then
+    "test85 passed"
+  else
+    "test85 failed"

@@ -223,4 +223,10 @@ let _ =
   print_newline ();
   print_string test82;
   print_newline ();
+  print_string test83;
+  print_newline ();
+  print_string test84;
+  print_newline ();
+  print_string test85;
+  print_newline ();
   exit 0
