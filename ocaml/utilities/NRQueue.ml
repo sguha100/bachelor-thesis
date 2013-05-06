@@ -28,7 +28,7 @@ module NRQueue =
         then
           queue
         else
-          element::queue
+          queue@[element]
             
       let head queue =
         match queue with
