@@ -275,7 +275,6 @@ extern "C" {
 
   CAMLprim value zone_dbm_constrainC (value dbm, value c) {
     CAMLparam2(dbm, c);
-    /*Ignoring the argument dim.*/
     dbm_struct_t s, s_dup;
     s = dbm_struct_t_val(dbm);
     s_dup.dim = s.dim;
