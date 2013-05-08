@@ -11,6 +11,7 @@ open Test_base_clutter
 open Clock_constraint_clutter_test
 open PCQueue_test
 open Graph_functions2_test
+open Relations_test
   
 let test14 =
   if
@@ -240,5 +241,13 @@ let _ =
   print_string test90;
   print_newline ();
   print_string test91;
+  print_newline ();
+  print_string test92;
+  print_newline ();
+  print_string test93;
+  print_newline ();
+  print_string test94;
+  print_newline ();
+  print_string test95;
   print_newline ();
   exit 0

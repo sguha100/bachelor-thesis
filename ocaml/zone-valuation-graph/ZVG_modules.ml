@@ -119,7 +119,8 @@ sig
     ZVGQuotient2.lts_t ->
     half_key ->
     half_key ->
-    (((half_key * (half_key list)) list) * (((half_key list) * half_key) list))
+    (((half_key * ZVGQuotient2.action_t * (half_key list)) list) *
+        (((half_key list) * ZVGQuotient2.action_t * half_key) list))
 end
 
 let out_adjacency l z a

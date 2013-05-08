@@ -82,6 +82,7 @@ c/zone_stubs.mli \
 c/Zone_stubs_test.ml \
 utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
+relations/Relations_test.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml

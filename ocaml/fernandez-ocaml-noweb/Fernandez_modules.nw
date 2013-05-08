@@ -104,7 +104,7 @@ Methods
 <<Fernandez_modules.ml>>=
   let rec two_way_update_tree l t x x1 x2 =
     match t with
-      Simple t0 ->
+    | Simple t0 ->
         if
           (
             (List.for_all
@@ -145,9 +145,9 @@ Methods
 <<Fernandez_modules.ml>>=
   let rec two_way_update_queue l w x x1 x2 =
     match w with
-      [] -> [Compound (x, Simple x1, Simple x2)]
+    | [] -> [Compound (x, Simple x1, Simple x2)]
     | t::ts -> (match (two_way_update_tree l t x x1 x2) with
-      (_, false) -> t::(two_way_update_queue l ts x x1 x2)
+      | (_, false) -> t::(two_way_update_queue l ts x x1 x2)
       | (tt, true) -> tt::ts
     )
 

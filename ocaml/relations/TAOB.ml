@@ -14,7 +14,7 @@ let nodes_to_other_nodes
                lz4 = out_adjacency_with_delay_earlier_and_later l2 z2 a
            in
            List.map
-             (function z3 -> (z3, lz4))
+             (function z3 -> (z3, a, lz4))
              (out_adjacency l1 z1 a)
          )
          (ZVGQuotient2.actions l1)
@@ -27,7 +27,7 @@ let nodes_to_other_nodes
                lz3 = out_adjacency_with_delay_earlier_and_later l1 z1 a
            in
            List.map
-             (function z4 -> (lz3, z4))
+             (function z4 -> (lz3, a, z4))
              (out_adjacency l2 z2 a)
          )
          (ZVGQuotient2.actions l2)

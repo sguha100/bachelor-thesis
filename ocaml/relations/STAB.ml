@@ -17,7 +17,7 @@ let nodes_to_other_nodes
            List.map
              (function z3 ->
                Printf.printf "z3 = %s\n" (ZVGQuotient2.node_name l1 z3);
-               (z3, lz4)
+               (z3, a, lz4)
              )
              (out_adjacency l1 z1 a)
          )
@@ -34,7 +34,7 @@ let nodes_to_other_nodes
            List.map
              (function z4 ->
                Printf.printf "z4 = %s\n" (ZVGQuotient2.node_name l2 z4);
-               (lz3, z4))
+               (lz3, a, z4))
              (out_adjacency l2 z2 a)
          )
          (ZVGQuotient2.actions l2)
