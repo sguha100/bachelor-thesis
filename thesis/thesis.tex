@@ -161,6 +161,99 @@ the special case having just one kind of action was given by Paige and
 Tarjan \cite{paige1987three} and made general by Fernandez
 \cite{fernandez1990implementation}.
 
+\section{Clocks, valuations and related operations}
+
+The timing model we use relies on the notions of clocks and
+valuations. The timing information about the possible executions of a
+timed automaton can, intuitively, be expressed in terms of constraints
+on clocks. We will make this idea more precise as we go on.
+
+\begin{definition}
+\emph{Clock}: A clock is a variable ranging over the set of
+non-negative real numbers, $R_{\geq 0}$.
+\end{definition}
+
+\begin{definition}
+\emph{Valuation}: A valuation over a set of clocks $C$ is a
+function $C \rightarrow R_{\geq 0}$, assigning non-negative values
+to each of the clocks.
+\end{definition}
+
+Two important operations on clock valuations are clock resets and
+delays. For a subset $X$ of $C$, the clock reset of a valuation $v$
+is given by
+\begin{displaymath}
+  v[X:=0](x) = 
+  \begin{cases}
+    0    & \text{if } x \epsilon X \\
+    v(x) & \text{if } x \epsilon C - X
+  \end{cases}
+\end{displaymath}
+
+For a real delay $d$ $\epsilon$ $R_{\geq 0}$, the delay of a valuation
+$v$ is given by
+\begin{displaymath}
+  (v + d)(x) = v(x) + d \quad \forall x \epsilon C
+\end{displaymath}
+
+\begin{definition}
+\emph{Hyperplane}: Expressions of the forms $x \smile c$ and $x - y
+\smile c$, where $x, y \epsilon C$, c is an integer, and $\smile
+\epsilon \{ <, \leq, \geq, >\}$ are known as \emph{atomic clock
+  constraints}. A valuation $v$ over $C$ is said to satisfy the
+atomic clock constraint $x \smile c$ if $v(x) \smile c$ and $x - y
+\smile c$ if $v(x) - v(y) \smile c$. A hyperplane is a set of
+valuations satisfying an atomic clock constraint.
+\end{definition}
+
+\begin{definition}
+\emph{Polyhedron}: The set of polyhedra over a set of clocks $C$ is
+the smallest subset of the set of all valuations over $C$ that 
+\begin{itemize}
+\item contains all hyperplanes over C
+\item is closed over intersection, union and complementation.
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+\emph{Convex polyhedron}: A convex polyhedron is a polyhedron that can
+be represented as the intersection of a set of hyperplanes.
+\end{definition}
+
+It should be noted that this definition does not coincide exactly with
+the notion of a convex set from algebra. For instance, for
+$C=\{x_1, x_2\}$, the set $\{(x_1, x_2)| x_1 \geq 0, x_2 \geq 0\} -
+\{(x_1, x_2)| x_1 = x_2 = 0\}$ is convex but not a convex polyhedron.
+
+Union, intersection, complementation and set difference are well
+defined operations on polyhedra. 
+
+The \emph{pre-reset} and \emph{post-reset} of a set $X$ $\epsilon$ $C$ on a
+polyhedron $\zeta$ over the set $C$ of clocks are respectively defined
+by
+\begin{align*}
+[X := 0]\zeta &= \{v| v[X := 0] \epsilon \zeta \} \\
+\zeta[X := 0] &= \{v[X := 0]| v \epsilon \zeta \}
+\end{align*}
+
+The \emph{future} of a polyhedron $\zeta$ over a set $C$ of clocks
+is given by 
+\begin{displaymath}
+\zeta \uparrow = \{v + d| v \epsilon \zeta, d \epsilon R_{\geq 0}\}
+\end{displaymath}
+
+The operators intersection, future, pre-reset, post-reset and future
+preserve convexity of polyhedra.
+
+\begin{definition}
+\emph{Clock constraint}: A clock constraint is a polyhedron which can
+be expressed as an intersection of hyperplanes of the form $x \smile
+c$.
+\end{definition}
+
+A related term, \emph{extended clock constraint}, can be used
+interchangeably with \emph{polyhedron}.
+
 \section{Timed automata}
 
 \begin{SCfigure}
@@ -195,10 +288,7 @@ Tarjan \cite{paige1987three} and made general by Fernandez
     is a finite set of edges.
   \item $I: L \rightarrow B(C)$ assigns invariants to each edge
     location.
-  \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
-    can be an equality, a slack inequality, or a strict inequality on
-    $v(x)$ for some $x$ $\epsilon$ $C$, or
-    an AND combination of such constraints.
+  \item $B(C)$ is the set of clock constraints over C.
   \end{itemize}
 \end{definition}
 
@@ -270,7 +360,23 @@ space of timed automata exist, which we elaborate on, below.
   transition, and the transition relation respects the invariants,
   guards and clock resets of the original timed automaton.
 \end{definition}
-%also talk about region graphs.
+
+\begin{definition}
+  \emph{Region graph}: A region graph is a zone graph in which the
+  zones of each location are the same, and given by the equivalence
+  classes under \emph{region equivalence}.
+
+  Valuations $v_1$ and $v_2$ are related under region equivalence if 
+  \begin{itemize}
+    \item $\forall x$ $\epsilon$ $C$: $\lfloor v_1(x) \rfloor = \lfloor
+      v_2(x) \rfloor$ or $v_1(x) > c_x$ and $v_2(x) > c_x$ where $c_x$
+      is the greatest constant compared to x over all guards and
+      invariants in the automaton.
+    \item $\forall x$ $\epsilon$ $C$: $v_1(x) = 0$ iff $v_2(x) = 0$.
+    \item $\forall$ pairs of clocks $(x, y)$: $frac(v_1(x)) \leq
+      frac(v_1(y))$ iff $frac(v_2(x)) \leq frac(v_2(y))$.
+  \end{itemize}
+\end{definition}
 
 \section{Difference bound matrices}
 \begin{definition}
