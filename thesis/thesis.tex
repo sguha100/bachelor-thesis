@@ -39,6 +39,25 @@
   This describes the author's work in implementing the construction of
   zone-valuation graphs for timed automata and using these to verify
   certain relations on pairs of timed automata.
+  Timed automata are a widely-used formalism, in verification, for
+  describing systems where the execution is subject to timing
+  constraints. One area of interest is the verification of certain
+  timed and time abstracted relations on pairs of timed automata,
+  which are generally of either an equivalence nature or a
+  pre-ordering nature. Among existing tools, minim
+  \cite{tripakis2001analysis} serves to verify certain of these
+  relations, but it is limited in its scope and fails to meet certain
+  requirements of reachability in its output. We build upon the work
+  of \cite{DBLP:conf/cav/GuhaNA12}, in which algorithms for building
+  zone-valuation graphs (minimal, discrete equivalent representations
+  of timed automata) are given and used to verify certain pre-ordering
+  relations on pairs of timed automata. We present an modified version
+  of the zone-valuation graph construction algorithm, and a
+  generalisation of the algorithm which uses zone-valuation graphs to
+  verify a larger set of timed and time-abstracted relations on timed
+  automata, where this generalisation builds upon the work of
+  \cite{arun2006bisimilarities}. We also describe a reference
+  implementation of these algorithms in Ocaml.
 \end{abstract}
 % timed automata - formalism for automata with timing
 % constraints. time abstracted relations. decidable using region
@@ -668,7 +687,6 @@ and
 need to be split into convex zones.) \\
 This generates the zone valuation graph.
 
-\subsubsection{Pseudocode}
 
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
@@ -761,11 +779,11 @@ and the corresponding simulation equivalences, among others.
 
 So, for STaB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -773,11 +791,11 @@ So, for STaB, we define $f_P$ and $f_Q$ as
 
 For TadB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -785,11 +803,11 @@ For TadB, we define $f_P$ and $f_Q$ as
 
 For TaoB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -800,7 +818,6 @@ pairs of states in the two timed automata which are known to be
 related or known to be unrelated, and use a dynamic programming
 approach to verify the relation for any given pair of states.
 
-\subsubsection{Pseudocode}
 
 \begin{procedure}
   \caption{CheckStatesRelation($P$, $Q$, $s_{P}$, $s_{Q}$,
