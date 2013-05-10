@@ -3,10 +3,36 @@ open Grammar_types
 open Zone_stubs
 open UDBM_utilities
 
+module Ordered_node_ref =
+struct
+  type t = ZVGQuotient2.node_ref_t
+  let compare = Pervasives.compare
+end
+
+module Node_ref_set = Set.Make (Ordered_node_ref)
+
+module Ordered_action_option_with_node =
+struct
+  type t = (ZVGQuotient2.action_t option) * ZVGQuotient2.node_ref_t
+  let compare = Pervasives.compare
+end
+
+module Action_option_with_node_map = Map.Make (Ordered_action_option_with_node)
+
+module Ordered_node_ref_pair =
+struct
+  type t = ZVGQuotient2.node_ref_t * ZVGQuotient2.node_ref_t
+  let compare = Pervasives.compare
+end
+
+module Node_ref_pair_set = Set.Make (Ordered_node_ref_pair)
+
 type succession = Succession1 | Succession2 | Succession_both
 
+(*The action_pair field is required because the same child may occur
+  for different pairs of actions.*)
 type product_transition = {
-  action_pair : (ZVGQuotient2.action_t* ZVGQuotient2.action_t) option;
+  common_action : ZVGQuotient2.action_t option;
   succession : succession;
   child : ZVGQuotient2.node_ref_t * ZVGQuotient2.node_ref_t
 }
@@ -14,6 +40,18 @@ type product_transition = {
 type succession_element = {
   product_transition: product_transition;
   successor_transition_list: product_transition list;
+  map1: bool Action_option_with_node_map.t;
+  map2: bool Action_option_with_node_map.t;
+}
+
+type information_wrapper = {
+  not_related: Node_ref_pair_set.t;
+  visited: Node_ref_pair_set.t;
+  multiply_visited: Node_ref_pair_set.t;
+  stable: bool;
+  stack_for_current_path: succession_element Stack.t;
+  verify_roots1: bool;
+  verify_roots2: bool;
 }
 
 let lookup_in_stack s (p, q) =
@@ -26,40 +64,6 @@ let lookup_in_stack s (p, q) =
     )
     s;
   !found
-
-module Ordered_node_ref =
-struct
-  type t = ZVGQuotient2.node_ref_t
-  let compare = Pervasives.compare
-end
-
-module Node_ref_set = Set.Make (Ordered_node_ref)
-
-module Ordered_node_ref_pair =
-struct
-  type t = ZVGQuotient2.node_ref_t * ZVGQuotient2.node_ref_t
-  let compare = Pervasives.compare
-end
-
-module Node_ref_pair_set = Set.Make (Ordered_node_ref_pair)
-
-module Succession_stack_element =
-struct
-  type t = (ZVGQuotient2.action_t * ZVGQuotient2.action_t) *
-    (ZVGQuotient2.node_ref_t * ZVGQuotient2.node_ref_t)
-  let compare = Pervasives.compare
-end
-
-module Set_for_succession_stack = Set.Make (Succession_stack_element)
-
-type information_wrapper = {
-  not_related: Node_ref_pair_set.t;
-  multiply_visited: Node_ref_pair_set.t;
-  stable: bool;
-  stack_for_current_path: succession_element Stack.t;
-  successor_1_set_stack: Node_ref_set.t Stack.t;
-  successor_2_set_stack: Node_ref_set.t Stack.t;
-}
 
 let get_initial_location ta q =
   try (
@@ -106,118 +110,215 @@ struct
           z1
           z2
       in
-      let
-          succession1set =
-        List.fold_left
-          (function s ->
-            function (z3, a, lz4) ->
-              List.fold_left
-                (function s -> function z4 ->
-                  Set_for_succession_stack.add ((a, a), (z3, z4)) s
-                )
-                s
-                lz4
-          )
-          Set_for_succession_stack.empty
-          x1
-      in
-      let
-          succession2set =
-        List.fold_left
-          (function s ->
-            function (lz3, a, z4) ->
-              List.fold_left
-                (function s -> function z3 ->
-                  Set_for_succession_stack.add ((a, a), (z3, z4)) s
-                )
-                s
-                lz3
-          )
-          Set_for_succession_stack.empty
-          x2
-      in
       Stack.push
         {product_transition =
-            {action_pair = None;
+            {common_action = None;
              succession = Succession_both;
              child = (z1, z2)
             };
          successor_transition_list =
-            (List.map
-               (function ((a1, a2), (z3, z4)) ->
-                 {action_pair = Some (a1, a2);
-                  succession = Succession_both;
-                  child = (z3, z4)
-                 }
-               )
-               (Set_for_succession_stack.elements
-                  (Set_for_succession_stack.inter
-                     succession1set
-                     succession2set
+            (List.concat
+               (List.map
+                  (function (z3, a, lz4) ->
+                    List.map
+                      (function z4 ->
+                        {common_action = Some a;
+                         succession = Succession1;
+                         child = (z3, z4)
+                        }
+                      )
+                      lz4
                   )
+                  x1
                )
             ) @
-              (List.map
-                 (function ((a1, a2), (z3, z4)) ->
-                   {action_pair = Some (a1, a2);
-                    succession = Succession_both;
-                    child = (z3, z4)
-                   }
-                 )
-                 (Set_for_succession_stack.elements
-                    (Set_for_succession_stack.diff
-                       succession1set
-                       succession2set
-                    )
+            (List.concat
+               (List.map
+                  (function (lz3, a, z4) ->
+                    List.map
+                      (function z3 ->
+                        {common_action = Some a;
+                         succession = Succession2;
+                         child = (z3, z4)
+                        }
+                      )
+                      lz3
+                  )
+                  x2
                )
-              ) @
-              (List.map
-                 (function ((a1, a2), (z3, z4)) ->
-                   {action_pair = Some (a1, a2);
-                    succession = Succession_both;
-                    child = (z3, z4)
-                   }
-                 )
-                 (Set_for_succession_stack.elements
-                    (Set_for_succession_stack.diff
-                       succession2set
-                       succession1set
-                    )
-               )
+            );
+             map1 =
+            List.fold_left
+              (function map1 ->function (z3, a, lz4) ->
+                Action_option_with_node_map.add (Some a, z3) false map1
               )
+              Action_option_with_node_map.empty
+              x1
+             ;
+             map2 =
+            List.fold_left
+              (function map1 ->function (lz3, a, z4) ->
+                Action_option_with_node_map.add (Some a, z4) false map1
+              )
+              Action_option_with_node_map.empty
+              x2
+             ;
         }
         s;
-      let
-          s1 = Stack.create ()
-      in
-      Stack.push
-        (Node_ref_set.empty)
-        s1;
-      Stack.push
-        (Node_ref_set.empty)
-        s1;
-      let
-          s2 = Stack.create ()
-      in
-      Stack.push
-        (Node_ref_set.empty)
-        s2;
-      Stack.push
-        (Node_ref_set.empty)
-        s2;
-    {
-      not_related = not_related;
-      multiply_visited = Node_ref_pair_set.empty;
-      stable = true;
-      stack_for_current_path = s;
-      successor_1_set_stack = s1;
-      successor_2_set_stack = s2;
-    }
+      {
+        not_related = not_related;
+        visited = Node_ref_pair_set.empty;
+        multiply_visited = Node_ref_pair_set.empty;
+        stable = true;
+        stack_for_current_path = s;
+        verify_roots1 = false;
+        verify_roots2 = false;
+      }
 
   let move_forward wrapper next_successor_transition =
-    (*Wrong!*)
-    wrapper
-      
+    let f1 wrapper next_successor_transition =
+      try
+        let
+            succession_element = Stack.pop wrapper.stack_for_current_path
+        in
+        Stack.push
+        (match
+          next_successor_transition.succession
+        with
+        | Succession1 ->
+          {
+            product_transition = succession_element.product_transition;
+            successor_transition_list =
+              succession_element.successor_transition_list;
+            map1 =
+              Action_option_with_node_map.add
+                (next_successor_transition.common_action,
+                 fst next_successor_transition.child
+                )
+                true
+                succession_element.map1
+            ;
+            map2 = succession_element.map2;
+          }
+        | Succession2 ->
+          {
+            product_transition = succession_element.product_transition;
+            successor_transition_list =
+              succession_element.successor_transition_list;
+            map1 = succession_element.map1;
+            map2 =
+              Action_option_with_node_map.add
+                (next_successor_transition.common_action,
+                 snd next_successor_transition.child
+                )
+                true
+                succession_element.map2
+            ;
+          }
+        | Succession_both ->
+          {
+            product_transition = succession_element.product_transition;
+            successor_transition_list =
+              succession_element.successor_transition_list;
+            map1 =
+              Action_option_with_node_map.add
+                (next_successor_transition.common_action,
+                 fst next_successor_transition.child
+                )
+                true
+                succession_element.map1
+            ;
+            map2 =
+              Action_option_with_node_map.add
+                (next_successor_transition.common_action,
+                 snd next_successor_transition.child
+                )
+                true
+                succession_element.map2
+            ;
+          }
+        )
+          wrapper.stack_for_current_path;
+        wrapper
+      with
+      | Stack.Empty ->
+        match
+          next_successor_transition.succession
+        with
+        | Succession1 ->
+          {
+            not_related = wrapper.not_related;
+            visited = wrapper.visited;
+            multiply_visited = wrapper.multiply_visited;
+            stable = wrapper.stable;
+            stack_for_current_path = wrapper.stack_for_current_path;
+            verify_roots1 = true;
+            verify_roots2 = wrapper.verify_roots2;
+          }
+        | Succession2 ->
+          {
+            not_related = wrapper.not_related;
+            visited = wrapper.visited;
+            multiply_visited = wrapper.multiply_visited;
+            stable = wrapper.stable;
+            stack_for_current_path = wrapper.stack_for_current_path;
+            verify_roots1 = wrapper.verify_roots1;
+            verify_roots2 = true;
+          }
+        | Succession_both ->
+          {
+            not_related = wrapper.not_related;
+            visited = wrapper.visited;
+            multiply_visited = wrapper.multiply_visited;
+            stable = wrapper.stable;
+            stack_for_current_path = wrapper.stack_for_current_path;
+            verify_roots1 = true;
+            verify_roots2 = true;
+          }
+    in
+    if
+      Node_ref_pair_set.mem
+        next_successor_transition.child
+        wrapper.visited
+    then
+      if
+        Node_ref_pair_set.mem
+          next_successor_transition.child
+          wrapper.not_related
+      then
+        (*We found out really quick that this child is in not_related,
+          because of prior computations.*)
+        wrapper 
+      else
+        (*Prior computations suggest that the child is in related,
+          so we sent this information one level below in the stack.*)
+        f1 wrapper next_successor_transition
+    else
+      if
+        lookup_in_stack
+          wrapper.stack_for_current_path
+          next_successor_transition.child
+      then
+        (*Cycle detection suggests that the child is in related,
+          so we sent this information one level below in the stack.*)
+        f1
+          {
+            not_related = wrapper.not_related;
+            visited = wrapper.visited;
+            multiply_visited =
+              Node_ref_pair_set.add
+                next_successor_transition.child
+                wrapper.multiply_visited;
+            stable = wrapper.stable;
+            stack_for_current_path = wrapper.stack_for_current_path;
+            verify_roots1 = wrapper.verify_roots1;
+            verify_roots2 = wrapper.verify_roots2;
+          }
+          next_successor_transition
+      else
+        (*Wrong*)
+        wrapper
+          
   let backtrack wrapper =
     (*Wrong!*)
     wrapper
@@ -238,21 +339,35 @@ struct
           Stack.push
             succession_element
             wrapper.stack_for_current_path;
-          backtrack wrapper
+          backtrack
+            {
+              not_related = wrapper.not_related;
+              visited =
+                Node_ref_pair_set.add
+                  succession_element.product_transition.child
+                  wrapper.visited;
+              multiply_visited = wrapper.multiply_visited;
+              stable = wrapper.stable;
+              stack_for_current_path = wrapper.stack_for_current_path;
+              verify_roots1 = wrapper.verify_roots1;
+              verify_roots2 = wrapper.verify_roots2;
+            }
         | next_successor_transition::remaining_succession_elements ->
           Stack.push
             {
               product_transition =
                 succession_element.product_transition;
               successor_transition_list =
-                remaining_succession_elements
+                remaining_succession_elements;
+              map1 = succession_element.map1;
+              map2 = succession_element.map2;
             }
             wrapper.stack_for_current_path;
           move_forward
             wrapper
             next_successor_transition
       with
-      | Stack.empty -> wrapper
+      Stack.Empty -> wrapper
     in
     let
         changed_wrapper = empty_stack init
@@ -264,9 +379,7 @@ struct
         z2 = get_initial_location ta2 l2
     in
     if
-      Node_ref_set.mem z1 (Stack.top changed_wrapper.successor_1_set_stack)
-        &
-      Node_ref_set.mem z2 (Stack.top changed_wrapper.successor_2_set_stack)
+      changed_wrapper.verify_roots1 && changed_wrapper.verify_roots2
     then
       if
         changed_wrapper.stable
