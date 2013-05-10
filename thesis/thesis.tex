@@ -466,8 +466,15 @@ have been extensively used in our implementation.
   \label{breaking2withzones}
 \end{figure}
 
+\begin{figure}
+  \centering
+  \def\svgwidth{0.9\columnwidth}
+  \input{breaking2-zones-abstracted.pdf_tex}
+  \caption{Zones of Figure~\ref{breaking2} after abstraction.}
+\end{figure}
+
 A common feature of algorithms that generate zone graphs for timed
-automata is a \emph{forward propagation} step in which the algorithsm attempts to
+automata is a \emph{forward propagation} step in which the algorithm attempts to
 create reachable zones in reachable locations by traversing the timed
 automaton. However, this introduces a vulnerability to certain
 pathological cases in which the number of zones expands indefinitely,
