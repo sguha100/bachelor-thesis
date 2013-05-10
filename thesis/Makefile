@@ -2,7 +2,8 @@ all: targets
 
 FIGURES := lts01.pdf_tex lts01quotient.pdf_tex breaking2.pdf_tex \
 breaking2-zones01.pdf_tex breaking2-zones02.pdf_tex \
-breaking2-zones03.pdf_tex breaking2-zones-abstracted.pdf_tex
+breaking2-zones03.pdf_tex breaking2-zones-abstracted.pdf_tex \
+regiongraph01.pdf_tex regiongraph02.pdf_tex
 TARGETS := thesis.pdf
 
 .PHONY: targets

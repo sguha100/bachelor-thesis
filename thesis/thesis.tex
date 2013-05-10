@@ -68,7 +68,6 @@
 \tableofcontents
 \pagebreak
 \listoffigures
-\listoftables
 \pagebreak
 
 \section{Introduction}
@@ -153,15 +152,13 @@ can be reduced to equivalent LTS.
   \caption{Strong bisimilarity quotient of the LTS in Figure~\ref{lts01}.}
 \end{SCfigure}
 
-\begin{definition} 
-  \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
+A binary relation $R$ is a \textit{strong
     bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
   $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
   . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
   \wedge $ \\
   $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
   . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
-\end{definition}
 
 \begin{definition}
   \emph{Strong bisimilarity}: It can be shown that the union of
@@ -241,11 +238,12 @@ be represented as the intersection of a set of hyperplanes.
 
 It should be noted that this definition does not coincide exactly with
 the notion of a convex set from algebra. For instance, for
-$C=\{x_1, x_2\}$, the set $\{(x_1, x_2)| x_1 \geq 0, x_2 \geq 0\} -
-\{(x_1, x_2)| x_1 = x_2 = 0\}$ is convex but not a convex polyhedron.
+$C=\{x_1, x_2\}$, the set $\{(x_1, x_2)| x_1 \geq 0, x_2 \geq 0, x_1 +
+x_2 > 0\}$ is convex but not a convex polyhedron.
 
 Union, intersection, complementation and set difference are well
-defined operations on polyhedra. 
+defined operations on polyhedra, but of these, intersection is the
+only operation which preserves convexity.
 
 The \emph{pre-reset} and \emph{post-reset} of a set $X$ $\epsilon$ $C$ on a
 polyhedron $\zeta$ over the set $C$ of clocks are respectively defined
@@ -380,6 +378,61 @@ space of timed automata exist, which we elaborate on, below.
   guards and clock resets of the original timed automaton.
 \end{definition}
 
+\section{Region graphs}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.6\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{regiongraph01.pdf_tex}
+    \label{regiongraph01}
+  \end{subfigure}%
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{regiongraph02.pdf_tex}
+    \label{regiongraph02}
+  \end{subfigure}
+
+\caption{Motivating examples for region graphs.}
+
+\end{figure}
+
+The notion of a region graph was first introduced in
+\cite{Alur94atheory} and used to show that discretisation of the state
+space of a timed automaton is decidable under a certain abstraction of
+exact timing values while examining the possible states and actions of
+a timed automaton.
+
+To motivate this, we should note that in figure~\ref{regiongraph01}, we can distinguish
+between the valuations $[X = 1.1]$, $[X = 2.0]$ and $[X = 2.2]$ at
+location 0 on the
+basis of the possibility of their outgoing a-transitions: the first can
+only move to 1, the second can move to 1 and 2, and the third can move
+to 1, 2, and 3.
+
+Also, in figure~\ref{regiongraph02}, we can distinguish between
+valuations $[X = 0.6, Y = 0.4]$ and $[X = 0.4; Y = 0.6]$ at location 0
+since the first can take a delay of 0.4 units, then an a-transition to
+1, then a delay of 0.2, then an a-transition to 2, but the second
+cannot move to 2 since it must take a delay of 0.6 to move to 1 which
+leaves no possibility of it moving to 2 after any amount of delay.
+
+We define the \emph{maximum constant} $c_x$ for a clock $x$ to be the
+greatest constant compared to x over all guards and invariants in the
+automaton. It is evident that any two valuations which both assign
+values greater than $c_x$ to $x$ should not be distinguished, but we should
+distinguish between valuations differing in $\lfloor v(x)\rfloor$ $x$
+for any clock $x$, between valuations having the same $v(x)$
+but in which one has $frac(v(x))=0$ but the other does not,
+and between valuations which have different relative orderings of
+$v(x)$ and $v(y)$ for any pair of clocks $(x, y)$. We formalise these
+notions in this definition.
+
 \begin{definition}
   \emph{Region graph}: A region graph is a zone graph in which the
   zones of each location are the same, and given by the equivalence
@@ -387,10 +440,8 @@ space of timed automata exist, which we elaborate on, below.
 
   Valuations $v_1$ and $v_2$ are related under region equivalence if 
   \begin{itemize}
-    \item $\forall x$ $\epsilon$ $C$: $\lfloor v_1(x) \rfloor = \lfloor
-      v_2(x) \rfloor$ or $v_1(x) > c_x$ and $v_2(x) > c_x$ where $c_x$
-      is the greatest constant compared to x over all guards and
-      invariants in the automaton.
+    \item $\forall x$ $\epsilon$ $C$: $(\lfloor v_1(x) \rfloor = \lfloor
+      v_2(x) \rfloor) \leq c_x$ or $v_1(x) > c_x$ and $v_2(x) > c_x$ .
     \item $\forall x$ $\epsilon$ $C$: $v_1(x) = 0$ iff $v_2(x) = 0$.
     \item $\forall$ pairs of clocks $(x, y)$: $frac(v_1(x)) \leq
       frac(v_1(y))$ iff $frac(v_2(x)) \leq frac(v_2(y))$.
@@ -414,8 +465,8 @@ space of timed automata exist, which we elaborate on, below.
 DBM offer a convenient method to represent polyhedra for most of the
 common operations required on zones, including intersection, clock
 resets, future, and abstraction. The UPPAAL DBM libraries
-\cite{david2006uppaal} implement many common functions on DBM and
-have been extensively used in our implementation.
+\cite{david2006uppaal} \cite{bengtsson2004timed} implement many common
+functions on DBM and have been extensively used in our implementation.
 % elaborate on the operations for DBM.
 
 \section{Abstraction}
@@ -484,7 +535,7 @@ iteration, as shown in Figure~\ref{breaking2-zones01},
 Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
 
 However, this is inconsistent with what
-we know about region graphs \cite{Alur94atheory} and their
+we know about region graphs and their
 implication of finiteness for the state spaces of timed automata,
 thus, we have abstractions which serve to cap the number of zones in a
 zone graph by reducing zones to equivalent regions which contain them,
@@ -511,7 +562,7 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   \right
 \end{displaymath}
 
-\section{Timed relations on timed automata}
+\section{Time abstracted relations on timed automata}
 
 \subsection{Time abstracted bisimilarity}
 
@@ -532,12 +583,10 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Strong time abstracted bisimilarity}: It can be shown that the union of all strong time abstracted
+It can be shown that the union of all strong time abstracted
   bisimulations over the set of (location, valuation) pairs is a
   strong time abstracted bisimulation. This binary relation is called
   \textit{strong time abstracted bisimilarity}.
-\end{definition}
 
 \begin{definition}
   \emph{Time abstracted delay bisimulation}: A binary relation
@@ -558,13 +607,11 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Time abstracted delay bisimilarity}: It can be shown that the
+It can be shown that the
   union of all time abstracted delay bisimulations over the set of
   (location, valuation) pairs is a time abstracted delay
   bisimulation. This binary relation is called \textit{time abstracted
     delay bisimilarity}.
-\end{definition}
 
 \begin{definition}
   \emph{Time abstracted observational bisimulation}: A binary relation
@@ -584,13 +631,11 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Time abstracted observational bisimilarity}: It can be shown that
+It can be shown that
   the union of all time abstracted observational bisimulations over the
   set of (location, valuation) pairs is a time abstracted observational
   bisimulation. This binary relation is called \textit{time abstracted
     observational bisimilarity}.
-\end{definition}
 
 %give examples.
 
@@ -694,7 +739,6 @@ and
 need to be split into convex zones.) \\
 This generates the zone valuation graph.
 
-
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
   Initialise the graph $zone\_graph$ with a single node $(l_0, v_0 \uparrow)$
@@ -727,7 +771,7 @@ This generates the zone valuation graph.
       }
     }
   }
-  Generate $zone_valuation_graph$ by applying Fernandez' algorithm to $zone_graph$.
+  Generate $zone\_valuation\_graph$ by applying Fernandez' algorithm to $zone\_graph$\;
   Return $zone\_graph$\;
 \end{algorithm2e}
 
