@@ -99,7 +99,7 @@ difference bound matrices (DBM), a widely used representation for the time
 constraints (i. e. convex polyhedra) that are used to describe
 zones. Then, we explain abstractions, which are transformations on DBM
 that replace each DBM by a DBM which is its superset and
-which in equivalent to it modulo strong time abstracted
+which is equivalent to it modulo strong time abstracted
 bisimilarity. This helps us prevent state space explosion in our
 exploration algorithms which build the state space of a timed
 automaton. We then explain the common features of certain time
@@ -129,7 +129,8 @@ manner, and explain our implementation.
   \item $Act$, a set of \emph{actions}
   \item $\rightarrow \subseteq S \times Act \times S$, a \emph{transition
     relation}.
-  \item optionally, $I \subseteq S$ ,a set of initial states.
+  \item optionally, $I \subseteq S$ ,a set of initial states. If there
+    is exactly one initial state, then the LTS is said to be \emph{rooted}.
   \end{itemize}
 \end{definition}
 
@@ -153,19 +154,17 @@ can be reduced to equivalent LTS.
 \end{SCfigure}
 
 A binary relation $R$ is a \textit{strong
-    bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
-  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-  . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
-  \wedge $ \\
-  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-  . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
+  bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+$\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+. (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+\wedge $ \\
+$\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+. (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
 
-\begin{definition}
-  \emph{Strong bisimilarity}: It can be shown that the union of
-  all strong bisimulations over the set of states is a strong
-  bisimulation. This binary relation is called \textit{strong
-    bisimilarity}, denoted by $\sim$.
-\end{definition}
+It can be shown that the union of
+all strong bisimulations over the set of states is a strong
+bisimulation. This binary relation is called \textit{strong
+  bisimilarity}, denoted by $\sim$.
 
 Strong bisimilarity between two states in an LTS implies,
 intuitively, that any action performed by the one can be performed by
@@ -344,40 +343,6 @@ the invariant $I(l)$ of a location $l$ and \texttt{e.source}, \texttt{e.guard},
 $l$, $g$, $a$, $r$, $l'$ of
 an edge $e = l \xrightarrow{g, a, r} l'$ unless otherwise noted.
 
-\section{Zone graphs}
-
-It is evident that the state space in a timed automaton is, in
-general, uncountably infinite. This makes it impossible for any
-algorithm to terminate which explores the state space in a naive
-manner. However, some standard techniques to discretise the state
-space of timed automata exist, which we elaborate on, below.
-
-\begin{definition}
-  \emph{State}: A state of a timed automaton is a pair $(l, v)$
-  where $l$ is a location in the automaton and $v$ is a clock
-  valuation satisfying \texttt{l.invar}.
-\end{definition}
-
-\begin{definition}
-  \emph{Symbolic state}: A symbolic state is a set of states in
-  the timed automaton. The constituent states do not necessarily share
-  a location.
-\end{definition}
-
-\begin{definition}
-  \emph{Zone}: A zone is a symbolic state where the all the
-  constituent states share a location and the set of valuations of
-  these states forms a convex polyhedron on the valuation space.
-\end{definition}
-
-\begin{definition}
-  \emph{Zone graph}: A zone graph of a timed automaton is an LTS, where
-  the states are zones, the actions consist of the actions of the
-  timed automaton and an $\epsilon$ action, which represents a timed
-  transition, and the transition relation respects the invariants,
-  guards and clock resets of the original timed automaton.
-\end{definition}
-
 \section{Region graphs}
 
 \begin{figure}
@@ -424,7 +389,7 @@ since the first can take a delay of 0.4 units, then an a-transition to
 cannot move to 2 since it must take a delay of 0.6 to move to 1 which
 leaves no possibility of it moving to 2 after any amount of delay.
 
-We define the \emph{maximum constant} $c_x$ for a clock $x$ to be the
+For each clock $x$, we define $c_x$ to be the
 greatest constant compared to x over all guards and invariants in the
 automaton. It is evident that any two valuations which both assign
 values greater than $c_x$ to $x$ should not be distinguished, but we should
@@ -436,8 +401,8 @@ $v(x)$ and $v(y)$ for any pair of clocks $(x, y)$. We formalise these
 notions in this definition.
 
 \begin{definition}
-  \emph{Region graph}: A region graph is a zone graph in which the
-  zones of each location are the same, and given by the equivalence
+  \emph{Region graph}: A region graph is a partitioning of the set of
+  valuations for a given timed automaton into equivalence
   classes under \emph{region equivalence}.
 
   Valuations $v_1$ and $v_2$ are related under region equivalence if 
@@ -448,6 +413,49 @@ notions in this definition.
     \item $\forall$ pairs of clocks $(x, y)$: $frac(v_1(x)) \leq
       frac(v_1(y))$ iff $frac(v_2(x)) \leq frac(v_2(y))$.
   \end{itemize}
+\end{definition}
+
+It is evident that any two states sharing a location and satisfying
+region equivalence of their states are going to, under an abstraction
+of exact values of time delays (a notion we will formalise in
+\ref{def:stab}). This result is important as it shows that there are
+finitely many categories of states (which we will talk about in
+\ref{def:zone}) which we need to consider.
+
+\section{Zone graphs}
+
+It is evident that the state space in a timed automaton is, in
+general, uncountably infinite. However, we have seen that region
+graphs can be used to make the state space finite, but at the cost of
+state explosion, since the number of regions is generally exponential
+in the number of clocks. Some alternative, less expensive methods for
+discretising the state space follow.
+
+\begin{definition}
+  \emph{State}: A state of a timed automaton is a pair $(l, v)$
+  where $l$ is a location in the automaton and $v$ is a clock
+  valuation satisfying \texttt{l.invar}.
+\end{definition}
+
+\begin{definition}
+  \emph{Symbolic state}: A symbolic state is a set of states in
+  the timed automaton. The constituent states do not necessarily share
+  a location.
+\end{definition}
+
+\begin{definition}
+\label{def:zone}
+  \emph{Zone}: A zone is a symbolic state where the all the
+  constituent states share a location and the set of valuations of
+  these states forms a convex polyhedron on the valuation space.
+\end{definition}
+
+\begin{definition}
+  \emph{Zone graph}: A zone graph of a timed automaton is an LTS, where
+  the states are zones, the actions consist of the actions of the
+  timed automaton and an $\epsilon$ action, which represents a timed
+  transition, and the transition relation respects the invariants,
+  guards and clock resets of the original timed automaton.
 \end{definition}
 
 \section{Difference bound matrices}
@@ -554,13 +562,11 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
 '_{ij}\rangle _{0 \leq i,j \leq n} $ where
 \begin{displaymath}
   (m'_{ij}, \smile'_{ij}) =
-  \left{
-    \begin{array}{ll}
+    \begin{cases}
       (\infty, <)  & \mbox{if } m_{ij} > k \\
       (-k, <)  & \mbox{if } m_{ij} < -k \\
       m_{ij}, \smile _{ij} & \mbox{if } -k \leq m_{ij} \leq k
-    \end{array}
-  }
+    \end{cases}
   \right
 \end{displaymath}
 
@@ -568,7 +574,8 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
 
 \subsection{Time abstracted bisimilarity}
 
-\begin{definition}  
+\begin{definition} 
+\label{def:stab} 
   \emph{Strong time abstracted bisimulation}: A binary relation
   $R$ is a strong time abstracted bisimulation (STaB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
@@ -646,8 +653,11 @@ It can be shown that
 \subsection{Fernandez' algorithm}
 
 This algorithm is summarised here from
-\cite{fernandez1990implementation}. Details of the splitting operations
-and the proof of correctness are omitted for brevity.
+\cite{fernandez1990implementation}. This algorithm follows a strategy
+of repeatedly splitting a partition of the states of the LTS, into a
+finer partition, until a fixpoint is reached and no further refinement
+is possible. The details of two-way splitting and three-way splitting
+are omitted for brevity.
 
 \begin{algorithm2e}[H]
   Initialise $\pi = \{Pr\}$\;
@@ -942,6 +952,26 @@ the initial states of the timed automata in their respective
 zone-valuation graphs.
 
 When a zone is 
+
+\section{Conclusions and future work}
+
+We designed and implemented algorithms for verifying timed and time abstracted
+relations on pairs of timed automata, and provided reference
+implementations for STaB, TaDB and TaOB. However, some scope for
+further work remains.
+
+\begin{itemize}
+\item Using the framework we have developed for verifying timed
+  relations, such as time abstracted bisimilarity from
+  \cite{DBLP:conf/cav/GuhaNA12}.
+\item Investigation along the lines of the original zone-valuation
+  graph algorithm in \cite{DBLP:conf/cav/GuhaNA12} in order to see if the
+  efficiency of this algorithm can be improved while retaining
+  correctness.
+\item Investigation along the lines of proving cycles cannot exist in
+  the product LTS of two zone-valuation graphs in order to simplify
+  the current algorithm for verifying relations by omitting cycle detection.
+\end{itemize}
 
   \bibliographystyle{splncs}
   \bibliography{thesis}
