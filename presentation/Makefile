@@ -5,7 +5,8 @@ breaking2-zones-abstracted.pdf_tex \
 breaking2-zones01.pdf_tex \
 breaking2-zones02.pdf_tex \
 breaking2-zones03.pdf_tex \
-breaking2.pdf_tex
+breaking2.pdf_tex \
+breaking2-zones-quotient.pdf_tex
 TARGETS := presentation.pdf
 
 .PHONY: targets

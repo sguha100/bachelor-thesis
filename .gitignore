@@ -46,4 +46,6 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /thesis/*.png
 /ocaml/grammar-noweb/examples/*.png
 /thesis/*.pdf
+/presentation/*.pdf
 /thesis/*.pdf_tex
+/presentation/*.pdf_tex
