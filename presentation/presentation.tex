@@ -1,0 +1,188 @@
+\documentclass{beamer}
+\usetheme{default}
+\usepackage[algo2e]{algorithm2e}
+
+\title{Tools and Algorithms for Deciding Relations on Timed Automata}
+\subtitle{B Tech project, supervised by S Arun-Kumar, verification group}
+\author{Mihir Mehta}
+\institute[IITD]{
+  Department of Computer Science and Engineering\\
+  Indian Institute of Technology, Delhi\\[1ex]
+  \texttt{cs1090197}
+}
+\date[May 2013]{May 12, 2013}
+
+\begin{document}
+
+%--- the titlepage frame -------------------------%
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\AtBeginSection[]{
+
+  \frame<beamer>{ 
+
+    \frametitle{Outline}   
+
+    \tableofcontents[currentsection,currentsubsection] 
+
+  }
+
+}
+
+\section{Automata without timing and relations on them}
+
+\begin{frame}{Labeled transition systems}
+  \begin{definition}
+    \emph{Labelled Transition System}: A labelled transition system (LTS)
+    \cite{Keller:1976:FVP:360248.360251} is an automaton which is
+    described by
+    \begin{itemize}
+    \item $S$, a set of \emph{states} 
+    \item $Act$, a set of \emph{actions}
+    \item $\rightarrow \subseteq S \times Act \times S$, a \emph{transition
+      relation}.
+    \item optionally, $I \subseteq S$ ,a set of initial states. If there
+      is exactly one initial state, then the LTS is said to be \emph{rooted}.
+    \end{itemize}
+  \end{definition}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Relations on LTS}
+
+\begin{definition}
+\emph{Strong bisimulation}:A binary relation $R$ on the states of an
+LTS is a strong bisimulation if and only if, for all
+ $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+$\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+. (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+\wedge $ \\
+$\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+. (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
+\end{definition}
+
+\begin{definition}
+It can be shown that the union of
+all strong bisimulations over the set of states is a strong
+bisimulation. This binary relation is called \emph{strong
+  bisimilarity}, denoted by $\sim$.
+\end{definition}
+
+\end{frame}
+
+\section{Timed automata and relations on them}
+
+\begin{frame}{Timed Automata}
+  \begin{definition}
+    \emph{Timed Automaton}: A timed automaton
+    \cite{Alur94atheory} over a finite set of clocks $C$
+    and a finite set of actions $Act$ is a 4-tuple $(L, l_{0}, E, I)$.
+    \begin{itemize}
+    \item $L$ is a finite set of locations.
+    \item $l_{0}$ is the initial location.
+    \item $E \subseteq L \times B(C) \times Act \times 2^{C} \times L$
+      is a finite set of edges.
+    \item $I: L \rightarrow B(C)$ assigns invariants to each edge
+      location.
+    \item $B(C)$ is the set of clock constraints over C.
+    \end{itemize}
+  \end{definition}
+\end{frame}
+
+\section{Algorithms}
+
+\begin{frame}[fragile]
+  \frametitle{Creating the zone valuation graph}
+
+  \begin{algorithm2e}[H]
+    Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
+    Initialise the graph $zone\_graph$ with a single node $(l_0, v_0 \uparrow)$
+    with an $\epsilon$ self-loop\;
+    \While{$Q$ is not empty}{
+      Dequeue $(l_{parent}, t, l_{child})$ from $Q$\;
+      \If{$l_{parent} \neq null$}{
+        \ForEach{zone $Z_{parent}$ of $l_{parent}$}{
+          Add new zones to the zones of $l_{child}$ so that all zones
+          reachable from $Z_{parent}$ are represented\;
+          Abstract if necessary\;
+          Update edges from $Z_{parent}$ to the new zones of $l_{child}$
+          \If{new zones are created in $l_{child}$ or $l_{parent}$ is null}{
+            \ForEach{outgoing transition $t'$ of $l_{child}$}{
+              Enqueue $(l_{child}, t', \texttt{t'.target})$ in $Q$\;
+            }
+          }
+        }
+      }
+      Set $new\_zone$\;
+      \While{$new\_zone$}{
+        Reset $new\_zone$\;
+        \ForEach{transition $t$ in the timed automaton}{
+          Split the zones of \texttt{t.source} to be stable with respect to the
+          zones of \texttt{t.target}\;
+          Update edges accordingly\;
+          \If{new zones are created in \texttt{t.source}}{
+            Set $new\_zone$\;
+          }
+        }
+      }
+    }
+    Generate $zone\_valuation\_graph$ by applying Fernandez' algorithm to $zone\_graph$\;
+    Return $zone\_graph$\;
+  \end{algorithm2e}
+
+\end{frame}
+
+\begin{frame}{Zone valuation graph example}
+  \begin{figure}
+    \centering
+    \def\svgwidth{0.6\columnwidth}
+    \input{breaking2.pdf_tex}
+    \caption{Timed automaton. Here, the states are \{0\}, the actions
+      are \{a\}, and the clocks are \{X, Y\}.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Zone valuation graph example}
+  \begin{figure}
+    \centering
+    \def\svgwidth{0.4\columnwidth}
+    \input{breaking2-zones01.pdf_tex}
+    \caption{Zones after one iteration.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[shrink=20]{Zone valuation graph example}
+  \begin{figure}
+    \centering
+    \def\svgwidth{0.7\columnwidth}
+    \input{breaking2-zones02.pdf_tex}
+    \caption{Zones after two iterations.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[shrink=20]{Zone valuation graph example}
+  \begin{figure}
+    \centering
+    \def\svgwidth{0.9\columnwidth}
+    \input{breaking2-zones03.pdf_tex}
+    \caption{Zones after three iterations without abstraction.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[shrink=20]{Zone valuation graph example}
+  \begin{figure}
+    \centering
+    \def\svgwidth{1.2\columnwidth}
+    \input{breaking2-zones-abstracted.pdf_tex}
+    \caption{Zones after three iterations with abstraction.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[allowframebreaks,shrink=20]
+  \frametitle{References}
+  \bibliographystyle{splncs}
+  \bibliography{presentation}
+\end{frame}
+
+\end{document}
