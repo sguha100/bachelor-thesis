@@ -347,6 +347,8 @@ an edge $e = l \xrightarrow{g, a, r} l'$ unless otherwise noted.
 
 \begin{figure}
   \centering
+  \caption{Motivating examples for region graphs.}
+
   \begin{subfigure}[b]{0.6\textwidth}
     \centering
     \def\svgwidth{\columnwidth}
@@ -364,8 +366,6 @@ an edge $e = l \xrightarrow{g, a, r} l'$ unless otherwise noted.
     \caption{}
     \label{regiongraph02}
   \end{subfigure}
-
-\caption{Motivating examples for region graphs.}
 
 \end{figure}
 
@@ -483,6 +483,9 @@ functions on DBM and have been extensively used in our implementation.
 
 \begin{figure}
   \centering
+  \caption{Timed automaton with a potentially infinite
+    set of zones, example taken from \cite{Behrmann03staticguard}.}
+  \label{breaking2withzones}
   \begin{subfigure}[b]{0.5\textwidth}
     \centering
     \def\svgwidth{\columnwidth}
@@ -522,9 +525,6 @@ functions on DBM and have been extensively used in our implementation.
     \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
     \label{breaking2-zones03}
   \end{subfigure}
-  \caption{Timed automaton with a potentially infinite
-    set of zones, example taken from \cite{Behrmann03staticguard}.}
-  \label{breaking2withzones}
 \end{figure}
 
 \begin{figure}
@@ -573,6 +573,70 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
 \section{Time abstracted relations on timed automata}
 
 \subsection{Time abstracted bisimilarity}
+
+\begin{figure}
+  \centering
+  \caption{Examples for time abstracted bisimilarities.}
+  \label{fig:tab}
+
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair01first.pdf_tex}
+    \caption{}
+    \label{pair01first}
+  \end{subfigure}%
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair01second.pdf_tex}
+    \caption{}
+    \label{pair01second}
+  \end{subfigure}
+  %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair02first.pdf_tex}
+    \caption{}
+    \label{pair02first}
+  \end{subfigure}
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair02second.pdf_tex}
+    \caption{}
+    \label{pair02second}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair03first.pdf_tex}
+    \caption{}
+    \label{pair03first}
+  \end{subfigure}
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair03second.pdf_tex}
+    \caption{}
+    \label{pair03second}
+  \end{subfigure}
+
+\end{figure}
 
 \begin{definition} 
 \label{def:stab} 
@@ -646,7 +710,12 @@ It can be shown that
   bisimulation. This binary relation is called \textit{time abstracted
     observational bisimilarity}.
 
-%give examples.
+Figure~\ref{fig:tab} shows examples for each kind of time abstracted
+bisimilarity. The initial zones of Figure~\ref{pair01first} and
+Figure~\ref{pair01second} show STaB, TadB and TaoB, while the initial
+zones of Figure~\ref{pair02first} and Figure~\ref{pair02second} show
+TadB and TaoB but not STaB, and the initial zones of Figure~\ref{pair03first} and
+Figure~\ref{pair03second} show TaoB but not STaB or TadB.
 
 \section{Algorithms}
 
@@ -750,6 +819,8 @@ and
 (which does not have an edge to $(l_{succ}, \zeta _{succ})$ and may
 need to be split into convex zones.) \\
 This generates the zone valuation graph.
+
+Pseudocode for this follows.
 
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
@@ -879,12 +950,16 @@ For TaoB, we define $f_P$ and $f_Q$ as
 This formulation naturally suggests an approach: use tables to store
 pairs of states in the two timed automata which are known to be
 related or known to be unrelated, and use a dynamic programming
-approach to verify the relation for any given pair of states.
-
+approach to verify the relation for any given pair of
+states. Pseudocode for this is given in the
+procedure~\ref{algorithm:checkautomatarelation} which calls
+procedure~\ref{algorithm:checkstatesrelation} recursively to return
+either \texttt{true} or \texttt{false} for the given pair of automata.
 
 \begin{procedure}
   \caption{CheckStatesRelation($P$, $Q$, $s_{P}$, $s_{Q}$,
     $yes\_ table$, $no\_ table$)}
+  \label{algorithm:checkstatesrelation}
   \SetKwFunction{lookup}{lookup}
   \SetKwFunction{insert}{insert}
   \SetKwFunction{remove}{remove}
@@ -931,6 +1006,7 @@ approach to verify the relation for any given pair of states.
 
 \begin{procedure}
   \caption{CheckAutomataRelation($T_P$, $T_Q$)}
+  \label{algorithm:checkautomatarelation}
   \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
   \Begin{
       Create zone valuation graphs $G_P$, $G_Q$ of $T_P$, $T_Q$\;
@@ -943,15 +1019,6 @@ approach to verify the relation for any given pair of states.
         $yes\_ table$, $no\_ table$}\;
     }
 \end{procedure}
-
-\subsubsection{Proof of correctness}
-Since a zone-valuation graph is minimal modulo strong time-abstracted
-bisimilarity, verifying a relation on two timed automata is equivalent
-to verifying it on the symbolic states containing
-the initial states of the timed automata in their respective
-zone-valuation graphs.
-
-When a zone is 
 
 \section{Conclusions and future work}
 
@@ -971,6 +1038,10 @@ further work remains.
 \item Investigation along the lines of proving cycles cannot exist in
   the product LTS of two zone-valuation graphs in order to simplify
   the current algorithm for verifying relations by omitting cycle detection.
+\item Cleaner code through better integration with the UPPAAL
+  libraries for DBM operations and parsing of timed automata, and with
+  Ocamlgraph, a set of Ocaml libraries for implementing common
+  operations for graphs.
 \end{itemize}
 
   \bibliographystyle{splncs}
