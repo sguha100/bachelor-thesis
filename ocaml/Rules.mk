@@ -30,20 +30,7 @@ include $(dir)/Rules.mk
 .PHONY: targets
 targets: next_step.native calc.native test.native compare_automata.native
 
-libzone_stubs.a: \
-c/zone_stubs.mli \
-c/zone.mllib \
-c/zone_stubs.c
-	$(OCAMLBUILD) libzone_stubs.a
-
-compare_automata.native: \
-zone-valuation-graph/compare_automata.ml \
-relations/Relations.ml \
-relations/STAB.ml \
-relations/TADB.ml \
-relations/TAOB.ml
-
-calc.native: \
+CALC_NATIVE_DEPS := \
 zone-valuation-graph/calc.ml \
 zone-valuation-graph/ZVG_modules.ml \
 zone-valuation-graph/ZVG_tree.ml \
@@ -56,7 +43,14 @@ Rules.mk \
 _tags \
 myocamlbuild.ml
 
-next_step.native: \
+COMPARE_AUTOMATA_DEPS := \
+zone-valuation-graph/compare_automata.ml \
+relations/Relations.ml \
+relations/STAB.ml \
+relations/TADB.ml \
+relations/TAOB.ml
+
+NEXT_STEP_DEPS := \
 next_step/next_step.ml \
 $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
@@ -70,7 +64,7 @@ Rules.mk \
 _tags\
 myocamlbuild.ml
 
-test.native: \
+TEST_DEPS := \
 $(grammar_types) \
 utilities/Clock_constraint_utilities.ml \
 utilities/UDBM_utilities.ml \
@@ -90,6 +84,20 @@ utilities/PCQueue_test.ml \
 Rules.mk \
 _tags\
 myocamlbuild.ml
+
+libzone_stubs.a: \
+c/zone_stubs.mli \
+c/zone.mllib \
+c/zone_stubs.c
+	$(OCAMLBUILD) libzone_stubs.a
+
+compare_automata.native: $(COMPARE_AUTOMATA_DEPS)
+
+calc.native: $(CALC_NATIVE_DEPS)
+
+next_step.native: $(NEXT_STEP_DEPS)
+
+test.native: $(TEST_DEPS)
 
 %.native:
 	$(OCAMLBUILD)  \
