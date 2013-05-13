@@ -2,7 +2,7 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-TGT_$(d) := $(d)/libzone.a $(d)/zone_stubs.o $(d)/zone_stubs.c
+TGT_$(d) := $(d)/libzone.a $(d)/zone_stubs.o $(d)/zone_stubs.c $(d)/zone_stubs.mli
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -15,6 +15,9 @@ $(TGT_$(d)): $(d)/Rules.mk
 
 $(d)/zone_stubs.c: $(d)/zone_stubs.c.nw
 	notangle -Rzone_stubs.c $(d)/zone_stubs.c.nw > $(d)/zone_stubs.c
+
+$(d)/zone_stubs.mli: $(d)/zone_stubs.mli.nw
+	notangle -Rzone_stubs.mli $(d)/zone_stubs.mli.nw > $(d)/zone_stubs.mli
 
 # $(d)/libzone.a: $(d)/zone_stubs.o
 # 	ar rc $(d)/libzone.a $(d)/zone_stubs.o
