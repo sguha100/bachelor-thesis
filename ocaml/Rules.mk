@@ -24,6 +24,8 @@ dir := utilities
 include $(dir)/Rules.mk
 dir := relations
 include $(dir)/Rules.mk
+dir := zone-valuation-graph
+include $(dir)/Rules.mk
 
 # Top level dependencies.
 

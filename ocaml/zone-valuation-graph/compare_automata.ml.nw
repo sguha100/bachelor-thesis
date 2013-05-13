@@ -1,3 +1,4 @@
+<<compare_automata.ml>>=
 open ZVG_modules
 open Grammar_types
 open Parse_timed_automaton
