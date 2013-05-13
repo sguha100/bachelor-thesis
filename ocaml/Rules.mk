@@ -48,7 +48,8 @@ zone-valuation-graph/compare_automata.ml \
 relations/Relations.ml \
 relations/STAB.ml \
 relations/TADB.ml \
-relations/TAOB.ml
+relations/TAOB.ml \
+utilities/Table_using_list.ml
 
 NEXT_STEP_DEPS := \
 next_step/next_step.ml \
@@ -90,6 +91,14 @@ c/zone_stubs.mli \
 c/zone.mllib \
 c/zone_stubs.c
 	$(OCAMLBUILD) libzone_stubs.a
+
+compare_automata.native: $(COMPARE_AUTOMATA_DEPS)
+
+calc.native: $(CALC_NATIVE_DEPS)
+
+next_step.native: $(NEXT_STEP_DEPS)
+
+test.native: $(TEST_DEPS)
 
 %.native: $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
 	$(NEXT_STEP_DEPS) $(TEST_DEPS)
