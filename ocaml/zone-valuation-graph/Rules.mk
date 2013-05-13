@@ -14,23 +14,8 @@ $(TGT_$(d)): $(d)/Rules.mk
 #We do want the related targets to be re-built when the Makefile
 #fragment is updated.
 
-$(d)/Graph_functions2.ml: $(d)/Graph_functions2.ml.nw
-	notangle -RGraph_functions2.ml \
-$(d)/Graph_functions2.ml.nw > $(d)/Graph_functions2.ml
-
-$(d)/ZVG_modules.ml: $(d)/ZVG_modules.ml.nw
-	notangle -RZVG_modules.ml \
-$(d)/ZVG_modules.ml.nw > $(d)/ZVG_modules.ml
-
-$(d)/ZVG_tree.ml: $(d)/ZVG_tree.ml.nw
-	notangle -RZVG_tree.ml $(d)/ZVG_tree.ml.nw > $(d)/ZVG_tree.ml
-
-$(d)/calc.ml: $(d)/calc.ml.nw
-	notangle -Rcalc.ml $(d)/calc.ml.nw > $(d)/calc.ml
-
-$(d)/compare_automata.ml: $(d)/compare_automata.ml.nw
-	notangle -Rcompare_automata.ml $(d)/compare_automata.ml.nw \
-> $(d)/compare_automata.ml
+$(d)/%.ml: $(d)/%.ml.nw
+	notangle -R$(subst $(d)/,,$@) $< > $@
 
 # The argument passed with the -R switch does not require
 # qualification with $(d) because it refers solely to the file name
