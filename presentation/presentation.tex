@@ -8,7 +8,7 @@
 \institute[IITD]{
   Department of Computer Science and Engineering\\
   Indian Institute of Technology, Delhi\\[1ex]
-  \texttt{cs1090197}
+  \texttt{cs1090197@cse.iitd.ac.in}
 }
 \date[May 2013]{May 12, 2013}
 
@@ -51,23 +51,23 @@
 
 \begin{frame}[allowframebreaks]{Relations on LTS}
 
-\begin{definition}
-\emph{Strong bisimulation}:A binary relation $R$ on the states of an
-LTS is a strong bisimulation if and only if, for all
- $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
-$\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-. (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
-\wedge $ \\
-$\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-. (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
-\end{definition}
+  \begin{definition}
+    \emph{Strong bisimulation}:A binary relation $R$ on the states of an
+    LTS is a strong bisimulation if and only if, for all
+    $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+    $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+    . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+    \wedge $ \\
+    $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+    . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
+  \end{definition}
 
-\begin{definition}
-It can be shown that the union of
-all strong bisimulations over the set of states is a strong
-bisimulation. This binary relation is called \emph{strong
-  bisimilarity}, denoted by $\sim$.
-\end{definition}
+  \begin{definition}
+    It can be shown that the union of
+    all strong bisimulations over the set of states is a strong
+    bisimulation. This binary relation is called \emph{strong
+      bisimilarity}, denoted by $\sim$.
+  \end{definition}
 
 \end{frame}
 
@@ -188,7 +188,145 @@ bisimulation. This binary relation is called \emph{strong
   \end{figure}
 \end{frame}
 
-\begin{frame}[allowframebreaks,shrink=20]
+\begin{frame}{Verifying relations on pairs of timed automata.}
+  \begin{itemize}
+  \item Origin for this algorithm - \cite{arun2006bisimilarities} 
+  \item General method to compute $(\rho, \sigma)$-bisimilarities on
+    two LTS, starting from their initial locations.
+  \item Can be adapted for a certain class of timed and time
+    abstracted relations by using zone valuation graphs.
+  \item For every relation $R$ satisfying this property, functions
+    $f_P$ and $f_Q$ must exist such that the proposition $s_P R s_Q$
+    resolves to one of these:
+    \begin{itemize}
+    \item yes
+    \item no
+    \item if and only if 
+      \begin{align*} 
+        &\forall (s_P', L_Q') \in f_P(s_P): \exists s_Q' \in
+        L_Q': s_P' R s_Q' \quad \wedge \\
+        &\forall (L_P', s_Q') \in f_Q(s_Q): \exists s_P' \in
+        L_P': s_P' R s_Q'
+      \end{align*} 
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[shrink=20]{Verifying relations on pairs of timed automata.}
+  \begin{itemize}
+  \item For STaB, we define $f_P$ and $f_Q$ as
+    \begin{align*}
+      f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{a} s_Q'\}\} \\
+      \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+      f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{a} s_P'\}\} \\
+      \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+    \end{align*}
+
+  \item For TadB, we define $f_P$ and $f_Q$ as
+    \begin{align*}
+      f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a} s_Q'\}\} \\
+      \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+      f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a} s_P'\}\} \\
+      \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+    \end{align*}
+
+  \item For TaoB, we define $f_P$ and $f_Q$ as
+    \begin{align*}
+      f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_Q'\}\} \\
+      \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
+      L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
+      f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_P'\}\} \\
+      \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
+      L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
+    \end{align*}
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile, shrink=60]
+  \frametitle{Verifying relations on pairs of timed automata.}
+\begin{procedure}[H]
+  \caption{CheckStatesRelation($P$, $Q$, $s_{P}$, $s_{Q}$,
+    $yes\_ table$, $no\_ table$)}
+  \label{algorithm:checkstatesrelation}
+  \SetKwFunction{lookup}{lookup}
+  \SetKwFunction{insert}{insert}
+  \SetKwFunction{remove}{remove}
+  \Begin{
+      \eIf{\lookup{$yes\_ table$, $s_{P}$, $s_{Q}$}}{
+        \KwRet true\;
+      }{
+        \eIf{\lookup{$yes\_ table$, $s_{P}$, $s_{Q}$}}{
+          \KwRet false\;
+        }{
+          \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+          Set $v_P$\;
+          \ForEach{$(s_P', L_Q')$ in $f_P(s_P)$}{
+            Reset $v_P$\;
+            \ForEach{$s_Q'$ in $L_Q'$}{
+              \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
+                  $yes\_ table$, $no\_ table$}}{
+                Set $v_P$\;
+              }
+            }
+          }
+          Set $v_Q$\;
+          \ForEach{$(s_Q', L_P')$ in $f_Q(s_Q)$}{
+            Reset $v_Q$\;
+            \ForEach{$s_P'$ in $L_P'$}{
+              \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
+                  $yes\_ table$, $no\_ table$}}{
+                Set $v_Q$\;
+              }
+            }
+          }
+          \eIf{$v_P$ $\wedge$ $v_Q$}{
+            \KwRet true\;
+          }{
+            \remove{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+            \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
+            \KwRet false\;
+          }
+        }
+      }
+    }
+
+\end{procedure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Verifying relations on pairs of timed automata.}
+
+\begin{procedure}[H]
+  \caption{CheckAutomataRelation($T_P$, $T_Q$)}
+  \label{algorithm:checkautomatarelation}
+  \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
+  \Begin{
+      Create zone valuation graphs $G_P$, $G_Q$ of $T_P$, $T_Q$\;
+      Find the zone $s_P$ in $G_P$ which contains the initial
+      state of $T_P$\;
+      Find the zone $s_Q$ in $G_Q$ which contains the initial
+      state of $T_Q$\;
+      Initialise $yes\_ table$ and $no\_ table$ to empty tables\;
+      \KwRet \CheckStatesRelation{$G_P$, $G_Q$, $s_P$, $s_Q$,
+        $yes\_ table$, $no\_ table$}\;
+    }
+\end{procedure}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]
   \frametitle{References}
   \bibliographystyle{splncs}
   \bibliography{presentation}
