@@ -39,7 +39,9 @@ c/zone_stubs.c
 compare_automata.native: \
 zone-valuation-graph/compare_automata.ml \
 relations/Relations.ml \
-relations/STAB.ml
+relations/STAB.ml \
+relations/TADB.ml \
+relations/TAOB.ml
 
 calc.native: \
 zone-valuation-graph/calc.ml \
