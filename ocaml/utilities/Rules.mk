@@ -2,7 +2,8 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_$(d) := $(d)/Clock_constraint_utilities.ml $(d)/NRQueue.ml $(d)/Table_using_list.ml
+TGT_$(d) := $(d)/Clock_constraint_utilities.ml $(d)/NRQueue.ml \
+$(d)/Table_using_list.ml $(d)/UDBM_utilities.ml
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -25,6 +26,10 @@ $(d)/NRQueue.ml.nw
 $(d)/Table_using_list.ml: \
 $(d)/Table_using_list.ml.nw
 	notangle -RTable_using_list.ml $(d)/Table_using_list.ml.nw > $(d)/Table_using_list.ml
+
+$(d)/UDBM_utilities.ml: \
+$(d)/UDBM_utilities.ml.nw
+	notangle -RUDBM_utilities.ml $(d)/UDBM_utilities.ml.nw > $(d)/UDBM_utilities.ml
 
 # The argument passed with the -R switch does not require
 # qualification with $(d) because it refers solely to the file name
