@@ -39,6 +39,25 @@
   This describes the author's work in implementing the construction of
   zone-valuation graphs for timed automata and using these to verify
   certain relations on pairs of timed automata.
+  Timed automata are a widely-used formalism, in verification, for
+  describing systems where the execution is subject to timing
+  constraints. One area of interest is the verification of certain
+  timed and time abstracted relations on pairs of timed automata,
+  which are generally of either an equivalence nature or a
+  pre-ordering nature. Among existing tools, minim
+  \cite{tripakis2001analysis} serves to verify certain of these
+  relations, but it is limited in its scope and fails to meet certain
+  requirements of reachability in its output. We build upon the work
+  of \cite{DBLP:conf/cav/GuhaNA12}, in which algorithms for building
+  zone-valuation graphs (minimal, discrete equivalent representations
+  of timed automata) are given and used to verify certain pre-ordering
+  relations on pairs of timed automata. We present an modified version
+  of the zone-valuation graph construction algorithm, and a
+  generalisation of the algorithm which uses zone-valuation graphs to
+  verify a larger set of timed and time-abstracted relations on timed
+  automata, where this generalisation builds upon the work of
+  \cite{arun2006bisimilarities}. We also describe a reference
+  implementation of these algorithms in Ocaml.
 \end{abstract}
 % timed automata - formalism for automata with timing
 % constraints. time abstracted relations. decidable using region
@@ -49,7 +68,6 @@
 \tableofcontents
 \pagebreak
 \listoffigures
-\listoftables
 \pagebreak
 
 \section{Introduction}
@@ -81,7 +99,7 @@ difference bound matrices (DBM), a widely used representation for the time
 constraints (i. e. convex polyhedra) that are used to describe
 zones. Then, we explain abstractions, which are transformations on DBM
 that replace each DBM by a DBM which is its superset and
-which in equivalent to it modulo strong time abstracted
+which is equivalent to it modulo strong time abstracted
 bisimilarity. This helps us prevent state space explosion in our
 exploration algorithms which build the state space of a timed
 automaton. We then explain the common features of certain time
@@ -111,7 +129,8 @@ manner, and explain our implementation.
   \item $Act$, a set of \emph{actions}
   \item $\rightarrow \subseteq S \times Act \times S$, a \emph{transition
     relation}.
-  \item optionally, $I \subseteq S$ ,a set of initial states.
+  \item optionally, $I \subseteq S$ ,a set of initial states. If there
+    is exactly one initial state, then the LTS is said to be \emph{rooted}.
   \end{itemize}
 \end{definition}
 
@@ -134,22 +153,18 @@ can be reduced to equivalent LTS.
   \caption{Strong bisimilarity quotient of the LTS in Figure~\ref{lts01}.}
 \end{SCfigure}
 
-\begin{definition} 
-  \emph{Strong bisimulation}: A binary relation $R$ is a \textit{strong
-    bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
-  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
-  . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
-  \wedge $ \\
-  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
-  . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
-\end{definition}
+A binary relation $R$ is a \textit{strong
+  bisimulation} if and only if, for all $(s_1, s_2)$ $\epsilon$ $R$ and $a$ $\epsilon$ $Act .$\\
+$\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+. (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+\wedge $ \\
+$\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+. (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) )$
 
-\begin{definition}
-  \emph{Strong bisimilarity}: It can be shown that the union of
-  all strong bisimulations over the set of states is a strong
-  bisimulation. This binary relation is called \textit{strong
-    bisimilarity}, denoted by $\sim$.
-\end{definition}
+It can be shown that the union of
+all strong bisimulations over the set of states is a strong
+bisimulation. This binary relation is called \textit{strong
+  bisimilarity}, denoted by $\sim$.
 
 Strong bisimilarity between two states in an LTS implies,
 intuitively, that any action performed by the one can be performed by
@@ -160,6 +175,100 @@ Kanellakis and Smolka \cite{kanellakis1990ccs}. A faster algorithm for
 the special case having just one kind of action was given by Paige and
 Tarjan \cite{paige1987three} and made general by Fernandez
 \cite{fernandez1990implementation}.
+
+\section{Clocks, valuations and related operations}
+
+The timing model we use relies on the notions of clocks and
+valuations. The timing information about the possible executions of a
+timed automaton can, intuitively, be expressed in terms of constraints
+on clocks. We will make this idea more precise as we go on.
+
+\begin{definition}
+\emph{Clock}: A clock is a variable ranging over the set of
+non-negative real numbers, $R_{\geq 0}$.
+\end{definition}
+
+\begin{definition}
+\emph{Valuation}: A valuation over a set of clocks $C$ is a
+function $C \rightarrow R_{\geq 0}$, assigning non-negative values
+to each of the clocks.
+\end{definition}
+
+Two important operations on clock valuations are clock resets and
+delays. For a subset $X$ of $C$, the clock reset of a valuation $v$
+is given by
+\begin{displaymath}
+  v[X:=0](x) = 
+  \begin{cases}
+    0    & \text{if } x \epsilon X \\
+    v(x) & \text{if } x \epsilon C - X
+  \end{cases}
+\end{displaymath}
+
+For a real delay $d$ $\epsilon$ $R_{\geq 0}$, the delay of a valuation
+$v$ is given by
+\begin{displaymath}
+  (v + d)(x) = v(x) + d \quad \forall x \epsilon C
+\end{displaymath}
+
+\begin{definition}
+\emph{Hyperplane}: Expressions of the forms $x \smile c$ and $x - y
+\smile c$, where $x, y \epsilon C$, c is an integer, and $\smile
+\epsilon \{ <, \leq, \geq, >\}$ are known as \emph{atomic clock
+  constraints}. A valuation $v$ over $C$ is said to satisfy the
+atomic clock constraint $x \smile c$ if $v(x) \smile c$ and $x - y
+\smile c$ if $v(x) - v(y) \smile c$. A hyperplane is a set of
+valuations satisfying an atomic clock constraint.
+\end{definition}
+
+\begin{definition}
+\emph{Polyhedron}: The set of polyhedra over a set of clocks $C$ is
+the smallest subset of the set of all valuations over $C$ that 
+\begin{itemize}
+\item contains all hyperplanes over C
+\item is closed over intersection, union and complementation.
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+\emph{Convex polyhedron}: A convex polyhedron is a polyhedron that can
+be represented as the intersection of a set of hyperplanes.
+\end{definition}
+
+It should be noted that this definition does not coincide exactly with
+the notion of a convex set from algebra. For instance, for
+$C=\{x_1, x_2\}$, the set $\{(x_1, x_2)| x_1 \geq 0, x_2 \geq 0, x_1 +
+x_2 > 0\}$ is convex but not a convex polyhedron.
+
+Union, intersection, complementation and set difference are well
+defined operations on polyhedra, but of these, intersection is the
+only operation which preserves convexity.
+
+The \emph{pre-reset} and \emph{post-reset} of a set $X$ $\epsilon$ $C$ on a
+polyhedron $\zeta$ over the set $C$ of clocks are respectively defined
+by
+\begin{align*}
+[X := 0]\zeta &= \{v| v[X := 0] \epsilon \zeta \} \\
+\zeta[X := 0] &= \{v[X := 0]| v \epsilon \zeta \}
+\end{align*}
+
+The \emph{future} of a polyhedron $\zeta$ over a set $C$ of clocks
+is given by 
+\begin{displaymath}
+\zeta \uparrow = \{v + d| v \epsilon \zeta, d \epsilon R_{\geq 0}\}
+\end{displaymath}
+
+The operators intersection, future, pre-reset, post-reset and future
+preserve convexity of polyhedra.
+
+\begin{definition}
+\emph{Clock constraint}: A clock constraint is a polyhedron which can
+be expressed as an intersection of hyperplanes of the form $x \smile
+c$.
+\end{definition}
+
+A related term, \emph{extended clock constraint}, can be used
+interchangeably with \emph{polyhedron}.
 
 \section{Timed automata}
 
@@ -195,10 +304,7 @@ Tarjan \cite{paige1987three} and made general by Fernandez
     is a finite set of edges.
   \item $I: L \rightarrow B(C)$ assigns invariants to each edge
     location.
-  \item $B(C)$ is the set of clock constraints over C. An element of $B(C)$
-    can be an equality, a slack inequality, or a strict inequality on
-    $v(x)$ for some $x$ $\epsilon$ $C$, or
-    an AND combination of such constraints.
+  \item $B(C)$ is the set of clock constraints over C.
   \end{itemize}
 \end{definition}
 
@@ -237,13 +343,93 @@ the invariant $I(l)$ of a location $l$ and \texttt{e.source}, \texttt{e.guard},
 $l$, $g$, $a$, $r$, $l'$ of
 an edge $e = l \xrightarrow{g, a, r} l'$ unless otherwise noted.
 
+\section{Region graphs}
+
+\begin{figure}
+  \centering
+  \caption{Motivating examples for region graphs.}
+
+  \begin{subfigure}[b]{0.6\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{regiongraph01.pdf_tex}
+    \caption{}
+    \label{regiongraph01}
+  \end{subfigure}%
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{regiongraph02.pdf_tex}
+    \caption{}
+    \label{regiongraph02}
+  \end{subfigure}
+
+\end{figure}
+
+The notion of a region graph was first introduced in
+\cite{Alur94atheory} and used to show that discretisation of the state
+space of a timed automaton is decidable under a certain abstraction of
+exact timing values while examining the possible states and actions of
+a timed automaton.
+
+To motivate this, we should note that in figure~\ref{regiongraph01}, we can distinguish
+between the valuations $[X = 1.1]$, $[X = 2.0]$ and $[X = 2.2]$ at
+location 0 on the
+basis of the possibility of their outgoing a-transitions: the first can
+only move to 1, the second can move to 1 and 2, and the third can move
+to 1, 2, and 3.
+
+Also, in figure~\ref{regiongraph02}, we can distinguish between
+valuations $[X = 0.6, Y = 0.4]$ and $[X = 0.4; Y = 0.6]$ at location 0
+since the first can take a delay of 0.4 units, then an a-transition to
+1, then a delay of 0.2, then an a-transition to 2, but the second
+cannot move to 2 since it must take a delay of 0.6 to move to 1 which
+leaves no possibility of it moving to 2 after any amount of delay.
+
+For each clock $x$, we define $c_x$ to be the
+greatest constant compared to x over all guards and invariants in the
+automaton. It is evident that any two valuations which both assign
+values greater than $c_x$ to $x$ should not be distinguished, but we should
+distinguish between valuations differing in $\lfloor v(x)\rfloor$ $x$
+for any clock $x$, between valuations having the same $v(x)$
+but in which one has $frac(v(x))=0$ but the other does not,
+and between valuations which have different relative orderings of
+$v(x)$ and $v(y)$ for any pair of clocks $(x, y)$. We formalise these
+notions in this definition.
+
+\begin{definition}
+  \emph{Region graph}: A region graph is a partitioning of the set of
+  valuations for a given timed automaton into equivalence
+  classes under \emph{region equivalence}.
+
+  Valuations $v_1$ and $v_2$ are related under region equivalence if 
+  \begin{itemize}
+    \item $\forall x$ $\epsilon$ $C$: $(\lfloor v_1(x) \rfloor = \lfloor
+      v_2(x) \rfloor) \leq c_x$ or $v_1(x) > c_x$ and $v_2(x) > c_x$ .
+    \item $\forall x$ $\epsilon$ $C$: $v_1(x) = 0$ iff $v_2(x) = 0$.
+    \item $\forall$ pairs of clocks $(x, y)$: $frac(v_1(x)) \leq
+      frac(v_1(y))$ iff $frac(v_2(x)) \leq frac(v_2(y))$.
+  \end{itemize}
+\end{definition}
+
+It is evident that any two states sharing a location and satisfying
+region equivalence of their states are going to, under an abstraction
+of exact values of time delays (a notion we will formalise in
+\ref{def:stab}). This result is important as it shows that there are
+finitely many categories of states (which we will talk about in
+\ref{def:zone}) which we need to consider.
+
 \section{Zone graphs}
 
 It is evident that the state space in a timed automaton is, in
-general, uncountably infinite. This makes it impossible for any
-algorithm to terminate which explores the state space in a naive
-manner. However, some standard techniques to discretise the state
-space of timed automata exist, which we elaborate on, below.
+general, uncountably infinite. However, we have seen that region
+graphs can be used to make the state space finite, but at the cost of
+state explosion, since the number of regions is generally exponential
+in the number of clocks. Some alternative, less expensive methods for
+discretising the state space follow.
 
 \begin{definition}
   \emph{State}: A state of a timed automaton is a pair $(l, v)$
@@ -258,6 +444,7 @@ space of timed automata exist, which we elaborate on, below.
 \end{definition}
 
 \begin{definition}
+\label{def:zone}
   \emph{Zone}: A zone is a symbolic state where the all the
   constituent states share a location and the set of valuations of
   these states forms a convex polyhedron on the valuation space.
@@ -270,7 +457,6 @@ space of timed automata exist, which we elaborate on, below.
   transition, and the transition relation respects the invariants,
   guards and clock resets of the original timed automaton.
 \end{definition}
-%also talk about region graphs.
 
 \section{Difference bound matrices}
 \begin{definition}
@@ -289,14 +475,17 @@ space of timed automata exist, which we elaborate on, below.
 DBM offer a convenient method to represent polyhedra for most of the
 common operations required on zones, including intersection, clock
 resets, future, and abstraction. The UPPAAL DBM libraries
-\cite{david2006uppaal} implement many common functions on DBM and
-have been extensively used in our implementation.
+\cite{david2006uppaal} \cite{bengtsson2004timed} implement many common
+functions on DBM and have been extensively used in our implementation.
 % elaborate on the operations for DBM.
 
 \section{Abstraction}
 
 \begin{figure}
   \centering
+  \caption{Timed automaton with a potentially infinite
+    set of zones, example taken from \cite{Behrmann03staticguard}.}
+  \label{breaking2withzones}
   \begin{subfigure}[b]{0.5\textwidth}
     \centering
     \def\svgwidth{\columnwidth}
@@ -336,13 +525,17 @@ have been extensively used in our implementation.
     \caption{Zones of Figure~\ref{breaking2} after 3 iterations.}
     \label{breaking2-zones03}
   \end{subfigure}
-  \caption{Timed automaton with a potentially infinite
-    set of zones, example taken from \cite{Behrmann03staticguard}.}
-  \label{breaking2withzones}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \def\svgwidth{0.9\columnwidth}
+  \input{breaking2-zones-abstracted.pdf_tex}
+  \caption{Zones of Figure~\ref{breaking2} after abstraction.}
 \end{figure}
 
 A common feature of algorithms that generate zone graphs for timed
-automata is a \emph{forward propagation} step in which the algorithsm attempts to
+automata is a \emph{forward propagation} step in which the algorithm attempts to
 create reachable zones in reachable locations by traversing the timed
 automaton. However, this introduces a vulnerability to certain
 pathological cases in which the number of zones expands indefinitely,
@@ -352,7 +545,7 @@ iteration, as shown in Figure~\ref{breaking2-zones01},
 Figure~\ref{breaking2-zones02}, Figure~\ref{breaking2-zones03}.
 
 However, this is inconsistent with what
-we know about region graphs \cite{Alur94atheory} and their
+we know about region graphs and their
 implication of finiteness for the state spaces of timed automata,
 thus, we have abstractions which serve to cap the number of zones in a
 zone graph by reducing zones to equivalent regions which contain them,
@@ -369,21 +562,84 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
 '_{ij}\rangle _{0 \leq i,j \leq n} $ where
 \begin{displaymath}
   (m'_{ij}, \smile'_{ij}) =
-  \left{
-    \begin{array}{ll}
+    \begin{cases}
       (\infty, <)  & \mbox{if } m_{ij} > k \\
       (-k, <)  & \mbox{if } m_{ij} < -k \\
       m_{ij}, \smile _{ij} & \mbox{if } -k \leq m_{ij} \leq k
-    \end{array}
-  }
+    \end{cases}
   \right
 \end{displaymath}
 
-\section{Timed relations on timed automata}
+\section{Time abstracted relations on timed automata}
 
 \subsection{Time abstracted bisimilarity}
 
-\begin{definition}  
+\begin{figure}
+  \centering
+  \caption{Examples for time abstracted bisimilarities.}
+  \label{fig:tab}
+
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair01first.pdf_tex}
+    \caption{}
+    \label{pair01first}
+  \end{subfigure}%
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair01second.pdf_tex}
+    \caption{}
+    \label{pair01second}
+  \end{subfigure}
+  %add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair02first.pdf_tex}
+    \caption{}
+    \label{pair02first}
+  \end{subfigure}
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.2\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair02second.pdf_tex}
+    \caption{}
+    \label{pair02second}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair03first.pdf_tex}
+    \caption{}
+    \label{pair03first}
+  \end{subfigure}
+  ~%add desired spacing between images, e. g. ~, \quad, \qquad
+  %etc.
+  %(or a blank line to force the subfigure onto a new line)
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \def\svgwidth{\columnwidth}
+    \input{pair03second.pdf_tex}
+    \caption{}
+    \label{pair03second}
+  \end{subfigure}
+
+\end{figure}
+
+\begin{definition} 
+\label{def:stab} 
   \emph{Strong time abstracted bisimulation}: A binary relation
   $R$ is a strong time abstracted bisimulation (STaB) if and only if, for all
   $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
@@ -400,12 +656,10 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Strong time abstracted bisimilarity}: It can be shown that the union of all strong time abstracted
+It can be shown that the union of all strong time abstracted
   bisimulations over the set of (location, valuation) pairs is a
   strong time abstracted bisimulation. This binary relation is called
   \textit{strong time abstracted bisimilarity}.
-\end{definition}
 
 \begin{definition}
   \emph{Time abstracted delay bisimulation}: A binary relation
@@ -426,13 +680,11 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Time abstracted delay bisimilarity}: It can be shown that the
+It can be shown that the
   union of all time abstracted delay bisimulations over the set of
   (location, valuation) pairs is a time abstracted delay
   bisimulation. This binary relation is called \textit{time abstracted
     delay bisimilarity}.
-\end{definition}
 
 \begin{definition}
   \emph{Time abstracted observational bisimulation}: A binary relation
@@ -452,23 +704,29 @@ clocks, and a DBM $M = \langle (m_{ij}, \smile _{ij})\rangle _{0 \leq
   . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
 \end{definition}
 
-\begin{definition}
-  \emph{Time abstracted observational bisimilarity}: It can be shown that
+It can be shown that
   the union of all time abstracted observational bisimulations over the
   set of (location, valuation) pairs is a time abstracted observational
   bisimulation. This binary relation is called \textit{time abstracted
     observational bisimilarity}.
-\end{definition}
 
-%give examples.
+Figure~\ref{fig:tab} shows examples for each kind of time abstracted
+bisimilarity. The initial zones of Figure~\ref{pair01first} and
+Figure~\ref{pair01second} show STaB, TadB and TaoB, while the initial
+zones of Figure~\ref{pair02first} and Figure~\ref{pair02second} show
+TadB and TaoB but not STaB, and the initial zones of Figure~\ref{pair03first} and
+Figure~\ref{pair03second} show TaoB but not STaB or TadB.
 
 \section{Algorithms}
 
 \subsection{Fernandez' algorithm}
 
 This algorithm is summarised here from
-\cite{fernandez1990implementation}. Details of the splitting operations
-and the proof of correctness are omitted for brevity.
+\cite{fernandez1990implementation}. This algorithm follows a strategy
+of repeatedly splitting a partition of the states of the LTS, into a
+finer partition, until a fixpoint is reached and no further refinement
+is possible. The details of two-way splitting and three-way splitting
+are omitted for brevity.
 
 \begin{algorithm2e}[H]
   Initialise $\pi = \{Pr\}$\;
@@ -499,7 +757,7 @@ respect to its successors. \\
 
 For the forward propagation, we use a queue,
 akin to the queue of the classic \emph{breadth-first search} algorithm
-for graphs, to traverse the timed automaton, starting from the inital
+for graphs, to traverse the timed automaton, starting from the initial
 location, to ensure that all reachable zones are created. In each
 queue element (with the exception of the first element containing the
 inital location, which has no predecessor), we store a location
@@ -562,7 +820,7 @@ and
 need to be split into convex zones.) \\
 This generates the zone valuation graph.
 
-\subsubsection{Pseudocode}
+Pseudocode for this follows.
 
 \begin{algorithm2e}[H]
   Initialise the queue $Q$ with a single element $(null, null, l_0)$\;
@@ -596,7 +854,7 @@ This generates the zone valuation graph.
       }
     }
   }
-  Generate $zone_valuation_graph$ by applying Fernandez' algorithm to $zone_graph$.
+  Generate $zone\_valuation\_graph$ by applying Fernandez' algorithm to $zone\_graph$\;
   Return $zone\_graph$\;
 \end{algorithm2e}
 
@@ -655,11 +913,11 @@ and the corresponding simulation equivalences, among others.
 
 So, for STaB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -667,11 +925,11 @@ So, for STaB, we define $f_P$ and $f_Q$ as
 
 For TadB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -679,11 +937,11 @@ For TadB, we define $f_P$ and $f_Q$ as
 
 For TaoB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -692,13 +950,16 @@ For TaoB, we define $f_P$ and $f_Q$ as
 This formulation naturally suggests an approach: use tables to store
 pairs of states in the two timed automata which are known to be
 related or known to be unrelated, and use a dynamic programming
-approach to verify the relation for any given pair of states.
+approach to verify the relation for any given pair of
+states. Pseudocode for this is given in the
+procedure~\ref{algorithm:checkautomatarelation} which calls
+procedure~\ref{algorithm:checkstatesrelation} recursively to return
+either \texttt{true} or \texttt{false} for the given pair of automata.
 
-\subsubsection{Pseudocode}
-
-\begin{procedure}
+\begin{procedure}[H]
   \caption{CheckStatesRelation($P$, $Q$, $s_{P}$, $s_{Q}$,
     $yes\_ table$, $no\_ table$)}
+  \label{algorithm:checkstatesrelation}
   \SetKwFunction{lookup}{lookup}
   \SetKwFunction{insert}{insert}
   \SetKwFunction{remove}{remove}
@@ -743,8 +1004,9 @@ approach to verify the relation for any given pair of states.
 
 \end{procedure}
 
-\begin{procedure}
+\begin{procedure}[H]
   \caption{CheckAutomataRelation($T_P$, $T_Q$)}
+  \label{algorithm:checkautomatarelation}
   \SetKwFunction{CheckStatesRelation}{CheckStatesRelation}
   \Begin{
       Create zone valuation graphs $G_P$, $G_Q$ of $T_P$, $T_Q$\;
@@ -758,14 +1020,29 @@ approach to verify the relation for any given pair of states.
     }
 \end{procedure}
 
-\subsubsection{Proof of correctness}
-Since a zone-valuation graph is minimal modulo strong time-abstracted
-bisimilarity, verifying a relation on two timed automata is equivalent
-to verifying it on the symbolic states containing
-the initial states of the timed automata in their respective
-zone-valuation graphs.
+\section{Conclusions and future work}
 
-When a zone is 
+We designed and implemented algorithms for verifying timed and time abstracted
+relations on pairs of timed automata, and provided reference
+implementations for STaB, TaDB and TaOB. However, some scope for
+further work remains.
+
+\begin{itemize}
+\item Using the framework we have developed for verifying timed
+  relations, such as time abstracted bisimilarity from
+  \cite{DBLP:conf/cav/GuhaNA12}.
+\item Investigation along the lines of the original zone-valuation
+  graph algorithm in \cite{DBLP:conf/cav/GuhaNA12} in order to see if the
+  efficiency of this algorithm can be improved while retaining
+  correctness.
+\item Investigation along the lines of proving cycles cannot exist in
+  the product LTS of two zone-valuation graphs in order to simplify
+  the current algorithm for verifying relations by omitting cycle detection.
+\item Cleaner code through better integration with the UPPAAL
+  libraries for DBM operations and parsing of timed automata, and with
+  Ocamlgraph, a set of Ocaml libraries for implementing common
+  operations for graphs.
+\end{itemize}
 
   \bibliographystyle{splncs}
   \bibliography{thesis}
