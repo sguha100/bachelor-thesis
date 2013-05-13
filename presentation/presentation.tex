@@ -1,6 +1,7 @@
 \documentclass{beamer}
 \usetheme{default}
 \usepackage[algo2e]{algorithm2e}
+\usepackage{subfig}
 
 \title{Tools and Algorithms for Deciding Relations on Timed Automata}
 \subtitle{B Tech project, supervised by S Arun-Kumar, verification group}
@@ -88,6 +89,81 @@
     \item $B(C)$ is the set of clock constraints over C.
     \end{itemize}
   \end{definition}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Relations on timed automata}
+\begin{definition} 
+\label{def:stab} 
+  \emph{Strong time abstracted bisimulation}: A binary relation
+  $R$ is a strong time abstracted bisimulation (STaB) if and only if, for all
+  $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
+  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists s_2'
+  . (s_2 \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists s_1'
+  . (s_1 \xrightarrow{a} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
+  $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
+  d')
+  . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
+  . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
+
+It can be shown that the union of all strong time abstracted
+  bisimulations over the set of (location, valuation) pairs is a
+  strong time abstracted bisimulation. This binary relation is called
+  \textit{strong time abstracted bisimilarity}.
+
+\begin{definition}
+  \emph{Time abstracted delay bisimulation}: A binary relation
+  $R$ is a time abstracted delay bisimulation (TadB) if and only if, for all
+  $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
+  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2', d)
+  . (s_2 \xrightarrow{d} \xrightarrow{a} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists (s_1', d)
+  . (s_1 \xrightarrow{d} \xrightarrow{a} s_1' \wedge (s_1', s_2')$
+  $\epsilon$ $R ) ) 
+  \wedge $ \\
+  $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
+  d')
+  . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
+  . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
+
+It can be shown that the
+  union of all time abstracted delay bisimulations over the set of
+  (location, valuation) pairs is a time abstracted delay
+  bisimulation. This binary relation is called \textit{time abstracted
+    delay bisimilarity}.
+
+\begin{definition}
+  \emph{Time abstracted observational bisimulation}: A binary relation
+  $R$ is a time abstracted observational bisimulation (TaoB) if and only if, for all
+  $(s_1, s_2)$ $\epsilon$ $R$ , $a$ $\epsilon$ $Act $, $d$ $\epsilon$ $R_{\ge 0}$\\
+  $\forall s_1' (s_1 \xrightarrow{a} s_1' \Rightarrow \exists (s_2',
+  d, d') . (s_2 \xrightarrow{d} \xrightarrow{a} \xrightarrow{d'} s_2'
+  \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{a} s_2' \Rightarrow \exists (s_1',
+  d, d') . (s_1 \xrightarrow{d} \xrightarrow{a} \xrightarrow{d'} s_1'
+  \wedge (s_1', s_2')$ $\epsilon$ $R ) ) \wedge $ \\
+  $\forall s_1' (s_1 \xrightarrow{d} s_1' \Rightarrow \exists (s_2',
+  d')
+  . (s_2 \xrightarrow{d'} s_2' \wedge (s_1', s_2')$ $\epsilon$ $R ) )
+  \wedge $ \\
+  $\forall s_2' (s_2 \xrightarrow{d} s_2' \Rightarrow \exists (s_1', d')
+  . (s_1 \xrightarrow{d'} s_1' \wedge (s_1', s_2')$ $\epsilon$ $R ) ) $ \\
+\end{definition}
+
+It can be shown that
+  the union of all time abstracted observational bisimulations over the
+  set of (location, valuation) pairs is a time abstracted observational
+  bisimulation. This binary relation is called \textit{time abstracted
+    observational bisimilarity}.
+
 \end{frame}
 
 \section{Algorithms}
@@ -323,6 +399,42 @@
         $yes\_ table$, $no\_ table$}\;
     }
 \end{procedure}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Verifying relations: example}
+
+\begin{figure}%
+\centering
+\subfloat[First]{
+    \def\svgwidth{0.6\columnwidth}
+    \input{pair03first.pdf_tex}
+}\qquad
+\subfloat[Second]{
+    \def\svgwidth{0.6\columnwidth}
+    \input{pair03second.pdf_tex}
+}\\
+\caption{Timed automata.}
+\label{pair03}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}[shrink=40]{Verifying relations: example}
+
+\begin{figure}%
+\centering
+\subfloat[First]{
+    \def\svgwidth{0.8\columnwidth}
+    \input{pair03first-quotient.pdf_tex}
+}\qquad
+\subfloat[Second]{
+    \def\svgwidth{0.8\columnwidth}
+    \input{pair03second-quotient.pdf_tex}
+}\\
+\caption{Zone valuation graphs.}
+\label{pair03}
+\end{figure}
 
 \end{frame}
 
