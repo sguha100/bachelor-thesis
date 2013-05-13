@@ -22,6 +22,8 @@ dir := next_step
 include $(dir)/Rules.mk
 dir := utilities
 include $(dir)/Rules.mk
+dir := relations
+include $(dir)/Rules.mk
 
 # Top level dependencies.
 
