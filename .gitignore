@@ -49,3 +49,4 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /presentation/*.pdf
 /thesis/*.pdf_tex
 /presentation/*.pdf_tex
+/ocaml/c/zone_stubs.c
