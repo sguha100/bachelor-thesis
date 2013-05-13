@@ -1,3 +1,4 @@
+<<zone_stubs.c>>=
 /* This stuff is courtesy the UPPAAL DBM library. */
 #include <dbm/constraints.h>
 #include <dbm/dbm.h>
