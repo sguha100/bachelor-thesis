@@ -1,3 +1,6 @@
+\section{calc.ml}
+This provides the executable for constructing minimal zone graphs.
+
 <<calc.ml>>=
 (* File calc.ml *)
 open Parse_timed_automaton
@@ -8,6 +11,10 @@ open UDBM_utilities
 open Zone_stubs
 open ZVG_modules
 
+@ 
+\begin{itemize}
+\item This function prints a text version of the zone graph.
+<<calc.ml>>=
 let text_dump ta g = 
   let txt_out = open_out "/tmp/lts.txt" in
   Printf.fprintf txt_out "#locations %s\n" (string_of_int ta.numlocations);
@@ -45,6 +52,10 @@ let text_dump ta g =
   flush txt_out;
   close_out txt_out
 
+@ 
+\item This function writes out the DOT files for zone graphs, minimal
+  zone graphs, and other such things into places in /tmp.
+<<calc.ml>>=
 let _ =
   let result = parse_timed_automaton stdin in
   let g = generate_zone_valuation_graph result in
@@ -73,3 +84,5 @@ let _ =
   (ZVGQuotientLTS2.print_dot q "/tmp/quotient_lts.dot");
   exit 0
 
+@ 
+\end{itemize}
