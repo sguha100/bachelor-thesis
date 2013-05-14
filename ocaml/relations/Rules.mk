@@ -16,5 +16,8 @@ $(TGT_$(d)): $(d)/Rules.mk
 $(d)/%.ml: $(d)/%.ml.nw
 	notangle -R$(subst $(d)/,,$@) $< > $@
 
+$(d)/%.ml.tex: $(d)/%.ml.nw
+	noweave -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -index -latex $< > $@
+
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))

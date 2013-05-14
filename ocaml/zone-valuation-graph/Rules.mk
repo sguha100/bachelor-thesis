@@ -2,8 +2,16 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_$(d) := $(d)/Graph_functions2.ml $(d)/ZVG_modules.ml \
-$(d)/ZVG_tree.ml $(d)/calc.ml $(d)/compare_automata.ml
+TGT_$(d) := $(d)/Graph_functions2.ml \
+$(d)/Graph_functions2.ml.tex \
+$(d)/ZVG_modules.ml \
+$(d)/ZVG_modules.ml.tex \
+$(d)/ZVG_tree.ml \
+$(d)/ZVG_tree.ml.tex \
+$(d)/calc.ml \
+$(d)/calc.ml.tex \
+$(d)/compare_automata.ml \
+$(d)/compare_automata.ml.tex
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -16,6 +24,9 @@ $(TGT_$(d)): $(d)/Rules.mk
 
 $(d)/%.ml: $(d)/%.ml.nw
 	notangle -R$(subst $(d)/,,$@) $< > $@
+
+$(d)/%.ml.tex: $(d)/%.ml.nw
+	noweave -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -index -latex $< > $@
 
 # The argument passed with the -R switch does not require
 # qualification with $(d) because it refers solely to the file name
