@@ -26,11 +26,13 @@ dir := zone-valuation-graph
 include $(dir)/Rules.mk
 dir := clutter
 include $(dir)/Rules.mk
+dir := thesis
+include $(dir)/Rules.mk
 
 # Top level dependencies.
 
 .PHONY: targets
-targets: calc.native test.native compare_automata.native
+targets: calc.native test.native compare_automata.native thesis/thesis.pdf
 
 CALC_NATIVE_DEPS := \
 zone-valuation-graph/calc.ml \
