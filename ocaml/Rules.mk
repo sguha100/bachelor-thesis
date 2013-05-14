@@ -35,7 +35,6 @@ targets: calc.native test.native compare_automata.native
 CALC_NATIVE_DEPS := \
 zone-valuation-graph/calc.ml \
 zone-valuation-graph/ZVG_modules.ml \
-zone-valuation-graph/ZVG_tree.ml \
 $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
@@ -79,6 +78,7 @@ zone-valuation-graph/Graph_functions2_test.ml \
 clutter/Graph_functions3.ml \
 clutter/Graph_functions3_test.ml \
 clutter/Graph_functions2_clutter.ml \
+clutter/ZVG_tree.ml \
 c/zone_stubs.c \
 c/zone_stubs.mli \
 c/Zone_stubs_test.ml \

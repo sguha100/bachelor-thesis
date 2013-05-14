@@ -6,8 +6,6 @@ TGT_$(d) := $(d)/Graph_functions2.ml \
 $(d)/Graph_functions2.ml.tex \
 $(d)/ZVG_modules.ml \
 $(d)/ZVG_modules.ml.tex \
-$(d)/ZVG_tree.ml \
-$(d)/ZVG_tree.ml.tex \
 $(d)/calc.ml \
 $(d)/calc.ml.tex \
 $(d)/compare_automata.ml \

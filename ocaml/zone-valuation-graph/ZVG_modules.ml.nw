@@ -1,3 +1,7 @@
+\section{ZVG\_modules.ml}
+This file provides a few wrapper modules for functions concerning the
+generation of minimal zone graphs.
+
 <<ZVG_modules.ml>>=
 open Grammar_types
 open UDBM_utilities
@@ -8,6 +12,10 @@ open Zone_stubs
 
 open Graph
 
+@ 
+\begin{itemize}
+\item This module implements the LTS data type for a zone graph.
+<<ZVG_modules.ml>>=
 module ZVGLT2 =
 struct
   type node_ref_t = zone_using_dbm
@@ -75,12 +83,26 @@ struct
     )
 end
 
+@ 
+\item This module gets all the Fernandez functor functions for zone
+  graphs.
+<<ZVG_modules.ml>>=
 module ZVGLTS2 = LTS (ZVGLT2)
 
+@ 
+\item This module gets the Quotient data type for zone graphs.
+<<ZVG_modules.ml>>=
 module ZVGQuotient2 = ZVGLTS2.Quotient_LTS
 
+@ 
+\item This module gets nothing useful except the representation of
+  Quotient graphs as DOT graphs.
+<<ZVG_modules.ml>>=
 module ZVGQuotientLTS2 = LTS (ZVGQuotient2)
 
+@ 
+\item This function generates the LTS form of the minimal zone graph.
+<<ZVG_modules.ml>>=
 let lts_of_zone_valuation_graph ta =
   {ZVGLT2.action_count = ta.numactions;
    ZVGLT2.nodes = generate_zone_valuation_graph ta;
@@ -89,6 +111,9 @@ let lts_of_zone_valuation_graph ta =
 
 type half_key = ZVGQuotient2.node_ref_t
 
+@ 
+\item This function generates the LTS form of the minimal zone graph.
+<<ZVG_modules.ml>>=
 module type DP_TABLE_TYPE =
 sig
   type table (*The 'a type is the co-ordinate type for the table.*)
@@ -113,6 +138,9 @@ sig
     bool (*Whether we needed to remove something before inserting it.*)
 end
   
+@ 
+\item This is the signature for the kinds of signatures we accept.
+<<ZVG_modules.ml>>=
 module type TA_RELATION_TYPE =
 sig
   val nodes_to_other_nodes:
@@ -123,6 +151,9 @@ sig
     (((half_key * (half_key list)) list) * (((half_key list) * half_key) list))
 end
 
+@ 
+\item This generates the out adjacency we use for STAB.
+<<ZVG_modules.ml>>=
 let out_adjacency l z a
     =
   List.filter
@@ -133,6 +164,9 @@ let out_adjacency l z a
     )
     (ZVGQuotient2.nodes l)
 
+@ 
+\item This generates the out adjacency we use for TADB.
+<<ZVG_modules.ml>>=
 let out_adjacency_with_delay_earlier l z a
     =
   let rec f ol =
@@ -162,6 +196,9 @@ let out_adjacency_with_delay_earlier l z a
        (f [z])
     )
 
+@ 
+\item This generates the out adjacency we use for TAOB.
+<<ZVG_modules.ml>>=
 let out_adjacency_with_delay_earlier_and_later l z a =
   let rec f ol =
     let ext =
@@ -186,3 +223,5 @@ let out_adjacency_with_delay_earlier_and_later l z a =
   in
   f (out_adjacency_with_delay_earlier l z a)
 
+@ 
+\end{itemize}
