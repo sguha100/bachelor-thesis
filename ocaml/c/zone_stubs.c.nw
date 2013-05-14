@@ -1,3 +1,6 @@
+\section{zone\_stubs.c}
+This file provides stubs for the UPPAAL DBM libraries.
+
 <<zone_stubs.c>>=
 /* This stuff is courtesy the UPPAAL DBM library. */
 #include <dbm/constraints.h>
@@ -11,11 +14,19 @@
 #ifdef __cplusplus
 using namespace dbm;
 
+@ 
+\begin{itemize}
+\item This is the struct which we export to Ocaml for representing a
+  DBM.
+<<zone_stubs.c>>=
 typedef struct dbm_struct_t {
   cindex_t dim;
   raw_t *dbm;
 } dbm_struct_t;
 
+@ 
+\item Deprecated.
+<<zone_stubs.c>>=
 std::string getClockName(cindex_t index) 
 {
   char str1[4];
@@ -23,6 +34,9 @@ std::string getClockName(cindex_t index)
   return std::string(str1);
 }
 
+@ 
+\item Used mainly for debugging.
+<<zone_stubs.c>>=
 const char *dbm_toString(raw_t *dbm, cindex_t dim) 
 {
   if (dbm_isEmpty(dbm, dim))
@@ -155,25 +169,44 @@ extern "C" {
 #include <caml/alloc.h>
 #include <caml/custom.h>
 
-  /* Accessing the DBM_STRUCT_T part of a Caml custom block */
+@ 
+\item Accessing the DBM_STRUCT_T part of a Caml custom block.
+<<zone_stubs.c>>=
+  /* Accessing the DBM_STRUCT_T part of a Caml custom block. */
 #define dbm_struct_t_val(v) (*((dbm_struct_t *) Data_custom_val(v)))
 
+@ 
+\item Deprecated.
+<<zone_stubs.c>>=
   /* Accessing the RAW_T * part of a Caml custom block */
 #define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
 
-  /* Accessing the CONSTRAINT_T * part of a Caml custom block */
+@ 
+\item Accessing the CONSTRAINT_T * part of a Caml custom block.
+<<zone_stubs.c>>=
+  /* Accessing the CONSTRAINT_T * part of a Caml custom block. */
 #define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
 
+@ 
+\item Freeing the RAW_T * part of the DBM_STRUCT_T part of a Caml custom block
+      while garbage collecting.
+<<zone_stubs.c>>=
   /* Freeing the RAW_T * part of the DBM_STRUCT_T part of a Caml custom block
       while garbage collecting. */
   void dbm_struct_t_finalize (value v) {
     free(dbm_struct_t_val(v).dbm);
   }
 
+@ 
+\item Hash value, used for Hashtbl.hash in ocaml.
+<<zone_stubs.c>>=
   long dbm_struct_t_hash(value v) {
     return ((long) dbm_hash(dbm_struct_t_val(v).dbm, dbm_struct_t_val(v).dim));
   }
 
+@ 
+\item Comparison, used for implementing the comparison operators in Ocaml.
+<<zone_stubs.c>>=
   int dbm_struct_t_compare (value v1, value v2) {
     raw_t *dbm1 = dbm_struct_t_val(v1).dbm;
     cindex_t dim1 = dbm_struct_t_val(v1).dim;
@@ -198,17 +231,27 @@ extern "C" {
     }
   }
 
+@ 
+\item Freeing the RAW_T * part of a Caml custom block while garbage collecting.
+<<zone_stubs.c>>=
   /* Freeing the RAW_T * part of a Caml custom block while garbage collecting. */
   void raw_t_finalize (value v) {
     free(raw_t_val(v));
   }
 
+@ 
+\item Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting.
+<<zone_stubs.c>>=
   /* Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting. */
   void constraint_t_finalize (value v) {
     free(constraint_t_val(v));
   }
 
-  /* Encapsulation of opaque handles (of type DBM_STRUCT_T *)
+@ 
+\item Encapsulation of opaque handles (of type DBM_STRUCT_T)
+     as Caml custom blocks.
+<<zone_stubs.c>>=
+  /* Encapsulation of opaque handles (of type DBM_STRUCT_T)
      as Caml custom blocks. */
   static struct custom_operations udbm_dbm_struct_t_ops = {
     "fr.inria.caml.udbm_dbm_struct_t",
@@ -219,6 +262,9 @@ extern "C" {
     custom_deserialize_default
   };
 
+@ 
+\item Deparecated.
+<<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type RAW_T *)
      as Caml custom blocks. */
   static struct custom_operations udbm_raw_t_ops = {
@@ -230,6 +276,10 @@ extern "C" {
     custom_deserialize_default
   };
 
+@ 
+\item Encapsulation of opaque handles (of type CONSTRAINT_T *)
+     as Caml custom blocks.
+<<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type CONSTRAINT_T *)
      as Caml custom blocks. */
   static struct custom_operations udbm_constraint_t_ops = {
@@ -241,7 +291,10 @@ extern "C" {
     custom_deserialize_default
   };
 
-  /* Allocating a Caml custom block to hold the given DBM_STRUCT_T */
+@ 
+\item Allocating a Caml custom block to hold the given DBM_STRUCT_T.
+<<zone_stubs.c>>=
+  /* Allocating a Caml custom block to hold the given DBM_STRUCT_T. */
   static value alloc_dbm_struct_t(dbm_struct_t  w)
   {
     value v = alloc_custom(&udbm_dbm_struct_t_ops, sizeof(dbm_struct_t), 0, 1);
@@ -249,6 +302,9 @@ extern "C" {
     return v;
   }
 
+@ 
+\item Deprecated.
+<<zone_stubs.c>>=
   /* Allocating a Caml custom block to hold the given RAW_T * */
   static value alloc_raw_t(raw_t * w)
   {
@@ -257,6 +313,9 @@ extern "C" {
     return v;
   }
 
+@ 
+\item Allocating a Caml custom block to hold the given DBM_STRUCT_T.
+<<zone_stubs.c>>=
   /* Allocating a Caml custom block to hold the given CONSTRAINT_T * */
   static value alloc_constraint_t(constraint_t * w)
   {
@@ -265,6 +324,9 @@ extern "C" {
     return v;
   }
 
+@ 
+\item Wrapper over dbm_init.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_init (value dim) {
     CAMLparam1(dim);
     dbm_struct_t s;
@@ -274,6 +336,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s));
   }
 
+@ 
+\item Non-in-place wrapper over dbm_constrainC.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_constrainC (value dbm, value c) {
     CAMLparam2(dbm, c);
     dbm_struct_t s, s_dup;
@@ -285,6 +350,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
+@ 
+\item Wrapper over dbm_constraint2.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_constraint2 (value i,
                                        value j,
                                        value bound,
@@ -298,6 +366,9 @@ extern "C" {
     CAMLreturn (alloc_constraint_t(constraint));
   }
 
+@ 
+\item Wrapper over dbm_isEmpty.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_isEmpty (value dbm) {
     CAMLparam1(dbm);
     dbm_struct_t s = dbm_struct_t_val(dbm);
@@ -308,6 +379,9 @@ extern "C" {
     }
   }
 
+@ 
+\item Exact version of dbm_haveIntersection.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_haveIntersection (value dst, value src) {
     CAMLparam2(dst, src);
     dbm_struct_t dst_dup;
@@ -323,6 +397,9 @@ extern "C" {
     }
   }
 
+@ 
+\item Non-in-place wrapper over dbm_intersection.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_intersection (value dst, value src) {
     CAMLparam2(dst, src);
     dbm_struct_t dst_dup;
@@ -333,6 +410,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(dst_dup));
   }
 
+@ 
+\item Non-in-place wrapper over dbm_freeClock.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_freeClock (value dbm, value k) {
     CAMLparam2(dbm, k);
     dbm_struct_t s_dup;
@@ -343,6 +423,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
+@ 
+\item Non-in-place wrapper over dbm_updateValue.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_updateValue (value dbm, value k, value val) {
     CAMLparam3(dbm, k, val);
     dbm_struct_t s_dup;
@@ -353,6 +436,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
+@ 
+\item Non-in-place wrapper over dbm_up.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_up(value dbm) {
     CAMLparam1(dbm);
     dbm_struct_t s_dup;
@@ -363,11 +449,17 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
+@ 
+\item Used only for debugging.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_toString(value dbm) {
     CAMLparam1(dbm);
     CAMLreturn (caml_copy_string(dbm_toString(dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
   }
 
+@ 
+\item Non-in-place wrapper over dbm_zero.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_zero(value dbm) {
     CAMLparam1(dbm);
     dbm_struct_t s_dup;
@@ -378,6 +470,9 @@ extern "C" {
     CAMLreturn (alloc_dbm_struct_t(s_dup));
   }
 
+@ 
+\item Checks whether the zero valuation is included.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_isZeroIncluded(value dbm) {
     CAMLparam1(dbm);
     dbm_struct_t s = dbm_struct_t_val(dbm);
@@ -401,6 +496,10 @@ extern "C" {
     }
   }
 
+@ 
+\item Turns a DBM into an equivalent minimal \texttt{(i, j,
+strictness, bound)} constraint list.
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_toConstraintList(value dbm_value) 
   {
     CAMLparam1(dbm_value);
@@ -450,6 +549,10 @@ extern "C" {
     CAMLreturn(current);
   }
 
+@ 
+\item Turns a DBM into an equivalent \texttt{(i, j,
+strictness, bound)} constraint list (not minimal, used for abstraction.).
+<<zone_stubs.c>>=
   CAMLprim value zone_dbm_toLargerConstraintList(value dbm_value) 
   {
     CAMLparam1(dbm_value);
