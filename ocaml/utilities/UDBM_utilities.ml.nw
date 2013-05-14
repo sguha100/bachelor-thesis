@@ -1,7 +1,15 @@
+\section{UDBM\_utilities.ml}
+This file provides some essential higher-level utilities that involve DBM operations.
+
 <<UDBM_utilities.ml>>=
 open Zone_stubs
 open Grammar_types
 
+@ 
+\begin{itemize}
+\item This function returns the clock index corresponding to a given
+  clock name, and -1 if there is no such clock.
+<<UDBM_utilities.ml>>=
 let clock_name_to_index cn clock_names =
   let rec f i cn list =
     match list with
@@ -22,6 +30,9 @@ let dbm_clock_reset_operation operation clock_names clock_resets dbm =
     dbm
     (Array.to_list clock_resets)
 
+@ 
+\item This function implements post-reset on DBM.
+<<UDBM_utilities.ml>>=
 let dbm_after_clock_resets clock_names =
   let
       dim = 1 + (Array.length clock_names)
@@ -35,6 +46,10 @@ let dbm_after_clock_resets clock_names =
     )
     clock_names
 
+@ 
+\item This function implements pre-reset on DBM, without checking the
+zero-ness of the clock in question.
+<<UDBM_utilities.ml>>=
 let dbm_without_reset_clocks clock_names =
   let
       dim = 1 + (Array.length clock_names)
@@ -47,6 +62,9 @@ let dbm_without_reset_clocks clock_names =
     )
     clock_names
 
+@ 
+\item Turns a unit clock constraint into a list of constraint_t values.
+<<UDBM_utilities.ml>>=
 let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names
     unit_clock_constraint =
@@ -102,28 +120,10 @@ let rec unit_clock_constraint_to_udbm_constraint_list_option
 		      true
 		  ]
 
-(* let clock_constraint_to_udbm_constraint_list_option *)
-(*     clock_names *)
-(*     clock_constraint = *)
-(*   List.fold_left *)
-(*     (function None -> (function _ -> None) *)
-(*     | Some partial_udbm_constraint_list -> *)
-(*       (function unit_clock_constraint -> *)
-(*         match *)
-(*           (unit_clock_constraint_to_udbm_constraint_list_option *)
-(*              clock_names *)
-(*              unit_clock_constraint) *)
-(*         with *)
-(*           None -> None *)
-(*         | Some new_constraints -> *)
-(*           Some (new_constraints *)
-(*                 @ *)
-(*                   partial_udbm_constraint_list) *)
-(*       ) *)
-(*     ) *)
-(*     [] *)
-(*     clock_constraint *)
-
+@ 
+\item This function turns clock constraints to DBM, except when they
+  are empty, in which case it returns None.
+<<UDBM_utilities.ml>>=
 let rec clock_constraint_to_dbm_option clock_names clock_constraint =
   let
       dim = (1 + Array.length clock_names)
@@ -171,6 +171,9 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
     (Some (dbm_init dim))
     clock_constraint
 
+@ 
+\item This function checks whether two given clock constraints have a non-empty intersection.
+<<UDBM_utilities.ml>>=
 let clock_constraint_haveIntersection clock_names c1 c2 =
     match
       (clock_constraint_to_dbm_option
@@ -188,6 +191,10 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
        | Some src -> (dbm_haveIntersection dst src)
       )
 
+@ 
+\item This function turns a list of \texttt{i, j, strictness, bound}
+constraints into a string.
+<<UDBM_utilities.ml>>=
 let constraint_list_to_string clock_names constraint_list =
   let
       clock_names = Array.of_list ("0"::(Array.to_list clock_names))
@@ -220,12 +227,20 @@ let constraint_list_to_string clock_names constraint_list =
        )
     ) ^ "]"  
 
+@ 
+\item This function turns a DBM into a string.
+<<UDBM_utilities.ml>>=
 let dbm_to_string clock_names dbm =
   let
       dim = Array.length clock_names + 1
   in
   constraint_list_to_string clock_names (dbm_toConstraintList dbm)
 
+@ 
+\item This function turns a list of \texttt{i, j, strictness, bound}
+constraints into a DBM if their intersection is non-empty, and None
+otherwise.
+<<UDBM_utilities.ml>>=
 let constraint_list_to_dbm_option dim constraint_list =
   List.fold_left
     (function
@@ -254,6 +269,10 @@ let constraint_list_to_dbm_option dim constraint_list =
     (Some (dbm_init dim))
     constraint_list
 
+@ 
+\item This function splits a DBM using an \texttt{i, j, strictness,
+bound} constraint.
+<<UDBM_utilities.ml>>=
 let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
   List.concat
     (List.map
@@ -275,6 +294,9 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
         dbm_constraint2 j i (0-bound) (not strictness)]
     )
 
+@ 
+\item This function splits a DBM using another DBM.
+<<UDBM_utilities.ml>>=
 let split_dbm_on_dbm dim dbm1 dbm2 =
   if
     not (dbm_haveIntersection dbm1 dbm2)
@@ -293,6 +315,10 @@ let split_dbm_on_dbm dim dbm1 dbm2 =
       [dbm1]
       (dbm_toConstraintList dbm2)
 
+@ 
+\item This function splits a list of DBM using an \texttt{i, j,
+strictness, bound} constraint.
+<<UDBM_utilities.ml>>=
 let split_dbm_list_on_constraint
     dim
     dbm_list
@@ -303,6 +329,10 @@ let split_dbm_list_on_constraint
        dbm_list
     )
 
+@ 
+\item This function splits a list of DBM using a list of \texttt{i, j,
+strictness, bound} constraints.
+<<UDBM_utilities.ml>>=
 let split_dbm_list_on_constraint_list
     dim
     dbm_list
@@ -314,6 +344,9 @@ let split_dbm_list_on_constraint_list
     dbm_list
     constraint_list
 
+@ 
+\item This function splits a list of DBM using a list of DBM.
+<<UDBM_utilities.ml>>=
 let split_dbm_list_on_dbm
     dim
     dbm_list
@@ -328,6 +361,9 @@ let split_dbm_list_on_dbm
        dbm_list
     )
     
+@ 
+\item This function splits a list of DBM using a clock constraint.
+<<UDBM_utilities.ml>>=
 let split_dbm_list_on_clock_constraint
     clock_names
     dbm_list
@@ -340,3 +376,6 @@ let split_dbm_list_on_clock_constraint
   with
   | None -> dbm_list
   | Some dbm -> split_dbm_list_on_dbm dim dbm_list dbm
+
+@ 
+\end{itemize}
