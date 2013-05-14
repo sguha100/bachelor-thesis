@@ -65,3 +65,5 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/zone-valuation-graph/calc.ml
 /ocaml/zone-valuation-graph/compare_automata.ml
 /ocaml/clutter/next_step/next_step.ml
+/ocaml/zone-valuation-graph/Graph_functions2.ml.pdf
+/ocaml/zone-valuation-graph/Graph_functions2.ml.tex
