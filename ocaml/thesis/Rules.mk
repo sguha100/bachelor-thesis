@@ -36,7 +36,9 @@ $(d)/%.pdf_tex: $(d)/%.svg
 	inkscape -D -z --file=$< --export-pdf=$(subst pdf_tex,pdf,$@) \
 	--export-latex
 
-$(d)/thesis.pdf: $(d)/thesis.tex $(d)/thesis.bib $(FIGURES)
+$(d)/thesis.pdf: $(d)/thesis.tex $(d)/thesis.bib $(FIGURES) \
+$(d)/chapter01.tex $(d)/chapter02.tex $(d)/chapter03.tex \
+$(d)/chapter04.tex $(d)/chapter05.tex
 	-env TEXINPUTS=./$(d): pdflatex -output-directory $(d) \\nonstopmode\\input $(d)/thesis.tex
 	env TEXMFOUTPUT=$(d) BIBINPUTS=$(d) bibtex --min-crossref=100 $(d)/thesis
 	-env TEXINPUTS=./$(d): pdflatex -output-directory $(d) \\nonstopmode\\input $(d)/thesis.tex

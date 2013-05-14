@@ -1,0 +1,23 @@
+\section{Conclusions and future work}
+
+We designed and implemented algorithms for verifying timed and time abstracted
+relations on pairs of timed automata, and provided reference
+implementations for STaB, TaDB and TaOB. However, some scope for
+further work remains.
+
+\begin{itemize}
+\item Using the framework we have developed for verifying timed
+  relations, such as time abstracted bisimilarity from
+  \cite{DBLP:conf/cav/GuhaNA12}.
+\item Investigation along the lines of the original zone-valuation
+  graph algorithm in \cite{DBLP:conf/cav/GuhaNA12} in order to see if the
+  efficiency of this algorithm can be improved while retaining
+  correctness.
+\item Investigation along the lines of proving cycles cannot exist in
+  the product LTS of two zone-valuation graphs in order to simplify
+  the current algorithm for verifying relations by omitting cycle detection.
+\item Cleaner code through better integration with the UPPAAL
+  libraries for DBM operations and parsing of timed automata, and with
+  Ocamlgraph, a set of Ocaml libraries for implementing common
+  operations for graphs.
+\end{itemize}
