@@ -1,3 +1,7 @@
+\section{Graph\_functions2.ml}
+This file provides the essential functions for building the minimal
+    zone graph.
+
 <<Graph_functions2.ml>>=
 open Grammar_types
 open Zone_stubs
@@ -9,13 +13,21 @@ open NRQueue
 open PCQueue
 open PCQueueElement
 
+@ 
+\begin{itemize}
+\item This function splits a list of zones using a list of constraints
+  of the form \texttt{(i, j, strictness, t)} for the resulting zones
+  to be stable with respect to each of these constraints. 
+<<Graph_functions2.ml>>=
 let split_zone_list_on_constraint_list
     clock_names
     location
     zone_list
     constraint_list =
   List.map
-    (function dbm -> {zone_location2 = location; zone_constraint2 = dbm})
+    (function dbm ->
+      {zone_location2 = location; zone_constraint2 = dbm}
+    )
     (List.fold_left
        (split_dbm_list_on_clock_constraint clock_names)
        (List.map
@@ -25,13 +37,20 @@ let split_zone_list_on_constraint_list
        (constraint_list)
     )
 
+@ 
+\item This function splits a list of zones using a list of difference
+  bound matrices for the resulting zones to be stable with respect to
+  each of these difference bound matrices.
+<<Graph_functions2.ml>>=
 let split_zone_list_on_dbm_list
     dim
     location
     zone_list
     dbm_list =
   List.map
-    (function dbm -> {zone_location2 = location; zone_constraint2 = dbm})
+    (function dbm ->
+      {zone_location2 = location; zone_constraint2 = dbm}
+    )
     (List.fold_left
        (split_dbm_list_on_dbm dim)
        (List.map
@@ -41,6 +60,11 @@ let split_zone_list_on_dbm_list
        (dbm_list)
     )
     
+@ 
+\item This function creates the initial zone list array, which assigns
+  one zone with the future of the zero valuation to the initial
+  location and no zones to any other location.
+<<Graph_functions2.ml>>=
 let init_zone_list_array ta =
   let
       dim = 1 + ta.numclocks
@@ -60,12 +84,11 @@ let init_zone_list_array ta =
      )
   )
 
-let init_tree_array ta = 
-  (Array.init
-     ta.numlocations
-     (function i -> init_tree ())
-  )
-
+@ 
+\item This function returns those zones from
+  \texttt{predecessor\_zone\_list} which can possibly generate new zones
+  for the successor given \texttt{edge\_condition} for the transition.
+<<Graph_functions2.ml>>=
 let useful_predecessor_zones
     ta
     predecessor_zone_list
@@ -85,6 +108,10 @@ let useful_predecessor_zones
     )
     predecessor_zone_list
 
+@ 
+\item This function implements the maximum constant abstraction (over
+  all clocks) on a given difference bound matrix.
+<<Graph_functions2.ml>>=
 let maximum_constant_abstract_dbm ta dbm_without_abstraction =
   let
       abstraction = ref false
@@ -129,7 +156,9 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
   let
       dbm_with_abstraction =
     match
-      (constraint_list_to_dbm_option dim constraint_list_with_abstraction)
+      constraint_list_to_dbm_option
+        dim
+        constraint_list_with_abstraction
     with
     | Some dbm -> dbm
     | None ->
@@ -149,6 +178,9 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
   in
   (dbm_with_abstraction, !abstraction)
 
+@ 
+\item This function applies the abstraction to a list of zones.
+<<Graph_functions2.ml>>=
 let rec maximum_constant_abstract_zone_list ta zone_list =
   let
       dim = 1 + ta.numclocks
@@ -159,22 +191,31 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
       (function (abstracted_zones, unabstracted_zones) ->
         function next_zone ->
           match
-            maximum_constant_abstract_dbm ta next_zone.zone_constraint2
+            maximum_constant_abstract_dbm
+              ta
+              next_zone.zone_constraint2
           with
           | (_, false) ->
             Printf.printf "The zone (%s, %s) did not get abstracted.\n"
               (string_of_int next_zone.zone_location2)
-              (dbm_to_string ta.clock_names next_zone.zone_constraint2);
+              (dbm_to_string
+                 ta.clock_names
+                 next_zone.zone_constraint2);
             (abstracted_zones, next_zone::unabstracted_zones)
           | (abstracted_dbm, true) ->
             Printf.printf "The zone (%s, %s) got abstracted to (%s, %s)\n"
               (string_of_int next_zone.zone_location2)
-              (dbm_to_string ta.clock_names next_zone.zone_constraint2)
+              (dbm_to_string
+                 ta.clock_names
+                 next_zone.zone_constraint2)
               (string_of_int next_zone.zone_location2)
-              (dbm_to_string ta.clock_names abstracted_dbm)
+              (dbm_to_string
+                 ta.clock_names
+                 abstracted_dbm)
             ;
             ({zone_location2 = next_zone.zone_location2;
-              zone_constraint2 = abstracted_dbm}::abstracted_zones,
+              zone_constraint2 = abstracted_dbm}
+             ::abstracted_zones,
              unabstracted_zones
             )
       )
@@ -237,7 +278,12 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
       abstracted_zones
   in
   new_zone_list
-    
+
+@ 
+\item This function generates a list of zones for the successor given
+  the zones of the predecessor, not taking into account overlaps with
+  existing zones.
+<<Graph_functions2.ml>>=
 let successor_zones_from_predecessor
     ta
     predecessor_zone_list
@@ -274,6 +320,11 @@ let successor_zones_from_predecessor
          edge.condition
       )
       
+@ 
+\item This function generates a list of new zones for the successor,
+  such that there are no overlaps and all valuations reachable from
+  the predecessor's zones are covered.
+<<Graph_functions2.ml>>=
 let new_successor_zones
     ta
     predecessor
@@ -320,6 +371,10 @@ let new_successor_zones
        edge
     )
 
+@ 
+\item This function splits the zones of a location with respect to its
+  invariant and its outgoing transition guards.
+<<Graph_functions2.ml>>=
 let self_split ta location zone_list =
   let
       constraint_list =
@@ -354,6 +409,10 @@ let self_split ta location zone_list =
      constraint_list
   )
 
+@ 
+\item This function recursively calls itself until the queue is
+  empty. This completes the forward analysis part of the algorithm.
+<<Graph_functions2.ml>>=
 let rec empty_queue2 ta (queue, zone_list_array) =
   try
     (match
@@ -383,7 +442,10 @@ let rec empty_queue2 ta (queue, zone_list_array) =
              (String.concat
                 "; "
                 (List.map
-                   (function zone -> dbm_to_string ta.clock_names zone.zone_constraint2)
+                   (function zone ->
+                     dbm_to_string
+                       ta.clock_names
+                       zone.zone_constraint2)
                    zone_list_array.(parent)
                 )
              )
@@ -413,39 +475,15 @@ let rec empty_queue2 ta (queue, zone_list_array) =
            (string_of_int (List.length zone_list_array.(e.child)))
          ;
          if
-           ((List.length changed_zone_list3) > (List.length zone_list_array.(e.child))
+           ((List.length changed_zone_list3)
+            >
+              (List.length zone_list_array.(e.child))
             || e.parent = None
            (*When the parent is None, the zone is new anyway,
              so the successors should be enqueued.*)
            )
          then
            (
-            (* Printf.printf *)
-            (*   "changed_zone_list2 = [%s]\n" *)
-            (*   (String.concat *)
-            (*      "; " *)
-            (*      (List.map *)
-            (*         (function zone -> *)
-            (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
-            (*             (dbm_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
-            (*         ) *)
-            (*         changed_zone_list2 *)
-            (*      ) *)
-            (*   ) *)
-            (* ; *)
-            (* Printf.printf *)
-            (*   "changed_zone_list3 = [%s]\n" *)
-            (*   (String.concat *)
-            (*      "; " *)
-            (*      (List.map *)
-            (*         (function zone -> *)
-            (*           "(" ^ (string_of_int zone.zone_location2) ^ ", " ^ *)
-            (*             (dbm_to_string ta.clock_names zone.zone_constraint2) ^ ")" *)
-            (*         ) *)
-            (*         changed_zone_list3 *)
-            (*      ) *)
-            (*   ) *)
-            (* ; *)
             zone_list_array.(e.child) <- changed_zone_list3;
             List.fold_left
               (function new_queue1 -> function departure ->
@@ -478,6 +516,10 @@ let rec empty_queue2 ta (queue, zone_list_array) =
     Printf.printf "%s\n" "Empty_queue caught!";
     (queue, zone_list_array)
 
+@ 
+\item This function generates a minimal zone graph for the given timed
+    automaton.
+<<Graph_functions2.ml>>=
 let generate_zone_valuation_graph ta =
   Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + ta.numclocks in
@@ -486,7 +528,9 @@ let generate_zone_valuation_graph ta =
       Printf.printf "%s\n" "Calling empty_queue2!";
     (empty_queue2
        ta
-       (enqueue empty {parent = None; edge = None; child = ta.numinit},
+       (enqueue
+          empty
+          {parent = None; edge = None; child = ta.numinit},
         (init_zone_list_array ta)
        )
     )
@@ -598,7 +642,8 @@ let generate_zone_valuation_graph ta =
              List.map
                (function departure ->
                  (departure,
-                  if (departure.action >= 0) then (*action transition*)
+                  if (departure.action >= 0) then
+                    (*action transition*)
                     (List.filter
                        (function arrival_zone ->
                          dbm_haveIntersection
@@ -614,10 +659,6 @@ let generate_zone_valuation_graph ta =
                   else (*time transition*)
                     (List.filter
                        (function arrival_zone ->
-                         (* clock_constraint_haveIntersection *)
-                         (*   ta.clock_names *)
-                         (*   zone.zone_constraint2 (\*TODO: make this upward unbounded!*\) *)
-                         (*   arrival_zone.zone_constraint2 *)
                          (dbm_haveIntersection
                             (dbm_up zone.zone_constraint2)
                             arrival_zone.zone_constraint2
@@ -636,3 +677,5 @@ let generate_zone_valuation_graph ta =
        in
       graph
 
+@ 
+\end{itemize}
