@@ -7,7 +7,6 @@ open Grammar_types
 open Zone_stubs
 open UDBM_utilities
 open Clock_constraint_utilities
-open ZVG_tree
 
 open NRQueue
 open PCQueue
