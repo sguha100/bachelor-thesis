@@ -901,9 +901,9 @@ related under $R$? ` can have three possible answers:
 \item no
 \item if and only if 
   \begin{align*} 
-    &\forall (s_P', L_Q') \epsilon f_P(s_P): \exists s_Q' \epsilon
+    &\forall (s_P', L_Q') \epsilon f_P(s_P, s_Q): \exists s_Q' \epsilon
     L_Q': s_P' R s_Q' \quad \wedge \\
-    &\forall (L_P', s_Q') \epsilon f_Q(s_Q): \exists s_P' \epsilon
+    &\forall (L_P', s_Q') \epsilon f_Q(s_P, s_Q): \exists s_P' \epsilon
     L_P': s_P' R s_Q'
   \end{align*} 
 \end{enumerate}
@@ -913,11 +913,11 @@ and the corresponding simulation equivalences, among others.
 
 So, for STaB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P, s_Q) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_P, s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -925,11 +925,11 @@ So, for STaB, we define $f_P$ and $f_Q$ as
 
 For TadB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P, s_Q) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_P, s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -937,11 +937,11 @@ For TadB, we define $f_P$ and $f_Q$ as
 
 For TaoB, we define $f_P$ and $f_Q$ as
 \begin{align*}
-  f_P(s_P) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
+  f_P(s_P, s_Q) = & \{(s_P', L_Q') | s_P \xrightarrow{a} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_Q'\}\} \\
   \cup & \{(s_P', L_Q') | s_P \xrightarrow{\epsilon} s_P', 
   L_Q=\{ s_Q' | s_Q \xrightarrow{\epsilon} s_Q'\}\} \\
-  f_Q(s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
+  f_Q(s_P, s_Q) = & \{(L_P', s_Q') | s_Q \xrightarrow{a} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon}\xrightarrow{a}\xrightarrow{\epsilon} s_P'\}\} \\
   \cup & \{(L_P', s_Q') | s_Q \xrightarrow{\epsilon} s_Q', 
   L_P=\{ s_P' | s_P \xrightarrow{\epsilon} s_P'\}\} 
@@ -972,7 +972,7 @@ either \texttt{true} or \texttt{false} for the given pair of automata.
         }{
           \insert{$yes\_ table$, $s_{P}$, $s_{Q}$}\;
           Set $v_P$\;
-          \ForEach{$(s_P', L_Q')$ in $f_P(s_P)$}{
+          \ForEach{$(s_P', L_Q')$ in $f_P(s_P, s_Q)$}{
             Reset $v_P$\;
             \ForEach{$s_Q'$ in $L_Q'$}{
               \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
@@ -982,7 +982,7 @@ either \texttt{true} or \texttt{false} for the given pair of automata.
             }
           }
           Set $v_Q$\;
-          \ForEach{$(s_Q', L_P')$ in $f_Q(s_Q)$}{
+          \ForEach{$(s_Q', L_P')$ in $f_Q(s_P, s_Q)$}{
             Reset $v_Q$\;
             \ForEach{$s_P'$ in $L_P'$}{
               \If{\CheckStatesRelation{$P$, $Q$, $s_{P}'$, $s_{Q}'$,
