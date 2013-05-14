@@ -1,3 +1,6 @@
+\section{compare\_automata.ml}
+This file provides the executable for comparing two timed automata.
+
 <<compare_automata.ml>>=
 open ZVG_modules
 open Grammar_types

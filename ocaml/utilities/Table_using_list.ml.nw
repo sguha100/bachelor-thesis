@@ -1,3 +1,7 @@
+\section{Table\_using\_list}
+This is used for the table implementation we use for our
+\texttt{yes\_table} and \texttt{no\_table}.
+
 <<Table_using_list.ml>>=
 open ZVG_modules
 

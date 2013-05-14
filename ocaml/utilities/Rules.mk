@@ -3,7 +3,8 @@ dirstack_$(sp) := $(d)
 d := $(dir)
 
 TGT_$(d) := $(d)/Clock_constraint_utilities.ml $(d)/NRQueue.ml \
-$(d)/Table_using_list.ml $(d)/UDBM_utilities.ml
+$(d)/Table_using_list.ml $(d)/UDBM_utilities.ml \
+$(d)/parse_timed_automaton.ml
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to

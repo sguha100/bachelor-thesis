@@ -1,8 +1,20 @@
+\section{parse\_timed\_automaton.ml}
+This file provides functions for parsing timed automata and checking their sanity.
+
+<<parse_timed_automaton.ml>>=
 open Grammar_types
 open Zone_stubs
 
+@ 
+\begin{itemize}
+\item This exception is thrown when a timed automaton is parsed and
+  found to violate sanity checks.
+<<parse_timed_automaton.ml>>=
 exception Insane_automaton
 
+@ 
+\item This function checks the sanity of a unit clock constraint.
+<<parse_timed_automaton.ml>>=
 let is_sane_unit_clock_constraint ta unit_clock_constraint =
   let f (cn, n) = (n >= 0)
     &&
@@ -20,6 +32,9 @@ let is_sane_unit_clock_constraint ta unit_clock_constraint =
   | Ge (cn, n) -> f (cn, n)
   | Gt (cn, n) -> f (cn, n)
 
+@ 
+\item This function checks the sanity of a clock constraint.
+<<parse_timed_automaton.ml>>=
 let rec is_sane_clock_constraint ta clock_constraint = 
   List.fold_left
     (function partial_sanity -> 
@@ -32,6 +47,9 @@ let rec is_sane_clock_constraint ta clock_constraint =
     true
     clock_constraint
 
+@ 
+\item This function checks the sanity of a timed automaton.
+<<parse_timed_automaton.ml>>=
 let is_sane_timed_automaton ta = 
   ta.numlocations == Array.length ta.locations
   &&
@@ -80,6 +98,9 @@ let is_sane_timed_automaton ta =
        true
        ta.locations)
     
+@ 
+\item This function parses a timed automaton from a given input channel.
+<<parse_timed_automaton.ml>>=
 let parse_timed_automaton channel =
   let
       lexbuf = Lexing.from_channel channel

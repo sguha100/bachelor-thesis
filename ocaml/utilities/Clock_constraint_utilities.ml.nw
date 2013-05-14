@@ -1,7 +1,14 @@
+\section{Clock_constraint_utilities.ml}
+
 <<Clock_constraint_utilities.ml>>=
 open Grammar_types
 open UDBM_utilities
 
+@ 
+\begin{itemize}
+\item This function turns a clock constraint (in the old
+  representation) into a string.
+<<Clock_constraint_utilities.ml>>=
 let string_of_clock_constraint clock_constraint =
   (String.concat
      " AND "
@@ -19,6 +26,10 @@ let string_of_clock_constraint clock_constraint =
      )
   )
     
+@ 
+\item This function kind of implements the pre-reset operation, with
+the rider that the zero-ness of the clocks in question is not checked.
+<<Clock_constraint_utilities.ml>>=
 let clock_constraint_without_reset_clocks clock_constraint clock_resets =
   List.fold_left
     (function clock_constraint -> function clock_reset ->
@@ -37,6 +48,9 @@ let clock_constraint_without_reset_clocks clock_constraint clock_resets =
     clock_constraint
     (Array.to_list clock_resets)
 
+@ 
+\item This function  implements the post-reset operation.
+<<Clock_constraint_utilities.ml>>=
 let clock_constraint_after_clock_resets clock_constraint clock_resets =
   (List.map
      (function clock_reset -> Eq (clock_reset, 0))
@@ -45,6 +59,10 @@ let clock_constraint_after_clock_resets clock_constraint clock_resets =
   @
     (clock_constraint_without_reset_clocks clock_constraint clock_resets)
 
+@ 
+\item This function finds the maximum constant in the timed automaton
+for use in abstractions.
+<<Clock_constraint_utilities.ml>>=
 let maximum_constant ta =
   let
       f clock_constraint =
