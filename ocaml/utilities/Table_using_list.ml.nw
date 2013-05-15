@@ -11,7 +11,8 @@ let lookup table l1 l2 (h1, h2) =
   try
     List.find
       (function (h3, h4) ->
-        ZVGQuotient2.node_equality l1 h1 h3 && ZVGQuotient2.node_equality l2 h2 h4
+        ZVGQuotient2.node_equality l1 h1 h3
+        && ZVGQuotient2.node_equality l2 h2 h4
       )
       !table;
     true
@@ -25,7 +26,8 @@ let remove table l1 l2 (h1, h2) =
        List.filter
           (function (h3, h4) ->
             not
-              (ZVGQuotient2.node_equality l1 h1 h3 && ZVGQuotient2.node_equality l2 h2 h4)
+              (ZVGQuotient2.node_equality l1 h1 h3
+               && ZVGQuotient2.node_equality l2 h2 h4)
           )
           !table;
      true)

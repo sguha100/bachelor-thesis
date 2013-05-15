@@ -20,8 +20,12 @@ module ZVGLT2 =
 struct
   type node_ref_t = zone_using_dbm
   type action_t = int
-  type lts_t = {nodes:((zone_using_dbm * ((transition *
-                                               (zone_using_dbm list)) list)) list) array;
+  type lts_t = {nodes:
+                   ((zone_using_dbm *
+                       ((transition *
+                           (zone_using_dbm list))
+                           list))
+                       list) array;
                 action_count: int;
                 clock_names: string array
                }
@@ -29,9 +33,12 @@ struct
     function l -> function zone1 -> function zone2 ->
       zone1 = zone2
   let node_name =
-    function l -> function zone -> ((string_of_int
-                                       zone.zone_location2) ^ " " ^
-                                       (dbm_to_string l.clock_names zone.zone_constraint2) )
+    function l -> function zone ->
+      ((string_of_int zone.zone_location2) ^ " " ^
+          (dbm_to_string
+             l.clock_names
+             zone.zone_constraint2)
+      )
   let expand_action = function l -> function a -> string_of_int a
   let nodes =
     function l ->
@@ -46,7 +53,8 @@ struct
     function l ->
       Array.to_list
         (Array.init
-           (1 + l.action_count) (*The extra action is -1, for time transitions.*)
+           (*The extra action is -1, for time transitions.*)
+           (1 + l.action_count) 
            (function a-> a - 1)
         )
   let in_adjacency = function l -> function zone ->
@@ -116,26 +124,29 @@ type half_key = ZVGQuotient2.node_ref_t
 <<ZVG_modules.ml>>=
 module type DP_TABLE_TYPE =
 sig
-  type table (*The 'a type is the co-ordinate type for the table.*)
+  type table 
   val empty_table: unit -> table
   val lookup:
     table ->
     ZVGQuotient2.lts_t ->
     ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
-    bool (*Whether it was found or not.*)
+    (*Whether it was found or not.*)
+    bool 
   val remove:
     table ->
     ZVGQuotient2.lts_t ->
     ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
-    bool (*Whether we needed to remove it or not.*)
+    (*Whether we needed to remove it or not.*)
+    bool 
   val insert:
     table ->
     ZVGQuotient2.lts_t ->
     ZVGQuotient2.lts_t ->
     (half_key * half_key) ->
-    bool (*Whether we needed to remove something before inserting it.*)
+    (*Whether we needed to remove something before inserting it.*)
+    bool 
 end
   
 @ 
@@ -148,7 +159,9 @@ sig
     ZVGQuotient2.lts_t ->
     half_key ->
     half_key ->
-    (((half_key * (half_key list)) list) * (((half_key list) * half_key) list))
+    (((half_key * (half_key list)) list) *
+        (((half_key list) * half_key) list)
+    )
 end
 
 @ 

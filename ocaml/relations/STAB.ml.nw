@@ -1,4 +1,4 @@
-\subsection{TADB.ml}
+\subsection{STAB.ml}
 This file provides the implementation of the strong time abstracted bisimilarity relation.
 
 <<STAB.ml>>=

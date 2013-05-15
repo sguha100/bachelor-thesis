@@ -15,7 +15,11 @@ let _ =
     [("-first", Arg.Set_string first, "first TA");
      ("-second", Arg.Set_string second, "second TA")]
   in
-  let anon_fun = (function _ -> raise (Arg.Bad "illegal anonymous argument")) in
+  let anon_fun =
+    (function _ ->
+      raise (Arg.Bad "illegal anonymous argument")
+    )
+  in
   let usage_msg = "usage: -first and -second are required." in
   Arg.parse speclist anon_fun usage_msg;
   let in1 = open_in !first in

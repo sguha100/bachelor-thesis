@@ -234,7 +234,8 @@ extern "C" {
 @ 
 \item Freeing the RAW\_T * part of a Caml custom block while garbage collecting.
 <<zone_stubs.c>>=
-  /* Freeing the RAW_T * part of a Caml custom block while garbage collecting. */
+  /* Freeing the RAW_T * part of a Caml custom block while garbage
+     collecting. */
   void raw_t_finalize (value v) {
     free(raw_t_val(v));
   }
@@ -242,7 +243,8 @@ extern "C" {
 @ 
 \item Freeing the CONSTRAINT\_T * part of a Caml custom block while garbage collecting.
 <<zone_stubs.c>>=
-  /* Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting. */
+  /* Freeing the CONSTRAINT_T * part of a Caml custom block while
+     garbage collecting. */
   void constraint_t_finalize (value v) {
     free(constraint_t_val(v));
   }
@@ -308,7 +310,9 @@ extern "C" {
   /* Allocating a Caml custom block to hold the given RAW_T * */
   static value alloc_raw_t(raw_t * w)
   {
-    value v = alloc_custom(&udbm_raw_t_ops, sizeof(raw_t *), 0, 1);
+    value v =
+      alloc_custom
+      (&udbm_raw_t_ops, sizeof(raw_t *), 0, 1);
     raw_t_val(v) = w;
     return v;
   }
@@ -319,7 +323,9 @@ extern "C" {
   /* Allocating a Caml custom block to hold the given CONSTRAINT_T * */
   static value alloc_constraint_t(constraint_t * w)
   {
-    value v = alloc_custom(&udbm_constraint_t_ops, sizeof(constraint_t *), 0, 1);
+    value v =
+      alloc_custom
+      (&udbm_constraint_t_ops, sizeof(constraint_t *), 0, 1);
     constraint_t_val(v) = w;
     return v;
   }
@@ -388,7 +394,9 @@ extern "C" {
     dst_dup.dim = dbm_struct_t_val(dst).dim;
     dst_dup.dbm = (raw_t *) malloc(dst_dup.dim*dst_dup.dim*sizeof(raw_t));
     dbm_copy(dst_dup.dbm, dbm_struct_t_val(dst).dbm, dst_dup.dim);
-    if (dbm_intersection(dst_dup.dbm, dbm_struct_t_val(src).dbm, dst_dup.dim) == TRUE) {
+    if (dbm_intersection
+        (dst_dup.dbm, dbm_struct_t_val(src).dbm, dst_dup.dim)
+        == TRUE) {
       free(dst_dup.dbm);
       CAMLreturn (Val_int(1)); //ocaml true
     } else {
@@ -454,7 +462,10 @@ extern "C" {
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_toString(value dbm) {
     CAMLparam1(dbm);
-    CAMLreturn (caml_copy_string(dbm_toString(dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
+    CAMLreturn
+      (caml_copy_string
+       (dbm_toString
+        (dbm_struct_t_val(dbm).dbm, dbm_struct_t_val(dbm).dim)));
   }
 
 @ 

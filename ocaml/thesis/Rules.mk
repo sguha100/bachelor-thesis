@@ -112,7 +112,7 @@ $(d)/TADB.ml.tex: relations/TADB.ml.tex
 $(d)/TAOB.ml.tex: relations/TAOB.ml.tex
 	cp $< $@
 
-$(d)/thesis.pdf: $(d)/thesis.tex $(d)/thesis.bib $(FIGURES) \
+$(d)/thesis.pdf: $(d)/thesis.tex $(d)/title.tex $(d)/IITD-LOGO.jpg $(d)/thesis.bib $(FIGURES) \
 $(SOURCE_TEX)
 	-env TEXINPUTS=./$(d): pdflatex -output-directory $(d) \\nonstopmode\\input $(d)/thesis.tex
 	env TEXMFOUTPUT=$(d) BIBINPUTS=$(d) bibtex --min-crossref=100 $(d)/thesis

@@ -187,7 +187,9 @@ struct
           )
           (ZVGQuotient2.nodes q1)
       ) with
-      | Not_found -> invalid_arg "We caught Not_found while searching for z1."
+      | Not_found ->
+        (invalid_arg
+           "We caught Not_found while searching for z1.")
     in
     Printf.printf "%s\n" "After selecting z1:";
     List.iter
@@ -214,7 +216,9 @@ struct
           )
           (ZVGQuotient2.nodes q2)
       ) with
-      | Not_found -> invalid_arg "We caught Not_found while searching for z2."
+      | Not_found ->
+        (invalid_arg
+           "We caught Not_found while searching for z2.")
     in
     Printf.printf "%s\n" "After selecting z2:";
     List.iter

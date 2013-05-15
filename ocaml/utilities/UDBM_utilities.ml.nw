@@ -308,7 +308,11 @@ let split_dbm_on_dbm dim dbm1 dbm2 =
         List.concat
           (List.map
              (function dbm ->
-               split_dbm_on_constraint dim dbm (i, j, strictness, bound))
+               split_dbm_on_constraint
+                 dim
+                 dbm
+                 (i, j, strictness, bound)
+             )
              dbm_list
           )
       )
@@ -325,7 +329,12 @@ let split_dbm_list_on_constraint
     (i, j, strictness, bound) =
   List.concat
     (List.map
-       (function dbm -> split_dbm_on_constraint dim dbm (i, j, strictness, bound))
+       (function dbm ->
+         split_dbm_on_constraint
+           dim
+           dbm
+           (i, j, strictness, bound)
+       )
        dbm_list
     )
 
