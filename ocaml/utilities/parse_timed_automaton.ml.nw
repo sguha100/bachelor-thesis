@@ -1,4 +1,4 @@
-\section{parse\_timed\_automaton.ml}
+\subsection{parse\_timed\_automaton.ml}
 This file provides functions for parsing timed automata and checking their sanity.
 
 <<parse_timed_automaton.ml>>=

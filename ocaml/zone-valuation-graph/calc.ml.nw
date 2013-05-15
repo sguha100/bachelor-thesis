@@ -1,4 +1,4 @@
-\section{calc.ml}
+\subsection{calc.ml}
 This provides the executable for constructing minimal zone graphs.
 
 <<calc.ml>>=

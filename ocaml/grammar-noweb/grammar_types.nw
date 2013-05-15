@@ -1,3 +1,6 @@
+\subsubsection{grammar_types.ml and grammar_types.ml}
+These files provide the essential datatypes we work with.
+
 <<grammar_types.mli>>=
 open Zone_stubs
 

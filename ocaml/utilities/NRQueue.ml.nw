@@ -1,4 +1,4 @@
-\section{NRQueue.ml}
+\subsection{NRQueue.ml}
 This provides the non-redundant queue (duplicate entries disallowed)
 which we use for the forward analysis.
 

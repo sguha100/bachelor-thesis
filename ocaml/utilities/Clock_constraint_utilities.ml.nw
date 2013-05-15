@@ -1,4 +1,6 @@
-\section{Clock_constraint_utilities.ml}
+\subsection{Clock\_constraint\_utilities.ml}
+This file provides some important operations on clock constraints (the
+older kind.)
 
 <<Clock_constraint_utilities.ml>>=
 open Grammar_types

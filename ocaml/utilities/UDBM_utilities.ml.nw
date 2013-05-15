@@ -1,4 +1,4 @@
-\section{UDBM\_utilities.ml}
+\subsection{UDBM\_utilities.ml}
 This file provides some essential higher-level utilities that involve DBM operations.
 
 <<UDBM_utilities.ml>>=

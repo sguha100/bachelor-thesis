@@ -1,3 +1,6 @@
+\subsection{TADB.ml}
+This file provides the implementation of the strong time abstracted bisimilarity relation.
+
 <<STAB.ml>>=
 open ZVG_modules
 

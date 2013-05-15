@@ -1,4 +1,4 @@
-\section{ZVG\_modules.ml}
+\subsection{ZVG\_modules.ml}
 This file provides a few wrapper modules for functions concerning the
 generation of minimal zone graphs.
 

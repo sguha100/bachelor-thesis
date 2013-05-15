@@ -1,4 +1,4 @@
-\section{zone\_stubs.c}
+\subsection{zone\_stubs.c}
 This file provides stubs for the UPPAAL DBM libraries.
 
 <<zone_stubs.c>>=

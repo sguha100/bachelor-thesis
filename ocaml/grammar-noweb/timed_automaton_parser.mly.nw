@@ -1,3 +1,6 @@
+\subsubsection{timed\_automaton\_parser.mly}
+This file provides the parser for timed automata.
+
 <<timed_automaton_parser.mly>>=
 /* File timed_automaton_parser.mly */
 %token <int> INT

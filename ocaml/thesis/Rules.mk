@@ -17,7 +17,8 @@ $(d)/pair03first.pdf_tex \
 $(d)/pair03second.pdf_tex \
 $(d)/regiongraph01.pdf_tex \
 $(d)/regiongraph02.pdf_tex
-TGT_$(d) := $(d)/thesis.pdf
+
+TGT_$(d) := $(d)/thesis.pdf $(FIGURES)
 
 .PHONY: targets
 targets: $(TGT_$(d))
@@ -36,7 +37,11 @@ $(d)/%.pdf_tex: $(d)/%.svg
 	inkscape -D -z --file=$< --export-pdf=$(subst pdf_tex,pdf,$@) \
 	--export-latex
 
-$(d)/thesis.pdf: $(d)/thesis.tex $(d)/thesis.bib $(FIGURES)
+$(d)/UDBM_utilities.ml.tex: utilities/UDBM_utilities.ml.tex
+	cp $< $@
+
+$(d)/thesis.pdf: $(d)/thesis.tex $(d)/thesis.bib $(FIGURES) \
+$(d)/UDBM_utilities.ml.tex
 	-env TEXINPUTS=./$(d): pdflatex -output-directory $(d) \\nonstopmode\\input $(d)/thesis.tex
 	env TEXMFOUTPUT=$(d) BIBINPUTS=$(d) bibtex --min-crossref=100 $(d)/thesis
 	-env TEXINPUTS=./$(d): pdflatex -output-directory $(d) \\nonstopmode\\input $(d)/thesis.tex

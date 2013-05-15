@@ -1,3 +1,6 @@
+\subsection{TADB.ml}
+This file provides the implementation of the time abstracted observational bisimilarity relation.
+
 <<TAOB.ml>>=
 open ZVG_modules
 
