@@ -2,9 +2,9 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_$(d) := $(d)/Clock_constraint_utilities.ml $(d)/NRQueue.ml \
-$(d)/Table_using_list.ml $(d)/UDBM_utilities.ml \
-$(d)/parse_timed_automaton.ml
+TGT_$(d) := $(d)/Clock_constraint_utilities.ml{,.tex} $(d)/NRQueue.ml{,.tex} \
+$(d)/Table_using_list.ml{,.tex} $(d)/UDBM_utilities.ml{,.tex} \
+$(d)/parse_timed_automaton.ml{,.tex}
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -19,7 +19,7 @@ $(d)/%.ml: $(d)/%.ml.nw
 	notangle -R$(subst $(d)/,,$@) $< > $@
 
 $(d)/%.ml.tex: $(d)/%.ml.nw
-	noweave -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -index -latex $< > $@
+	noweave -delay -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
 
 # The argument passed with the -R switch does not require
 # qualification with $(d) because it refers solely to the file name
