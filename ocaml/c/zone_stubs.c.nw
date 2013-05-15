@@ -170,7 +170,7 @@ extern "C" {
 #include <caml/custom.h>
 
 @ 
-\item Accessing the DBM_STRUCT_T part of a Caml custom block.
+\item Accessing the DBM\_STRUCT\_T part of a Caml custom block.
 <<zone_stubs.c>>=
   /* Accessing the DBM_STRUCT_T part of a Caml custom block. */
 #define dbm_struct_t_val(v) (*((dbm_struct_t *) Data_custom_val(v)))
@@ -178,20 +178,20 @@ extern "C" {
 @ 
 \item Deprecated.
 <<zone_stubs.c>>=
-  /* Accessing the RAW_T * part of a Caml custom block */
+  /* Accessing the RAW\_T * part of a Caml custom block */
 #define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
 
 @ 
-\item Accessing the CONSTRAINT_T * part of a Caml custom block.
+\item Accessing the CONSTRAINT\_T * part of a Caml custom block.
 <<zone_stubs.c>>=
-  /* Accessing the CONSTRAINT_T * part of a Caml custom block. */
+  /* Accessing the CONSTRAINT\_T * part of a Caml custom block. */
 #define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
 
 @ 
-\item Freeing the RAW_T * part of the DBM_STRUCT_T part of a Caml custom block
+\item Freeing the RAW\_T * part of the DBM\_STRUCT\_T part of a Caml custom block
       while garbage collecting.
 <<zone_stubs.c>>=
-  /* Freeing the RAW_T * part of the DBM_STRUCT_T part of a Caml custom block
+  /* Freeing the RAW\_T * part of the DBM\_STRUCT\_T part of a Caml custom block
       while garbage collecting. */
   void dbm_struct_t_finalize (value v) {
     free(dbm_struct_t_val(v).dbm);
@@ -232,7 +232,7 @@ extern "C" {
   }
 
 @ 
-\item Freeing the RAW_T * part of a Caml custom block while garbage collecting.
+\item Freeing the RAW\_T * part of a Caml custom block while garbage collecting.
 <<zone_stubs.c>>=
   /* Freeing the RAW_T * part of a Caml custom block while garbage collecting. */
   void raw_t_finalize (value v) {
@@ -240,7 +240,7 @@ extern "C" {
   }
 
 @ 
-\item Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting.
+\item Freeing the CONSTRAINT\_T * part of a Caml custom block while garbage collecting.
 <<zone_stubs.c>>=
   /* Freeing the CONSTRAINT_T * part of a Caml custom block while garbage collecting. */
   void constraint_t_finalize (value v) {
@@ -248,7 +248,7 @@ extern "C" {
   }
 
 @ 
-\item Encapsulation of opaque handles (of type DBM_STRUCT_T)
+\item Encapsulation of opaque handles (of type DBM\_STRUCT\_T)
      as Caml custom blocks.
 <<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type DBM_STRUCT_T)
@@ -263,7 +263,7 @@ extern "C" {
   };
 
 @ 
-\item Deparecated.
+\item Deprecated.
 <<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type RAW_T *)
      as Caml custom blocks. */
@@ -277,7 +277,7 @@ extern "C" {
   };
 
 @ 
-\item Encapsulation of opaque handles (of type CONSTRAINT_T *)
+\item Encapsulation of opaque handles (of type CONSTRAINT\_T *)
      as Caml custom blocks.
 <<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type CONSTRAINT_T *)
@@ -292,7 +292,7 @@ extern "C" {
   };
 
 @ 
-\item Allocating a Caml custom block to hold the given DBM_STRUCT_T.
+\item Allocating a Caml custom block to hold the given DBM\_STRUCT\_T.
 <<zone_stubs.c>>=
   /* Allocating a Caml custom block to hold the given DBM_STRUCT_T. */
   static value alloc_dbm_struct_t(dbm_struct_t  w)
@@ -314,7 +314,7 @@ extern "C" {
   }
 
 @ 
-\item Allocating a Caml custom block to hold the given DBM_STRUCT_T.
+\item Allocating a Caml custom block to hold the given DBM\_STRUCT\_T.
 <<zone_stubs.c>>=
   /* Allocating a Caml custom block to hold the given CONSTRAINT_T * */
   static value alloc_constraint_t(constraint_t * w)
@@ -337,7 +337,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_constrainC.
+\item Non-in-place wrapper over dbm\_constrainC.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_constrainC (value dbm, value c) {
     CAMLparam2(dbm, c);
@@ -351,7 +351,7 @@ extern "C" {
   }
 
 @ 
-\item Wrapper over dbm_constraint2.
+\item Wrapper over dbm\_constraint2.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_constraint2 (value i,
                                        value j,
@@ -367,7 +367,7 @@ extern "C" {
   }
 
 @ 
-\item Wrapper over dbm_isEmpty.
+\item Wrapper over dbm\_isEmpty.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_isEmpty (value dbm) {
     CAMLparam1(dbm);
@@ -380,7 +380,7 @@ extern "C" {
   }
 
 @ 
-\item Exact version of dbm_haveIntersection.
+\item Exact version of dbm\_haveIntersection.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_haveIntersection (value dst, value src) {
     CAMLparam2(dst, src);
@@ -398,7 +398,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_intersection.
+\item Non-in-place wrapper over dbm\_intersection.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_intersection (value dst, value src) {
     CAMLparam2(dst, src);
@@ -411,7 +411,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_freeClock.
+\item Non-in-place wrapper over dbm\_freeClock.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_freeClock (value dbm, value k) {
     CAMLparam2(dbm, k);
@@ -424,7 +424,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_updateValue.
+\item Non-in-place wrapper over dbm\_updateValue.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_updateValue (value dbm, value k, value val) {
     CAMLparam3(dbm, k, val);
@@ -437,7 +437,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_up.
+\item Non-in-place wrapper over dbm\_up.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_up(value dbm) {
     CAMLparam1(dbm);
@@ -458,7 +458,7 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm_zero.
+\item Non-in-place wrapper over dbm\_zero.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_zero(value dbm) {
     CAMLparam1(dbm);

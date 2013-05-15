@@ -1,4 +1,4 @@
-\subsubsection{timed\_automaton\_lexer.mll}
+\subsection{timed\_automaton\_lexer.mll}
 This provides the lexical analyser for timed automata.
 
 <<timed_automaton_lexer.mll>>=

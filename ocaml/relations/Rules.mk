@@ -2,7 +2,15 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-TGT_$(d) := $(d)/Relations.ml $(d)/STAB.ml $(d)/TADB.ml $(d)/TAOB.ml
+TGT_$(d) := \
+$(d)/Relations.ml \
+$(d)/Relations.ml.tex \
+$(d)/STAB.ml \
+$(d)/STAB.ml.tex \
+$(d)/TADB.ml \
+$(d)/TADB.ml.tex \
+$(d)/TAOB.ml \
+$(d)/TAOB.ml.tex
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -17,7 +25,7 @@ $(d)/%.ml: $(d)/%.ml.nw
 	notangle -R$(subst $(d)/,,$@) $< > $@
 
 $(d)/%.ml.tex: $(d)/%.ml.nw
-	noweave -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -index -latex $< > $@
+	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
 
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))

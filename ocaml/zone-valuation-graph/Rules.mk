@@ -24,7 +24,7 @@ $(d)/%.ml: $(d)/%.ml.nw
 	notangle -R$(subst $(d)/,,$@) $< > $@
 
 $(d)/%.ml.tex: $(d)/%.ml.nw
-	noweave -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -index -latex $< > $@
+	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
 
 # The argument passed with the -R switch does not require
 # qualification with $(d) because it refers solely to the file name

@@ -19,6 +19,9 @@ $(d)/zone_stubs.c: $(d)/zone_stubs.c.nw
 $(d)/zone_stubs.mli: $(d)/zone_stubs.mli.nw
 	notangle -Rzone_stubs.mli $(d)/zone_stubs.mli.nw > $(d)/zone_stubs.mli
 
+$(d)/%.tex: $(d)/%.nw
+	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
+
 # $(d)/libzone.a: $(d)/zone_stubs.o
 # 	ar rc $(d)/libzone.a $(d)/zone_stubs.o
 # 	ranlib $(d)/libzone.a
