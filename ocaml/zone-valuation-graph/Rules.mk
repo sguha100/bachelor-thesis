@@ -2,16 +2,14 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_$(d) := $(d)/Clock_constraint_utilities.ml \
-$(d)/Clock_constraint_utilities.ml.tex \
-$(d)/NRQueue.ml \
-$(d)/NRQueue.ml.tex \
-$(d)/Table_using_list.ml \
-$(d)/Table_using_list.ml.tex \
-$(d)/UDBM_utilities.ml \
-$(d)/UDBM_utilities.ml.tex \
-$(d)/parse_timed_automaton.ml \
-$(d)/parse_timed_automaton.ml.tex
+TGT_$(d) := $(d)/Graph_functions2.ml \
+$(d)/Graph_functions2.ml.tex \
+$(d)/ZVG_modules.ml \
+$(d)/ZVG_modules.ml.tex \
+$(d)/calc.ml \
+$(d)/calc.ml.tex \
+$(d)/compare_automata.ml \
+$(d)/compare_automata.ml.tex
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
