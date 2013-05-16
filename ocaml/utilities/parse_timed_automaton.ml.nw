@@ -115,3 +115,5 @@ let parse_timed_automaton channel =
   else
     raise Insane_automaton
 
+@ 
+\end{itemize}

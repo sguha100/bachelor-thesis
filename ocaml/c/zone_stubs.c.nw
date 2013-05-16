@@ -331,7 +331,7 @@ extern "C" {
   }
 
 @ 
-\item Wrapper over dbm_init.
+\item Wrapper over dbm\_init.
 <<zone_stubs.c>>=
   CAMLprim value zone_dbm_init (value dim) {
     CAMLparam1(dim);
@@ -636,3 +636,5 @@ strictness, bound)} constraint list (not minimal, used for abstraction.).
 #ifdef __cplusplus
 }
 #endif
+@ 
+\end{itemize}

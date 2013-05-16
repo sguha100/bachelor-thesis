@@ -63,7 +63,7 @@ let dbm_without_reset_clocks clock_names =
     clock_names
 
 @ 
-\item Turns a unit clock constraint into a list of constraint_t values.
+\item Turns a unit clock constraint into a list of constraint\_t values.
 <<UDBM_utilities.ml>>=
 let rec unit_clock_constraint_to_udbm_constraint_list_option
     clock_names
