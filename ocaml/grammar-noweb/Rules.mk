@@ -34,5 +34,12 @@ $(d)/%.tex: $(d)/%.nw
 $(d)/%.tex: $(d)/%.nw
 	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
 
+$(d)/grammar_types.ml:$(d)/grammar_types.ml.nw
+	notangle -Rgrammar_types.ml $(d)/grammar_types.ml.nw \
+>$(d)/grammar_types.ml
+
+$(d)/%.tex: $(d)/%.nw
+	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
+
 d		:= $(dirstack_$(sp))
 sp		:= $(basename $(sp))
