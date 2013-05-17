@@ -176,12 +176,6 @@ extern "C" {
 #define dbm_struct_t_val(v) (*((dbm_struct_t *) Data_custom_val(v)))
 
 @ 
-\item Deprecated.
-<<zone_stubs.c>>=
-  /* Accessing the RAW\_T * part of a Caml custom block */
-#define raw_t_val(v) (*((raw_t **) Data_custom_val(v)))
-
-@ 
 \item Accessing the CONSTRAINT\_T * part of a Caml custom block.
 <<zone_stubs.c>>=
   /* Accessing the CONSTRAINT\_T * part of a Caml custom block. */
@@ -232,15 +226,6 @@ extern "C" {
   }
 
 @ 
-\item Freeing the RAW\_T * part of a Caml custom block while garbage collecting.
-<<zone_stubs.c>>=
-  /* Freeing the RAW_T * part of a Caml custom block while garbage
-     collecting. */
-  void raw_t_finalize (value v) {
-    free(raw_t_val(v));
-  }
-
-@ 
 \item Freeing the CONSTRAINT\_T * part of a Caml custom block while garbage collecting.
 <<zone_stubs.c>>=
   /* Freeing the CONSTRAINT_T * part of a Caml custom block while
@@ -260,20 +245,6 @@ extern "C" {
     dbm_struct_t_finalize,
     dbm_struct_t_compare,
     dbm_struct_t_hash,
-    custom_serialize_default,
-    custom_deserialize_default
-  };
-
-@ 
-\item Deprecated.
-<<zone_stubs.c>>=
-  /* Encapsulation of opaque handles (of type RAW_T *)
-     as Caml custom blocks. */
-  static struct custom_operations udbm_raw_t_ops = {
-    "fr.inria.caml.udbm_raw_t",
-    raw_t_finalize,
-    custom_compare_default,
-    custom_hash_default,
     custom_serialize_default,
     custom_deserialize_default
   };
@@ -301,19 +272,6 @@ extern "C" {
   {
     value v = alloc_custom(&udbm_dbm_struct_t_ops, sizeof(dbm_struct_t), 0, 1);
     dbm_struct_t_val(v) = w;
-    return v;
-  }
-
-@ 
-\item Deprecated.
-<<zone_stubs.c>>=
-  /* Allocating a Caml custom block to hold the given RAW_T * */
-  static value alloc_raw_t(raw_t * w)
-  {
-    value v =
-      alloc_custom
-      (&udbm_raw_t_ops, sizeof(raw_t *), 0, 1);
-    raw_t_val(v) = w;
     return v;
   }
 
