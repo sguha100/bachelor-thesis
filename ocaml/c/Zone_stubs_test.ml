@@ -3,17 +3,6 @@ open Zone_stubs
 open Grammar_types
 open UDBM_utilities
 
-let test40 =
-  let
-      found = int_toList 3
-  in
-  if
-    found = [(2, true); (1, true); (0, true)]
-  then
-    "test40 passed"
-  else
-    "test40 failed"
-
 let verify_dbm dim dbm expected =
   let
       found = dbm_toConstraintList dbm
