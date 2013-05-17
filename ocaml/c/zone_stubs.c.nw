@@ -176,12 +176,6 @@ extern "C" {
 #define dbm_struct_t_val(v) (*((dbm_struct_t *) Data_custom_val(v)))
 
 @ 
-\item Accessing the CONSTRAINT\_T * part of a Caml custom block.
-<<zone_stubs.c>>=
-  /* Accessing the CONSTRAINT\_T * part of a Caml custom block. */
-#define constraint_t_val(v) (*((constraint_t **) Data_custom_val(v)))
-
-@ 
 \item Freeing the RAW\_T * part of the DBM\_STRUCT\_T part of a Caml custom block
       while garbage collecting.
 <<zone_stubs.c>>=
@@ -226,40 +220,16 @@ extern "C" {
   }
 
 @ 
-\item Freeing the CONSTRAINT\_T * part of a Caml custom block while garbage collecting.
-<<zone_stubs.c>>=
-  /* Freeing the CONSTRAINT_T * part of a Caml custom block while
-     garbage collecting. */
-  void constraint_t_finalize (value v) {
-    free(constraint_t_val(v));
-  }
-
-@ 
 \item Encapsulation of opaque handles (of type DBM\_STRUCT\_T)
      as Caml custom blocks.
 <<zone_stubs.c>>=
   /* Encapsulation of opaque handles (of type DBM_STRUCT_T)
      as Caml custom blocks. */
-  static struct custom_operations udbm_dbm_struct_t_ops = {
+  static struct custom_operations dbm_struct_t_ops = {
     "fr.inria.caml.udbm_dbm_struct_t",
     dbm_struct_t_finalize,
     dbm_struct_t_compare,
     dbm_struct_t_hash,
-    custom_serialize_default,
-    custom_deserialize_default
-  };
-
-@ 
-\item Encapsulation of opaque handles (of type CONSTRAINT\_T *)
-     as Caml custom blocks.
-<<zone_stubs.c>>=
-  /* Encapsulation of opaque handles (of type CONSTRAINT_T *)
-     as Caml custom blocks. */
-  static struct custom_operations udbm_constraint_t_ops = {
-    "fr.inria.caml.udbm_constraint_t",
-    constraint_t_finalize,
-    custom_compare_default,
-    custom_hash_default,
     custom_serialize_default,
     custom_deserialize_default
   };
@@ -270,21 +240,8 @@ extern "C" {
   /* Allocating a Caml custom block to hold the given DBM_STRUCT_T. */
   static value alloc_dbm_struct_t(dbm_struct_t  w)
   {
-    value v = alloc_custom(&udbm_dbm_struct_t_ops, sizeof(dbm_struct_t), 0, 1);
+    value v = alloc_custom(&dbm_struct_t_ops, sizeof(dbm_struct_t), 0, 1);
     dbm_struct_t_val(v) = w;
-    return v;
-  }
-
-@ 
-\item Allocating a Caml custom block to hold the given DBM\_STRUCT\_T.
-<<zone_stubs.c>>=
-  /* Allocating a Caml custom block to hold the given CONSTRAINT_T * */
-  static value alloc_constraint_t(constraint_t * w)
-  {
-    value v =
-      alloc_custom
-      (&udbm_constraint_t_ops, sizeof(constraint_t *), 0, 1);
-    constraint_t_val(v) = w;
     return v;
   }
 
