@@ -343,33 +343,35 @@ extern "C" {
   }
 
 @ 
-\item Non-in-place wrapper over dbm\_constrainC.
+\item This function constrains a DBM using an \texttt{(i, j,
+strictness, bound)} constraint.
 <<zone_stubs.c>>=
-  CAMLprim value zone_dbm_constrainC (value dbm, value c) {
-    CAMLparam2(dbm, c);
+  CAMLprim value zone_dbm_constrain_using_tuple (value dbm, value c_tuple)
+  {
+    CAMLparam2(dbm, c_tuple);
     dbm_struct_t s, s_dup;
     s = dbm_struct_t_val(dbm);
     s_dup.dim = s.dim;
     s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
     dbm_copy(s_dup.dbm, s.dbm, s_dup.dim);
-    dbm_constrainC(s_dup.dbm, s_dup.dim, *(constraint_t_val(c)));
+    BOOL isStrict;
+    switch (Field(c_tuple, 2)) {
+    case Val_int(1): //ocaml true
+      isStrict = TRUE;
+      break;
+    case Val_int(0): //ocaml false
+      isStrict = FALSE;
+      break;
+    default:
+      isStrict = TRUE;
+      break;
+    }
+    dbm_constrain1(s_dup.dbm,
+                   s_dup.dim,
+                   Int_val(Field(c_tuple, 0)),
+                   Int_val(Field(c_tuple, 1)),
+                   dbm_boundbool2raw(Int_val(Field(c_tuple, 3)), isStrict));
     CAMLreturn (alloc_dbm_struct_t(s_dup));
-  }
-
-@ 
-\item Wrapper over dbm\_constraint2.
-<<zone_stubs.c>>=
-  CAMLprim value zone_dbm_constraint2 (value i,
-                                       value j,
-                                       value bound,
-                                       value isStrict) {
-    CAMLparam4(i, j, bound, isStrict);
-    constraint_t *constraint = (constraint_t *)malloc(sizeof(constraint_t *));
-    *constraint = dbm_constraint2((cindex_t)Int_val(i),
-                                  (cindex_t)Int_val(j),
-                                  (int32_t)Int_val(bound),
-                                  isStrict == Val_true ? TRUE : FALSE);
-    CAMLreturn (alloc_constraint_t(constraint));
   }
 
 @ 
