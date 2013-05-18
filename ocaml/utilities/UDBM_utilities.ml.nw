@@ -34,9 +34,6 @@ let dbm_clock_reset_operation operation clock_names clock_resets dbm =
 \item This function implements post-reset on DBM.
 <<UDBM_utilities.ml>>=
 let dbm_after_clock_resets clock_names =
-  let
-      dim = 1 + (Array.length clock_names)
-  in
   dbm_clock_reset_operation
     (function dbm -> function cn ->
       dbm_updateValue
@@ -51,9 +48,6 @@ let dbm_after_clock_resets clock_names =
 zero-ness of the clock in question.
 <<UDBM_utilities.ml>>=
 let dbm_without_reset_clocks clock_names =
-  let
-      dim = 1 + (Array.length clock_names)
-  in
   dbm_clock_reset_operation
     (function dbm -> function cn ->
       dbm_freeClock
@@ -195,9 +189,6 @@ let constraint_list_to_string clock_names constraint_list =
 \item This function turns a DBM into a string.
 <<UDBM_utilities.ml>>=
 let dbm_to_string clock_names dbm =
-  let
-      dim = Array.length clock_names + 1
-  in
   constraint_list_to_string clock_names (dbm_toConstraintList dbm)
 
 @ 
