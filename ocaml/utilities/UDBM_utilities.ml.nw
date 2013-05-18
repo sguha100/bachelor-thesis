@@ -213,13 +213,12 @@ let constraint_list_to_dbm_option dim constraint_list =
       (function (i, j, strictness, bound) ->
         let
             dbm =
-          dbm_constrainC
+          dbm_constrain_using_tuple
             dbm
-            (dbm_constraint2
-	       i
-	       j
-	       bound
-	       strictness
+            (i,
+	     j,
+	     strictness,
+             bound
             )
         in
         if
@@ -240,12 +239,12 @@ bound} constraint.
 let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
   List.concat
     (List.map
-       (function constraint_t ->
+       (function (i1, j1, strictness1, bound1) ->
          let
              dbm = 
-           dbm_constrainC
+           dbm_constrain_using_tuple
              dbm
-             constraint_t
+             (i1, j1, strictness1, bound1)
          in
          if
            dbm_isEmpty dbm
@@ -254,8 +253,8 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
          else
            [dbm]
         )
-       [dbm_constraint2 i j bound strictness;
-        dbm_constraint2 j i (0-bound) (not strictness)]
+       [(i, j, strictness, bound);
+        (j, i, not strictness, 0-bound)]
     )
 
 @ 
