@@ -137,8 +137,6 @@ let _ =
   print_newline ();
   print_string test39;
   print_newline ();
-  print_string test40;
-  print_newline ();
   print_string test41;
   print_newline ();
   print_string test42;
@@ -240,5 +238,7 @@ let _ =
   print_string test90;
   print_newline ();
   print_string test91;
+  print_newline ();
+  print_string test92;
   print_newline ();
   exit 0

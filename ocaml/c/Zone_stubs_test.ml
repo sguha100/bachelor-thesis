@@ -3,17 +3,6 @@ open Zone_stubs
 open Grammar_types
 open UDBM_utilities
 
-let test40 =
-  let
-      found = int_toList 3
-  in
-  if
-    found = [(2, true); (1, true); (0, true)]
-  then
-    "test40 passed"
-  else
-    "test40 failed"
-
 let verify_dbm dim dbm expected =
   let
       found = dbm_toConstraintList dbm
@@ -175,7 +164,7 @@ let test83 =
     "test83 failed"
 
 let dbm11 = 
-  dbm_constrainC (dbm_init 3) (dbm_constraint2 2 1 5 false)
+  dbm_constrain_using_tuple (dbm_init 3) (2, 1, false, 5)
 
 let test84 = 
   if
@@ -186,7 +175,7 @@ let test84 =
     "test84 failed"
 
 let dbm12 = 
-  dbm_constrainC dbm11 (dbm_constraint2 2 1 4 false)
+  dbm_constrain_using_tuple dbm11 (2, 1, false, 4)
 
 let test85 = 
   if
@@ -197,7 +186,7 @@ let test85 =
     "test85 failed"
 
 let dbm13 = 
-  dbm_constrainC (dbm_init 3) (dbm_constraint2 1 2 (-5) false)
+  dbm_constrain_using_tuple (dbm_init 3) (1, 2, false, -5)
 
 let test86 = 
   if
@@ -267,4 +256,3 @@ let test92 =
     "test92 passed"
   else
     "test92 failed"
-
