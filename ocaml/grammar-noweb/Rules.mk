@@ -8,6 +8,8 @@ $(d)/timed_automaton_parser.mly \
 $(d)/timed_automaton_parser.mly.tex \
 $(d)/grammar_types.ml \
 $(d)/grammar_types.ml.tex \
+$(d)/Alt_grammar_types.ml \
+$(d)/Alt_grammar_types.ml.tex \
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -27,6 +29,10 @@ $(d)/timed_automaton_parser.mly:$(d)/timed_automaton_parser.mly.nw
 $(d)/grammar_types.ml:$(d)/grammar_types.ml.nw
 	notangle -Rgrammar_types.ml $(d)/grammar_types.ml.nw \
 >$(d)/grammar_types.ml
+
+$(d)/Alt_grammar_types.ml:$(d)/Alt_grammar_types.ml.nw
+	notangle -RAlt_grammar_types.ml $(d)/Alt_grammar_types.ml.nw \
+>$(d)/Alt_grammar_types.ml
 
 $(d)/%.tex: $(d)/%.nw
 	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@
