@@ -8,12 +8,9 @@ type constraint_t
 external dbm_init:
   int -> dbm_struct_t =
   "zone_dbm_init"
-external dbm_constrainC:
-  dbm_struct_t -> constraint_t -> dbm_struct_t =
-  "zone_dbm_constrainC"
-external dbm_constraint2:
-  int -> int -> int -> bool -> constraint_t =
-  "zone_dbm_constraint2"
+external dbm_constrain_using_tuple:
+  dbm_struct_t -> (int * int * bool * int) -> dbm_struct_t =
+  "zone_dbm_constrain_using_tuple"
 external dbm_isEmpty:
   dbm_struct_t -> bool =
   "zone_dbm_isEmpty"
@@ -47,5 +44,3 @@ external dbm_toConstraintList:
 external dbm_toLargerConstraintList:
   dbm_struct_t -> ((int * int * bool * int) list) =
   "zone_dbm_toLargerConstraintList"
-(*This is intended to be experimental in nature.*)
-external int_toList: int -> (int * bool) list = "zone_int_toList"

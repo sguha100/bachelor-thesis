@@ -34,9 +34,6 @@ let dbm_clock_reset_operation operation clock_names clock_resets dbm =
 \item This function implements post-reset on DBM.
 <<UDBM_utilities.ml>>=
 let dbm_after_clock_resets clock_names =
-  let
-      dim = 1 + (Array.length clock_names)
-  in
   dbm_clock_reset_operation
     (function dbm -> function cn ->
       dbm_updateValue
@@ -51,9 +48,6 @@ let dbm_after_clock_resets clock_names =
 zero-ness of the clock in question.
 <<UDBM_utilities.ml>>=
 let dbm_without_reset_clocks clock_names =
-  let
-      dim = 1 + (Array.length clock_names)
-  in
   dbm_clock_reset_operation
     (function dbm -> function cn ->
       dbm_freeClock
@@ -63,9 +57,11 @@ let dbm_without_reset_clocks clock_names =
     clock_names
 
 @ 
-\item Turns a unit clock constraint into a list of constraint\_t values.
+\item Turns a unit clock constraint into a list of \texttt{(i, j,
+                                                            constraint,
+                                                            bound)} constraints.
 <<UDBM_utilities.ml>>=
-let rec unit_clock_constraint_to_udbm_constraint_list_option
+let unit_clock_constraint_to_constraint_list_option
     clock_names
     unit_clock_constraint =
   let
@@ -77,48 +73,14 @@ let rec unit_clock_constraint_to_udbm_constraint_list_option
   in
   match unit_clock_constraint with
     True -> Some []
-  | False -> None (*This weird expression signifies a constraint
-       requiring a zero value to be less than zero.*)
-    (*Update: this weird expression is illegal, that is, a constraint
-      in which i = j cannot be applied to the DBM, and also, no
-      constraint can be applied to a DBM which makes the DBM empty. I
-      think we'll work around by preventing this from ever being sent
-      to the DBM functions which are uptight about this.*)
-  | Lt (cn, n) -> Some [dbm_constraint2
-		      (index cn)
-		      0
-		      n
-		      true
-		  ]
-  | Le (cn, n) -> Some [dbm_constraint2
-		      (index cn)
-		      0
-		      n
-		      false
-		  ]
-  | Eq (cn, n) -> Some [dbm_constraint2
-		      0
-		      (index cn)
-		      (0-n)
-		      false;
-		   dbm_constraint2
-		     (index cn)
-		     0
-		     n
-		     false
-		  ]
-  | Ge (cn, n) -> Some [dbm_constraint2
-		      0
-		      (index cn)
-		      (0-n)
-		      false
-		  ]
-  | Gt (cn, n) -> Some [dbm_constraint2
-		      0
-		      (index cn)
-		      (0-n)
-		      true
-		  ]
+  | False -> None 
+  | Lt (cn, n) -> Some [(index cn, 0, true, n)]
+  | Le (cn, n) -> Some [(index cn, 0, false, n)]
+  | Eq (cn, n) -> Some [(0, index cn, false, 0-n);
+                        (index cn, 0, false, n)
+		       ]
+  | Ge (cn, n) -> Some [(0, index cn, false, 0-n)]
+  | Gt (cn, n) -> Some [(0, index cn, true, 0-n)]
 
 @ 
 \item This function turns clock constraints to DBM, except when they
@@ -134,23 +96,23 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
     | (Some partial_dbm) ->
       (function unit_clock_constraint -> 
         (match
-          unit_clock_constraint_to_udbm_constraint_list_option
+          unit_clock_constraint_to_constraint_list_option
             clock_names
             unit_clock_constraint
         with
           None -> None
-        | Some constraint_t_list ->
+        | Some constraint_list ->
           let
               dst =
             List.fold_left (*We just KNOW this folding will work.*)
               (function partial_dbm ->
-                function constraint_t ->
-                  dbm_constrainC
+                function (i, j, strictness, bound) ->
+                  dbm_constrain_using_tuple
                     partial_dbm
-                    constraint_t
+                    (i, j, strictness, bound)
               )
               (dbm_init dim)
-              constraint_t_list
+              constraint_list
           in
           if
             (dbm_haveIntersection
@@ -164,10 +126,6 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
         )
       )
     )
-    (* (function partial_dbm_option -> *)
-    (*   function unit_clock_constraint -> *)
-    (*     None *)
-    (* ) *)
     (Some (dbm_init dim))
     clock_constraint
 
@@ -231,9 +189,6 @@ let constraint_list_to_string clock_names constraint_list =
 \item This function turns a DBM into a string.
 <<UDBM_utilities.ml>>=
 let dbm_to_string clock_names dbm =
-  let
-      dim = Array.length clock_names + 1
-  in
   constraint_list_to_string clock_names (dbm_toConstraintList dbm)
 
 @ 
@@ -249,13 +204,12 @@ let constraint_list_to_dbm_option dim constraint_list =
       (function (i, j, strictness, bound) ->
         let
             dbm =
-          dbm_constrainC
+          dbm_constrain_using_tuple
             dbm
-            (dbm_constraint2
-	       i
-	       j
-	       bound
-	       strictness
+            (i,
+	     j,
+	     strictness,
+             bound
             )
         in
         if
@@ -276,12 +230,12 @@ bound} constraint.
 let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
   List.concat
     (List.map
-       (function constraint_t ->
+       (function (i1, j1, strictness1, bound1) ->
          let
              dbm = 
-           dbm_constrainC
+           dbm_constrain_using_tuple
              dbm
-             constraint_t
+             (i1, j1, strictness1, bound1)
          in
          if
            dbm_isEmpty dbm
@@ -290,8 +244,8 @@ let split_dbm_on_constraint dim dbm (i, j, strictness, bound) =
          else
            [dbm]
         )
-       [dbm_constraint2 i j bound strictness;
-        dbm_constraint2 j i (0-bound) (not strictness)]
+       [(i, j, strictness, bound);
+        (j, i, not strictness, 0-bound)]
     )
 
 @ 
