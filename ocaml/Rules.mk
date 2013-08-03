@@ -85,8 +85,9 @@ c/zone_stubs.mli \
 c/Zone_stubs_test.ml \
 utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
+grammar-noweb/Alt_grammar_types.ml \
 Rules.mk \
-_tags\
+_tags \
 myocamlbuild.ml
 
 libzone_stubs.a: \

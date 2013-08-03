@@ -1,55 +1,86 @@
-\subsection{grammar\_types.ml}
+\subsection{Alt_grammar\_types.ml}
 This file provides the essential datatypes we work with.
 
-<<grammar_types.ml>>=
+<<Alt_grammar_types.ml>>=
 open Zone_stubs
+open Graph
 
-<<grammar_types.ml>>=
 type unit_clock_constraint = True
-		       | False
-		       | Lt of string*int
-		       | Le of string*int
-		       | Eq of string*int
-		       | Ge of string*int
-		       | Gt of string*int
+                       | False
+                       | Lt of string*int
+                       | Le of string*int
+                       | Eq of string*int
+                       | Ge of string*int
+                       | Gt of string*int
 
-<<grammar_types.ml>>=
 type clock_constraint = unit_clock_constraint list
 
-<<grammar_types.ml>>=
-type transition = {
+type transition_label = {
   action: int;
   condition: clock_constraint;
-  clock_resets: string array;
-  next_location: int
+  clock_resets: string array
 }
 
-<<grammar_types.ml>>=
-type location = {
+type location_label = {
   location_index: int;
-  invariant: clock_constraint;
-  departures: transition array
+  (* invariant: clock_constraint; *)
 }
 
-<<grammar_types.ml>>=
+module Location_graph =
+  Persistent.Digraph.ConcreteBidirectionalLabeled
+    (struct
+      type t = location_label
+      let compare = Pervasives.compare
+      let hash = Hashtbl.hash
+      let equal = Pervasives.(=)
+     end)
+    (struct
+      type t = transition_label
+      let compare = Pervasives.compare
+      let default = {
+        action = -1;
+        condition = [False];
+        clock_resets = [||]
+      }
+     end)
+
+module Location_invariant_map =
+  Map.Make (
+    struct
+      type t = int
+      let compare = Pervasives.compare
+    end
+  )
+
+module String_set =
+  Set.Make (
+    struct
+      type t = string
+      let compare = Pervasives.compare
+    end
+  )
+
 type timed_automaton = {
   numlocations: int;
   numtrans: int;
   numclocks: int;
   numactions: int;
-  numinit: int;
-  clock_names: string array;
-  locations: location array
+  clock_names: String_set.t;
+  location_graph: Location_graph.t;
+  location_invariant_map: clock_constraint Location_invariant_map.t
 }
 
-<<grammar_types.ml>>=
 type zone_using_list = {
   zone_location1: int;
   zone_constraint1: clock_constraint
 }
 
-<<grammar_types.ml>>=
 type zone_using_dbm = {
   zone_location2: int;
   zone_constraint2: dbm_struct_t
 }
+
+module Test =
+  struct
+    
+  end
