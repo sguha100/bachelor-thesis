@@ -80,14 +80,14 @@ INT clock_name_set locationlist EOF
 { let
     (graph, map) = build_graph_and_map $12
   in
-  {Alt_grammar_types.numlocations=$2;
-   Alt_grammar_types.numtrans=$4;
-   Alt_grammar_types.numclocks=$6;
-   Alt_grammar_types.numactions=$8;
-   Alt_grammar_types.numinit={Alt_grammar_types.location_index = $10};
-   Alt_grammar_types.clock_names = $11;
-   Alt_grammar_types.location_graph = graph;
-   Alt_grammar_types.location_invariant_map = map} }
+  {numlocations=$2;
+   numtrans=$4;
+   numclocks=$6;
+   numactions=$8;
+   numinit={location_index = $10};
+   clock_names = $11;
+   location_graph = graph;
+   location_invariant_map = map} }
 ;
 
 clock_name_set:
@@ -99,7 +99,7 @@ clock_name_set:
 
 location:
 LOCATION COLON INT INVAR COLON clock_constraint TRANS COLON transitionlist
-{ ({Alt_grammar_types.location_index=$3}, $6, $9) }
+{ ({location_index=$3}, $6, $9) }
 ;
 
 locationlist:
@@ -110,19 +110,19 @@ locationlist:
 
 unit_clock_constraint:
 TRUE
-{ Alt_grammar_types.True }
+{ True }
 |	FALSE
-{ Alt_grammar_types.False }
+{ False }
 |	IDENT LT INT
-{ Alt_grammar_types.Lt($1, $3) }
+{ Lt($1, $3) }
 |	IDENT LE INT
-{ Alt_grammar_types.Le($1, $3) }
+{ Le($1, $3) }
 |	IDENT EQ INT
-{ Alt_grammar_types.Eq($1, $3) }
+{ Eq($1, $3) }
 |	IDENT GE INT
-{ Alt_grammar_types.Ge($1, $3) }
+{ Ge($1, $3) }
 |	IDENT GT INT
-{ Alt_grammar_types.Gt($1, $3) }
+{ Gt($1, $3) }
 ;
 
 clock_constraint:
@@ -134,10 +134,10 @@ unit_clock_constraint
 
 transition:
 clock_constraint RARROW ACT INT SEMI RESET LBRACE clock_name_set RBRACE SEMI GOTO INT
-{ ({Alt_grammar_types.condition=$1;
-    Alt_grammar_types.action=$4;
-    Alt_grammar_types.clock_resets=Array.of_list($8)},
-   {Alt_grammar_types.location_index=$12}) }
+{ ({condition=$1;
+    action=$4;
+    clock_resets=$8},
+   {location_index=$12}) }
 ;
 
 transitionlist:
