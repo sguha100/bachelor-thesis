@@ -10,6 +10,8 @@ $(d)/grammar_types.ml \
 $(d)/grammar_types.ml.tex \
 $(d)/Alt_grammar_types.ml \
 $(d)/Alt_grammar_types.ml.tex \
+$(d)/Alt_timed_automaton_parser.mly \
+$(d)/Alt_timed_automaton_parser.mly.tex 
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -25,6 +27,9 @@ $(d)/timed_automaton_lexer.mll:$(d)/timed_automaton_lexer.mll.nw
 
 $(d)/timed_automaton_parser.mly:$(d)/timed_automaton_parser.mly.nw
 	notangle -Rtimed_automaton_parser.mly $(d)/timed_automaton_parser.mly.nw >$(d)/timed_automaton_parser.mly
+
+$(d)/Alt_timed_automaton_parser.mly:$(d)/Alt_timed_automaton_parser.mly.nw
+	notangle -RAlt_timed_automaton_parser.mly $(d)/Alt_timed_automaton_parser.mly.nw >$(d)/Alt_timed_automaton_parser.mly
 
 $(d)/grammar_types.ml:$(d)/grammar_types.ml.nw
 	notangle -Rgrammar_types.ml $(d)/grammar_types.ml.nw \

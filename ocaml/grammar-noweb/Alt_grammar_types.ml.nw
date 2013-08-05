@@ -15,10 +15,18 @@ type unit_clock_constraint = True
 
 type clock_constraint = unit_clock_constraint list
 
+module String_set =
+  Set.Make (
+    struct
+      type t = string
+      let compare = Pervasives.compare
+    end
+  )
+
 type transition_label = {
-  action: int;
   condition: clock_constraint;
-  clock_resets: string array
+  action: int;
+  clock_resets: String_set.t
 }
 
 type location_label = {
@@ -40,22 +48,14 @@ module Location_graph =
       let default = {
         action = -1;
         condition = [False];
-        clock_resets = [||]
+        clock_resets = String_set.empty
       }
      end)
 
 module Location_invariant_map =
   Map.Make (
     struct
-      type t = int
-      let compare = Pervasives.compare
-    end
-  )
-
-module String_set =
-  Set.Make (
-    struct
-      type t = string
+      type t = location_label
       let compare = Pervasives.compare
     end
   )
@@ -65,6 +65,7 @@ type timed_automaton = {
   numtrans: int;
   numclocks: int;
   numactions: int;
+  numinit: location_label;
   clock_names: String_set.t;
   location_graph: Location_graph.t;
   location_invariant_map: clock_constraint Location_invariant_map.t

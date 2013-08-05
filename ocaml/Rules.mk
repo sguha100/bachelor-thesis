@@ -31,7 +31,15 @@ include $(dir)/Rules.mk
 # Top level dependencies.
 
 .PHONY: targets
-targets: calc.native test.native compare_automata.native thesis/thesis.pdf
+targets: \
+calc.native test.native compare_automata.native \
+Alt_grammar_types.cmo Alt_timed_automaton_parser.cmx \
+thesis/thesis.pdf
+
+COMMON_DEPS := \
+Rules.mk \
+_tags \
+myocamlbuild.ml
 
 CALC_NATIVE_DEPS := \
 zone-valuation-graph/calc.ml \
@@ -41,9 +49,7 @@ grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
 fernandez-ocaml-noweb/Fernandez_modules.ml \
-Rules.mk \
-_tags \
-myocamlbuild.ml
+$(COMMON_DEPS)
 
 COMPARE_AUTOMATA_DEPS := \
 zone-valuation-graph/compare_automata.ml \
@@ -51,7 +57,8 @@ relations/Relations.ml \
 relations/STAB.ml \
 relations/TADB.ml \
 relations/TAOB.ml \
-utilities/Table_using_list.ml
+utilities/Table_using_list.ml \
+$(COMMON_DEPS)
 
 NEXT_STEP_DEPS := \
 clutter/next_step/next_step.ml \
@@ -63,9 +70,7 @@ $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
 utilities/UDBM_utilities.ml \
-Rules.mk \
-_tags\
-myocamlbuild.ml
+$(COMMON_DEPS)
 
 TEST_DEPS := \
 $(grammar_types) \
@@ -86,9 +91,15 @@ c/Zone_stubs_test.ml \
 utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
 grammar-noweb/Alt_grammar_types.ml \
-Rules.mk \
-_tags \
-myocamlbuild.ml
+$(COMMON_DEPS)
+
+ALT_GRAMMAR_TYPES_DEPS := \
+grammar-noweb/Alt_grammar_types.ml \
+$(COMMON_DEPS)
+
+ALT_TIMED_AUTOMATON_PARSER_DEPS := \
+grammar-noweb/Alt_timed_automaton_parser.mly \
+$(COMMON_DEPS)
 
 libzone_stubs.a: \
 c/zone_stubs.mli \
@@ -104,9 +115,17 @@ next_step.native: $(NEXT_STEP_DEPS)
 
 test.native: $(TEST_DEPS)
 
-%.native: $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
-	$(TEST_DEPS)
+Alt_grammar_types.cmo: $(ALT_GRAMMAR_TYPES_DEPS)
+
+Alt_timed_automaton_parser.cmx: $(ALT_TIMED_AUTOMATON_PARSER_DEPS)
+
+%.native: \
+$(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
+$(TEST_DEPS) $(ALT_TIMED_AUTOMATON_PARSER_DEPS) \
+$(ALT_GRAMMAR_TYPES_DEPS)
 	$(OCAMLBUILD)  \
 	zone-valuation-graph/calc.native \
 	test/test.native \
-	zone-valuation-graph/compare_automata.native
+	zone-valuation-graph/compare_automata.native \
+	grammar-noweb/Alt_grammar_types.cmo \
+	grammar-noweb/Alt_timed_automaton_parser.cmx
