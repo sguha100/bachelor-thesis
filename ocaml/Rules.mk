@@ -33,7 +33,6 @@ include $(dir)/Rules.mk
 .PHONY: targets
 targets: \
 calc.native test.native compare_automata.native \
-Alt_grammar_types.cmo Alt_timed_automaton_parser.cmx \
 thesis/thesis.pdf
 
 COMMON_DEPS := \
@@ -96,14 +95,6 @@ grammar-noweb/Alt_timed_automaton_parser.mly \
 utilities/Alt_parse_timed_automaton.ml \
 $(COMMON_DEPS)
 
-ALT_GRAMMAR_TYPES_DEPS := \
-grammar-noweb/Alt_grammar_types.ml \
-$(COMMON_DEPS)
-
-ALT_TIMED_AUTOMATON_PARSER_DEPS := \
-grammar-noweb/Alt_timed_automaton_parser.mly \
-$(COMMON_DEPS)
-
 libzone_stubs.a: \
 c/zone_stubs.mli \
 c/zone.mllib \
@@ -118,17 +109,10 @@ next_step.native: $(NEXT_STEP_DEPS)
 
 test.native: $(TEST_DEPS)
 
-Alt_grammar_types.cmo: $(ALT_GRAMMAR_TYPES_DEPS)
-
-Alt_timed_automaton_parser.cmx: $(ALT_TIMED_AUTOMATON_PARSER_DEPS)
-
 %.native: \
 $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
-$(TEST_DEPS) $(ALT_TIMED_AUTOMATON_PARSER_DEPS) \
-$(ALT_GRAMMAR_TYPES_DEPS)
+$(TEST_DEPS)
 	$(OCAMLBUILD)  \
 	zone-valuation-graph/calc.native \
 	test/test.native \
 	zone-valuation-graph/compare_automata.native \
-	grammar-noweb/Alt_grammar_types.cmo \
-	grammar-noweb/Alt_timed_automaton_parser.cmx
