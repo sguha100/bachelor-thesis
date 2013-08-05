@@ -91,6 +91,9 @@ c/Zone_stubs_test.ml \
 utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
 grammar-noweb/Alt_grammar_types.ml \
+grammar-noweb/Alt_timed_automaton_lexer.mll \
+grammar-noweb/Alt_timed_automaton_parser.mly \
+utilities/Alt_parse_timed_automaton.ml \
 $(COMMON_DEPS)
 
 ALT_GRAMMAR_TYPES_DEPS := \

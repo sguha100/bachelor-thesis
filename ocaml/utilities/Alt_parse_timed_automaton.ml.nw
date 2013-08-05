@@ -1,0 +1,122 @@
+\subsection{Alt_parse\_timed\_automaton.ml}
+This file provides functions for parsing timed automata and checking their sanity.
+
+<<Alt_parse_timed_automaton.ml>>=
+open Alt_grammar_types
+(* open Zone_stubs *)
+
+@ 
+\begin{itemize}
+\item This exception is thrown when a timed automaton is parsed and
+  found to violate sanity checks.
+<<Alt_parse_timed_automaton.ml>>=
+exception Insane_automaton
+
+@ 
+\item This function checks the sanity of a unit clock constraint.
+<<Alt_parse_timed_automaton.ml>>=
+let is_sane_unit_clock_constraint ta unit_clock_constraint =
+  let f (cn, n) = (n >= 0)
+    &&
+      (String_set.mem cn ta.clock_names)
+  in
+  match unit_clock_constraint with
+    True -> true
+  | False -> false
+  | Lt (cn, n) -> f (cn, n)
+  | Le (cn, n) -> f (cn, n)
+  | Eq (cn, n) -> f (cn, n)
+  | Ge (cn, n) -> f (cn, n)
+  | Gt (cn, n) -> f (cn, n)
+
+@ 
+\item This function checks the sanity of a clock constraint.
+<<Alt_parse_timed_automaton.ml>>=
+let rec is_sane_clock_constraint ta clock_constraint = 
+  List.fold_left
+    (function partial_sanity -> 
+      function unit_clock_constraint ->
+	partial_sanity
+	&&
+	  (is_sane_unit_clock_constraint
+	     ta
+	     unit_clock_constraint))
+    true
+    clock_constraint
+
+@ 
+\item This function checks the sanity of a timed automaton.
+<<Alt_parse_timed_automaton.ml>>=
+let is_sane_timed_automaton ta = 
+  ta.numlocations == Location_graph.nb_vertex ta.location_graph
+  &&
+    ta.numtrans == Location_graph.nb_edges ta.location_graph
+  &&
+    ta.numclocks == String_set.cardinal ta.clock_names
+  &&
+    ta.numinit.location_index >= 0
+  &&
+    ta.numinit.location_index < ta.numlocations
+  &&
+    (Location_graph.fold_vertex
+       (function location ->
+	 (function truth ->
+	   truth
+	   &&
+	     location.location_index >= 0
+	   &&
+	     location.location_index < ta.numlocations
+	   &&
+             (try
+	        (is_sane_clock_constraint ta
+                   (Location_invariant_map.find location
+                      ta.location_invariant_map))
+              with
+              | Not_found -> false)
+	   &&
+	     (Location_graph.fold_succ_e
+		(function transition ->
+		  (function truth ->
+		    truth
+		    &&
+		      (is_sane_clock_constraint ta
+                         (Location_graph.E.label transition).condition)
+		    &&
+		      (Location_graph.E.dst transition).location_index >= 0
+		    &&
+		      (Location_graph.E.dst transition).location_index < ta.numlocations
+		  )
+		)
+                ta.location_graph
+		location
+		true)
+	 )
+       )
+       ta.location_graph
+       true)
+    
+@ 
+\item This function parses a timed automaton from a given input channel.
+<<Alt_parse_timed_automaton.ml>>=
+let parse_timed_automaton channel =
+  let
+      lexbuf = Lexing.from_channel channel
+  in
+  let
+      ta = Alt_timed_automaton_parser.main Alt_timed_automaton_lexer.token lexbuf
+  in
+  if
+    is_sane_timed_automaton ta
+  then
+    ta
+  else
+    raise Insane_automaton
+
+@ 
+\end{itemize}
+
+<<Alt_parse_timed_automaton.ml>>=
+module Test = 
+  struct
+
+  end

@@ -11,7 +11,9 @@ $(d)/Table_using_list.ml.tex \
 $(d)/UDBM_utilities.ml \
 $(d)/UDBM_utilities.ml.tex \
 $(d)/parse_timed_automaton.ml \
-$(d)/parse_timed_automaton.ml.tex
+$(d)/parse_timed_automaton.ml.tex \
+$(d)/Alt_parse_timed_automaton.ml \
+$(d)/Alt_parse_timed_automaton.ml.tex
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to

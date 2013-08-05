@@ -10,6 +10,8 @@ $(d)/grammar_types.ml \
 $(d)/grammar_types.ml.tex \
 $(d)/Alt_grammar_types.ml \
 $(d)/Alt_grammar_types.ml.tex \
+$(d)/Alt_timed_automaton_lexer.mll \
+$(d)/Alt_timed_automaton_lexer.mll.tex \
 $(d)/Alt_timed_automaton_parser.mly \
 $(d)/Alt_timed_automaton_parser.mly.tex 
 
@@ -38,6 +40,9 @@ $(d)/grammar_types.ml:$(d)/grammar_types.ml.nw
 $(d)/Alt_grammar_types.ml:$(d)/Alt_grammar_types.ml.nw
 	notangle -RAlt_grammar_types.ml $(d)/Alt_grammar_types.ml.nw \
 >$(d)/Alt_grammar_types.ml
+
+$(d)/Alt_timed_automaton_lexer.mll:$(d)/Alt_timed_automaton_lexer.mll.nw
+	notangle -RAlt_timed_automaton_lexer.mll $(d)/Alt_timed_automaton_lexer.mll.nw >$(d)/Alt_timed_automaton_lexer.mll
 
 $(d)/%.tex: $(d)/%.nw
 	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@

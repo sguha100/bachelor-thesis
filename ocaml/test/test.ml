@@ -12,6 +12,7 @@ open Clock_constraint_clutter_test
 open PCQueue_test
 open Graph_functions2_test
 open Alt_grammar_types.Test
+open Alt_parse_timed_automaton.Test
   
 let test14 =
   if
