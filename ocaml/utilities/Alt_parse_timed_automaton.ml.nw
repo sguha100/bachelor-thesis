@@ -118,5 +118,21 @@ let parse_timed_automaton channel =
 <<Alt_parse_timed_automaton.ml>>=
 module Test = 
   struct
-
+    let ta03 = {
+      numlocations=1;
+      numtrans=0;
+      numclocks=0;
+      numactions=0;
+      numinit={location_index = 0};
+      clock_names = String_set.empty;
+      location_graph = (Location_graph.add_vertex
+                        Location_graph.empty {location_index = 0});
+      location_invariant_map = (Location_invariant_map.add
+                                {location_index = 0}
+                                [True]
+                                Location_invariant_map.empty)
+    }  
   end
+
+@ 
+%% bye bye!
