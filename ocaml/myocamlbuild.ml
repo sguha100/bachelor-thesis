@@ -8,6 +8,7 @@ let udbm_libdir = "-L/home/mihir/uppaal/lib"
 let udbm_include = "-I/home/mihir/uppaal/include"
 let ocamlgraph_include = "+ocamlgraph"
 let ocamlgraph_archive = "ocamlgraph/graph.cmxa"
+let unix_archive = "unix.cmxa"
 let cpp_lib = "-lstdc++"
 
 let static = true
@@ -38,7 +39,7 @@ dispatch begin function
     (S[A"-I"; A ocamlgraph_include]);
 
   flag ["link"; "ocaml"]
-    (S[A ocamlgraph_archive]);
+    (S[A ocamlgraph_archive; A unix_archive]);
 
   (* If `static' is true then every ocaml link in bytecode will add
      -custom *)
