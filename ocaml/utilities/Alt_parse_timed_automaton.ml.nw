@@ -82,6 +82,14 @@ let is_sane_timed_automaton ta =
 		      (is_sane_clock_constraint ta
                          (Location_graph.E.label transition).condition)
 		    &&
+		      ((Location_graph.E.label transition).action >= 0)
+		    &&
+		      ((Location_graph.E.label transition).action < ta.numactions)
+		    &&
+		      (String_set.subset
+                        (Location_graph.E.label transition).clock_resets
+                        ta.clock_names)
+		    &&
 		      (Location_graph.E.dst transition).location_index >= 0
 		    &&
 		      (Location_graph.E.dst transition).location_index < ta.numlocations
@@ -118,20 +126,356 @@ let parse_timed_automaton channel =
 <<Alt_parse_timed_automaton.ml>>=
 module Test = 
   struct
+
     let ta03 = {
       numlocations=1;
-      numtrans=0;
-      numclocks=0;
-      numactions=0;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
       numinit={location_index = 0};
-      clock_names = String_set.empty;
-      location_graph = (Location_graph.add_vertex
-                        Location_graph.empty {location_index = 0});
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
       location_invariant_map = (Location_invariant_map.add
-                                {location_index = 0}
-                                [True]
-                                Location_invariant_map.empty)
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
     }  
+
+    let test93 = 
+      if
+        is_sane_timed_automaton ta03
+      then
+        "test93 passed"
+      else
+        "test93 failed"
+
+    let ta04 = {
+      numlocations=2;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test94 = 
+      if
+        not (is_sane_timed_automaton ta04)
+      then
+        "test94 passed"
+      else
+        "test94 failed"
+
+    let ta05 = {
+      numlocations=1;
+      numtrans=2;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test95 = 
+      if
+        not (is_sane_timed_automaton ta05)
+      then
+        "test95 passed"
+      else
+        "test95 failed"
+
+    let ta06 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=0;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test96 = 
+      if
+        not (is_sane_timed_automaton ta06)
+      then
+        "test96 passed"
+      else
+        "test96 failed"
+
+    let ta07 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 1};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test97 = 
+      if
+        not (is_sane_timed_automaton ta07)
+      then
+        "test97 passed"
+      else
+        "test97 failed"
+
+    let ta08 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("Y", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test98 = 
+      if
+        not (is_sane_timed_automaton ta08)
+      then
+        "test98 passed"
+      else
+        "test98 failed"
+
+    let ta09 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("Y", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test99 = 
+      if
+        not (is_sane_timed_automaton ta09)
+      then
+        "test99 passed"
+      else
+        "test99 failed"
+
+    let ta10 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 1;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test100 = 
+      if
+        not (is_sane_timed_automaton ta10)
+      then
+        "test100 passed"
+      else
+        "test100 failed"
+
+    let ta11 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "Y" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test101 = 
+      if
+        not (is_sane_timed_automaton ta11)
+      then
+        "test101 passed"
+      else
+        "test101 failed"
+
+    let ta12 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "Y" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = (Location_invariant_map.add
+                                  {location_index = 0}
+                                  [Le ("X", 1)]
+                                  Location_invariant_map.empty)
+    }  
+
+    let test102 = 
+      if
+        not (is_sane_timed_automaton ta12)
+      then
+        "test102 passed"
+      else
+        "test102 failed"
+
+    let ta13 = {
+      numlocations=1;
+      numtrans=1;
+      numclocks=1;
+      numactions=1;
+      numinit={location_index = 0};
+      clock_names = (String_set.add "X" String_set.empty);
+      location_graph = (Location_graph.add_edge_e
+                          Location_graph.empty
+                          (Location_graph.E.create
+                             {location_index = 0}
+                             {
+                               condition = [Ge ("X", 1)];
+                               action = 0;
+                               clock_resets = String_set.add "X" String_set.empty
+                             }
+                             {location_index = 0}
+                          ));
+      location_invariant_map = Location_invariant_map.empty
+    }  
+
+    let test103 = 
+      if
+        not (is_sane_timed_automaton ta13)
+      then
+        "test103 passed"
+      else
+        "test103 failed"
+
   end
 
 @ 
