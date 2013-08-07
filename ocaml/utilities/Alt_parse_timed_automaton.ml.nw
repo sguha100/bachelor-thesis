@@ -476,6 +476,57 @@ module Test =
       else
         "test103 failed"
 
+    let is_valid_automaton_string string =
+      let
+          (pipe_in, pipe_out) = Unix.pipe ()
+      in
+      let
+          (fout, fin) = (Unix.out_channel_of_descr pipe_out,
+                         Unix.in_channel_of_descr pipe_in)
+      in
+      let
+          ((), ()) = (set_binary_mode_out fout false,
+                      set_binary_mode_in fin false)
+      in
+      let
+          () =
+        output_string
+          fout
+          string
+      in
+      let
+          () = close_out fout
+      in
+      let
+      result =
+        (try
+           (match
+               parse_timed_automaton fin
+            with
+            | _ -> true)
+         with
+         | Insane_automaton -> false
+         | Parsing.Parse_error -> false)
+      in
+      let
+          () = close_in fin
+      in
+      result
+
+    let test104 =
+      if
+        (is_valid_automaton_string 
+           ("#locations 3\n" ^ "#trans 2\n" ^ "#clocks 1\n" ^
+               "#actions 1\n" ^ "#init 0\n" ^ "X\n" ^ "\n" ^
+               "location: 0\n" ^ "invar: TRUE\n" ^ "trans:\n" ^
+               "X >= 2 and X <= 3 => ACT 0; RESET {}; goto 1\n" ^ "\n"
+            ^ "location: 1\n" ^ "invar: TRUE\n" ^ "trans:\n" ^
+              "X >= 4 and X <= 6 => ACT 0; RESET {}; goto 2\n" ^
+              "\n" ^ "location: 2\n" ^ "invar: TRUE\n" ^ "trans:\n"))
+      then
+        "test104 passed"
+      else
+        "test104 failed"
   end
 
 @ 
