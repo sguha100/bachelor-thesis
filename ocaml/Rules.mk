@@ -75,7 +75,6 @@ TEST_DEPS := \
 $(grammar_types) \
 utilities/Clock_constraint_utilities.ml \
 utilities/UDBM_utilities.ml \
-utilities/UDBM_utilities_test.ml \
 test/test.ml \
 test/Test_base.ml \
 zone-valuation-graph/Graph_functions2.ml \
