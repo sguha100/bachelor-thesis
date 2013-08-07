@@ -1,27 +1,8 @@
 open Test_base
 open Zone_stubs
 open Grammar_types
-open UDBM_utilities
-
-let verify_dbm dim dbm expected =
-  let
-      found = dbm_toConstraintList dbm
-  in
-  List.length found = List.length expected &&
-  List.for_all
-    (function e ->
-      (List.length (List.filter ((=) e) found))
-      =
-        (List.length (List.filter ((=) e) expected))
-    )
-    expected
+open UDBM_utilities.Test
     
-let verify_dbm_translation clock_names clock_constraint expected =
-  match
-    (clock_constraint_to_dbm_option clock_names clock_constraint)
-  with
-  | None -> false
-  | Some dbm -> verify_dbm (1 + Array.length clock_names) dbm expected
     
 let test41 =
   if

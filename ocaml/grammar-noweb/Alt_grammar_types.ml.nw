@@ -71,13 +71,8 @@ type timed_automaton = {
   location_invariant_map: clock_constraint Location_invariant_map.t
 }
 
-type zone_using_list = {
-  zone_location1: int;
-  zone_constraint1: clock_constraint
-}
-
 type zone_using_dbm = {
-  zone_location2: int;
+  zone_location2: location_label;
   zone_constraint2: dbm_struct_t
 }
 

@@ -2,6 +2,7 @@ open Grammar_types
 open Grammar_types_clutter
 open Clock_constraint_clutter
 open Test_base
+open Test_base_clutter
 
 let match_minimised clock_names clock_constraint expected =
   match_clock_constraints (minimise_clock_constraint clock_names clock_constraint) expected

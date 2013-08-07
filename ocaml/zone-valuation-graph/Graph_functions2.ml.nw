@@ -680,7 +680,7 @@ let generate_zone_valuation_graph ta =
   struct
     open Test_base
     open Zone_stubs_test
-    open UDBM_utilities_test
+    open UDBM_utilities.Test
 
     let dim05 = 2
 

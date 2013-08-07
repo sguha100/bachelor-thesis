@@ -4,8 +4,7 @@ open Graph_functions3_test
 open Unit_constraint_intersection_test
 open Zone_stubs
 open Zone_stubs_test
-open UDBM_utilities
-open UDBM_utilities_test
+open UDBM_utilities.Test
 open Test_base
 open Test_base_clutter
 open Clock_constraint_clutter_test
@@ -13,53 +12,6 @@ open PCQueue_test
 open Graph_functions2.Test
 open Alt_grammar_types.Test
 open Alt_parse_timed_automaton.Test
-  
-let test14 =
-  if
-    0 = clock_name_to_index "X" [|"X"; "Y"|]
-  then
-    "test14 passed"
-  else
-    "test14 failed"
-
-let test15 =
-  if
-    1 = clock_name_to_index "Y" [|"X"; "Y"|]
-  then
-    "test15 passed"
-  else
-    "test15 failed"
-
-let test16 =
-  if
-    -1 = clock_name_to_index "Z" [|"X"; "Y"|]
-  then
-    "test16 passed"
-  else
-    "test16 failed"
-
-let test17 =
-  if
-    None <>
-    (clock_constraint_to_dbm_option
-       [|"X"; "Y"|]
-       [Le("X", 4); Ge ("X", 3)]
-    )
-  then
-    "test17 passed"
-  else
-    "test17 failed"
-
-let test18 =
-  if
-    None = (clock_constraint_to_dbm_option
-       [|"X"; "Y"|]
-       [Le("X", 3); Ge ("X", 4)]
-    )
-  then
-    "test18 passed"
-  else
-    "test18 failed"
 
 let test19 =
   if

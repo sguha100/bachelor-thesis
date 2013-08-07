@@ -1,6 +1,7 @@
 open Grammar_types
 open Test_base
 open UDBM_utilities
+open UDBM_utilities.Test
 open Zone_stubs
 open Zone_stubs_test
 
