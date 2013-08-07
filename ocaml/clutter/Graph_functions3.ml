@@ -1,4 +1,5 @@
 open Grammar_types
+open Grammar_types_clutter
 open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities

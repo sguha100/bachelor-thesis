@@ -1,4 +1,5 @@
 open Grammar_types
+open Grammar_types_clutter
 open UDBM_utilities
 
 let unit_clock_constraint_max unit_clock_constraint cn =

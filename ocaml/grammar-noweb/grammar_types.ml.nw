@@ -48,12 +48,6 @@ type lbound =
 | Lstrict of int
 
 <<grammar_types.ml>>=
-type zone_using_list = {
-  zone_location1: int;
-  zone_constraint1: clock_constraint
-}
-
-<<grammar_types.ml>>=
 type zone_using_dbm = {
   zone_location2: int;
   zone_constraint2: dbm_struct_t

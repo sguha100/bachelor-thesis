@@ -1,4 +1,5 @@
 open Grammar_types
+open Grammar_types_clutter
 open Clock_constraint_clutter
 open Test_base
 

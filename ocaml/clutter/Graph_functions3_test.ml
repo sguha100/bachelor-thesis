@@ -1,4 +1,5 @@
 open Grammar_types
+open Grammar_types_clutter
 open Graph_functions3
 open Test_base
 
