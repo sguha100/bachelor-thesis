@@ -79,7 +79,6 @@ utilities/UDBM_utilities_test.ml \
 test/test.ml \
 test/Test_base.ml \
 zone-valuation-graph/Graph_functions2.ml \
-zone-valuation-graph/Graph_functions2_test.ml \
 clutter/Graph_functions3.ml \
 clutter/Graph_functions3_test.ml \
 clutter/Graph_functions2_clutter.ml \
