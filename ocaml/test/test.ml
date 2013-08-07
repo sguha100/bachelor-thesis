@@ -10,7 +10,7 @@ open Test_base
 open Test_base_clutter
 open Clock_constraint_clutter_test
 open PCQueue_test
-open Graph_functions2_test
+open Graph_functions2.Test
 open Alt_grammar_types.Test
 open Alt_parse_timed_automaton.Test
   
