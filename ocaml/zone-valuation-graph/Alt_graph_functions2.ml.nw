@@ -1,0 +1,870 @@
+\subsection{Graph\_functions2.ml}
+This file provides the essential functions for building the minimal
+    zone graph.
+
+<<Alt_graph_functions2.ml>>=
+open Alt_grammar_types
+open Zone_stubs
+open UDBM_utilities
+open Clock_constraint_utilities
+
+open NRQueue
+open PCQueue
+open PCQueueElement
+
+@ 
+\begin{itemize}
+\item This function splits a list of zones using a list of constraints
+  of the form \texttt{(i, j, strictness, t)} for the resulting zones
+  to be stable with respect to each of these constraints. 
+<<Alt_graph_functions2.ml>>=
+let split_zone_list_on_constraint_list
+    clock_names
+    location
+    zone_list
+    constraint_list =
+  List.map
+    (function dbm ->
+      {zone_location2 = location; zone_constraint2 = dbm}
+    )
+    (List.fold_left
+       (split_dbm_list_on_clock_constraint clock_names)
+       (List.map
+          (function zone -> zone.zone_constraint2)
+          zone_list
+       )
+       (constraint_list)
+    )
+
+@ 
+\item This function splits a list of zones using a list of difference
+  bound matrices for the resulting zones to be stable with respect to
+  each of these difference bound matrices.
+<<Alt_graph_functions2.ml>>=
+let split_zone_list_on_dbm_list
+    dim
+    location
+    zone_list
+    dbm_list =
+  List.map
+    (function dbm ->
+      {zone_location2 = location; zone_constraint2 = dbm}
+    )
+    (List.fold_left
+       (split_dbm_list_on_dbm dim)
+       (List.map
+          (function zone -> zone.zone_constraint2)
+          zone_list
+       )
+       (dbm_list)
+    )
+    
+@ 
+\item This function creates the initial zone list array, which assigns
+  one zone with the future of the zero valuation to the initial
+  location and no zones to any other location.
+<<Alt_graph_functions2.ml>>=
+let init_zone_list_array ta =
+  let
+      dim = 1 + ta.numclocks
+  in
+  (Array.init
+     ta.numlocations
+     (function i ->
+       if
+         (i = ta.numinit)
+       then
+         [{zone_location2 = i;
+           zone_constraint2 =
+             dbm_up (dbm_zero (dbm_init dim))
+          }]
+       else
+         []
+     )
+  )
+
+@ 
+\item This function returns those zones from
+  \texttt{predecessor\_zone\_list} which can possibly generate new zones
+  for the successor given \texttt{edge\_condition} for the transition.
+<<Alt_graph_functions2.ml>>=
+let useful_predecessor_zones
+    ta
+    predecessor_zone_list
+    edge_condition =
+  List.filter
+    (function zone ->
+      match
+        clock_constraint_to_dbm_option
+          ta.clock_names
+          edge_condition
+      with
+      | None -> false
+      | Some edge_condition -> 
+        dbm_haveIntersection
+          (dbm_up zone.zone_constraint2)
+          edge_condition
+    )
+    predecessor_zone_list
+
+@ 
+\item This function implements the maximum constant abstraction (over
+  all clocks) on a given difference bound matrix.
+<<Alt_graph_functions2.ml>>=
+let maximum_constant_abstract_dbm ta dbm_without_abstraction =
+  let
+      abstraction = ref false
+  in
+  let
+      maxcon = maximum_constant ta
+  in
+  let
+      dim = 1+ta.numclocks
+  in
+  let
+      constraint_list_without_abstraction =
+    (* dbm_toConstraintList dbm_without_abstraction *)
+    dbm_toLargerConstraintList dbm_without_abstraction
+  in
+  let
+      constraint_list_with_abstraction =
+    List.concat 
+      (List.map
+         (function (i, j, strictness, bound) ->
+           if
+             (bound > maxcon)
+           then
+             (abstraction := true;
+              Printf.printf "%s\n" "ABSTRACTION!";
+              flush stdout;
+              [])
+           else
+             if
+               (bound < (-maxcon))
+             then
+               (abstraction := true;
+                Printf.printf "%s\n" "ABSTRACTION!";
+                flush stdout;
+                [(i, j, true, -maxcon)])
+             else
+               [(i, j, strictness, bound)]
+         )
+         constraint_list_without_abstraction
+      )
+  in
+  let
+      dbm_with_abstraction =
+    match
+      constraint_list_to_dbm_option
+        dim
+        constraint_list_with_abstraction
+    with
+    | Some dbm -> dbm
+    | None ->
+      raise
+        (Invalid_argument
+           ("Abstraction failed, Constraint_list_without_abstraction = "
+            ^ (constraint_list_to_string
+                 ta.clock_names
+                 constraint_list_without_abstraction
+            ) ^ ", constraint_list_with_abstraction = " ^
+              (constraint_list_to_string
+                 ta.clock_names
+                 constraint_list_with_abstraction
+              )
+           )
+        )
+  in
+  (dbm_with_abstraction, !abstraction)
+
+@ 
+\item This function applies the abstraction to a list of zones.
+<<Alt_graph_functions2.ml>>=
+let rec maximum_constant_abstract_zone_list ta zone_list =
+  let
+      dim = 1 + ta.numclocks
+  in
+  let
+      (abstracted_zones, unabstracted_zones) =
+    List.fold_left
+      (function (abstracted_zones, unabstracted_zones) ->
+        function next_zone ->
+          match
+            maximum_constant_abstract_dbm
+              ta
+              next_zone.zone_constraint2
+          with
+          | (_, false) ->
+            Printf.printf "The zone (%s, %s) did not get abstracted.\n"
+              (string_of_int next_zone.zone_location2)
+              (dbm_to_string
+                 ta.clock_names
+                 next_zone.zone_constraint2);
+            (abstracted_zones, next_zone::unabstracted_zones)
+          | (abstracted_dbm, true) ->
+            Printf.printf "The zone (%s, %s) got abstracted to (%s, %s)\n"
+              (string_of_int next_zone.zone_location2)
+              (dbm_to_string
+                 ta.clock_names
+                 next_zone.zone_constraint2)
+              (string_of_int next_zone.zone_location2)
+              (dbm_to_string
+                 ta.clock_names
+                 abstracted_dbm)
+            ;
+            ({zone_location2 = next_zone.zone_location2;
+              zone_constraint2 = abstracted_dbm}
+             ::abstracted_zones,
+             unabstracted_zones
+            )
+      )
+      ([], [])
+      zone_list
+  in
+  let
+      new_zone_list =
+    List.fold_left
+      (function old_zone_list ->
+        function abstracted_zone ->
+          let
+              abstracted_zone_after_split = 
+            (List.filter
+               (function zone1 ->
+                 List.for_all
+                   (function zone2 ->
+                     not
+                       (dbm_haveIntersection
+                          zone1.zone_constraint2
+                          zone2.zone_constraint2
+                       )
+                   )
+                   old_zone_list
+               )
+               (split_zone_list_on_dbm_list
+                  dim
+                  abstracted_zone.zone_location2
+                  [abstracted_zone]
+                  (List.map
+                     (function zone -> zone.zone_constraint2)
+                     old_zone_list
+                  )
+               )
+            )
+          in
+          Printf.printf
+            "The abstracted zone (%s, %s) got split into [%s]\n"
+            (string_of_int abstracted_zone.zone_location2)
+            (dbm_to_string
+               ta.clock_names
+               abstracted_zone.zone_constraint2)
+            (String.concat
+               "; "
+               (List.map
+                  (function zone ->
+                    "(" ^
+                      (string_of_int zone.zone_location2)
+                    ^ ", " ^
+                      (dbm_to_string ta.clock_names zone.zone_constraint2)
+                    ^ ")"
+                  )
+                  abstracted_zone_after_split
+               )
+            )
+          ;
+          abstracted_zone_after_split @ old_zone_list
+      )
+      unabstracted_zones
+      abstracted_zones
+  in
+  new_zone_list
+
+@ 
+\item This function generates a list of zones for the successor given
+  the zones of the predecessor, not taking into account overlaps with
+  existing zones.
+<<Alt_graph_functions2.ml>>=
+let successor_zones_from_predecessor
+    ta
+    predecessor_zone_list
+    edge =
+  match
+    clock_constraint_to_dbm_option
+      ta.clock_names
+      edge.condition
+  with
+  | None -> []
+  | Some edge_condition ->
+    List.map
+      (function zone ->
+        {zone_location2 = edge.next_location;
+         zone_constraint2 =
+            let
+                dbm_without_abstraction =
+              dbm_up
+                (dbm_after_clock_resets
+                   ta.clock_names
+                   edge.clock_resets
+                   (dbm_intersection
+                      edge_condition
+                      (dbm_up zone.zone_constraint2)
+                   )
+                )
+            in
+            dbm_without_abstraction
+        }
+      )
+      (useful_predecessor_zones
+         ta
+         predecessor_zone_list
+         edge.condition
+      )
+      
+@ 
+\item This function generates a list of new zones for the successor,
+  such that there are no overlaps and all valuations reachable from
+  the predecessor's zones are covered.
+<<Alt_graph_functions2.ml>>=
+let new_successor_zones
+    ta
+    predecessor
+    predecessor_zone_list
+    edge
+    successor
+    successor_zone_list =
+  let dim = 1 + ta.numclocks in
+  List.fold_left
+    (function successor_zone_list -> function z1 ->
+      (List.filter
+         (function z1 ->
+           List.for_all
+             (function z2 -> not
+               (dbm_haveIntersection
+                  z1.zone_constraint2
+                  z2.zone_constraint2
+               )
+             )
+             successor_zone_list
+         )
+         (split_zone_list_on_dbm_list
+            dim
+            successor
+            [z1]
+            (List.map
+               (function z2 -> z2.zone_constraint2)
+               successor_zone_list
+            )
+         )
+      )
+      @
+        (split_zone_list_on_dbm_list
+           dim
+           successor
+           successor_zone_list
+           [z1.zone_constraint2]
+        )
+    )
+    successor_zone_list
+    (successor_zones_from_predecessor
+       ta
+       predecessor_zone_list
+       edge
+    )
+
+@ 
+\item This function splits the zones of a location with respect to its
+  invariant and its outgoing transition guards.
+<<Alt_graph_functions2.ml>>=
+let self_split ta location zone_list =
+  let
+      constraint_list =
+    (ta.locations.(location).invariant
+     ::
+       (List.concat
+          (List.map
+             (function departure ->
+               [departure.condition
+               ;
+                (clock_constraint_without_reset_clocks
+                   ta.locations.(departure.next_location).invariant
+                   departure.clock_resets
+                )
+               ]
+             )
+             (Array.to_list ta.locations.(location).departures)
+          )
+       )
+    )
+  in
+  (Printf.printf
+     "Self-splitting location %s, constraint_list length = %s\n"
+     (string_of_int location)
+     (string_of_int (List.length constraint_list))
+  );
+  flush stdout;
+  (split_zone_list_on_constraint_list
+     ta.clock_names
+     location
+     zone_list
+     constraint_list
+  )
+
+@ 
+\item This function recursively calls itself until the queue is
+  empty. This completes the forward analysis part of the algorithm.
+<<Alt_graph_functions2.ml>>=
+let rec empty_queue2 ta (queue, zone_list_array) =
+  try
+    (match
+        dequeue queue
+     with
+     | (e, new_queue1) ->
+       let
+           () = 
+         (Printf.printf "new_queue1 = [%s]\n"
+            (String.concat
+               "; "
+               (List.map
+                  (function e -> string_of_int e.child)
+                  new_queue1
+               )
+            )
+         )
+       in
+       let
+           changed_zone_list1 =
+         match
+           (e.parent, e.edge)
+         with
+         | (None, None) ->
+           let
+               () =
+             Printf.printf "%s\n" "No parent!"
+           in
+           zone_list_array.(e.child)
+         | (Some parent, Some edge) ->
+           let
+               () =
+             Printf.printf "parent: %s\n" (string_of_int parent)
+           in
+           let
+               () = 
+             Printf.printf "parent zones: [%s]\n"
+               (String.concat
+                  "; "
+                  (List.map
+                     (function zone ->
+                       dbm_to_string
+                         ta.clock_names
+                         zone.zone_constraint2)
+                     zone_list_array.(parent)
+                  )
+               )
+           in
+           (new_successor_zones
+              ta
+              parent
+              zone_list_array.(parent)
+              edge
+              e.child
+              zone_list_array.(e.child)
+           )
+       in
+       let
+           changed_zone_list2 =
+         self_split ta e.child changed_zone_list1
+       in
+       let
+           changed_zone_list3 =
+         maximum_constant_abstract_zone_list ta changed_zone_list2
+       in
+       let
+           new_queue2 =
+         Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
+           (string_of_int (List.length changed_zone_list2))
+           (string_of_int (List.length changed_zone_list1))
+           (string_of_int (List.length zone_list_array.(e.child)))
+         ;
+         if
+           ((List.length changed_zone_list3)
+            >
+              (List.length zone_list_array.(e.child))
+            || e.parent = None
+           (*When the parent is None, the zone is new anyway,
+             so the successors should be enqueued.*)
+           )
+         then
+           (
+            zone_list_array.(e.child) <- changed_zone_list3;
+            List.fold_left
+              (function new_queue1 -> function departure ->
+                enqueue
+                  new_queue1
+                  {child = departure.next_location;
+                   parent = Some e.child;
+                   edge = Some departure
+                  }
+              )
+              new_queue1
+              (Array.to_list ta.locations.(e.child).departures)
+           )
+         else
+           new_queue1
+       in
+       (Printf.printf "new_queue2 = [%s]\n"
+          (String.concat
+             "; "
+             (List.map
+                (function e -> string_of_int e.child)
+                new_queue2
+             )
+          )
+       );
+       empty_queue2 ta (new_queue2, zone_list_array)
+    )
+  with
+  | Empty_queue ->
+    Printf.printf "%s\n" "Empty_queue caught!";
+    (queue, zone_list_array)
+
+@ 
+\item This function generates a minimal zone graph for the given timed
+    automaton.
+<<Alt_graph_functions2.ml>>=
+let generate_zone_valuation_graph ta =
+  Printf.printf "%s\n" "generate_zone_valuation_graph called!";
+  let dim = 1 + ta.numclocks in
+  let zone_list_array = 
+    match
+      Printf.printf "%s\n" "Calling empty_queue2!";
+    (empty_queue2
+       ta
+       (enqueue
+          empty
+          {parent = None; edge = None; child = ta.numinit},
+        (init_zone_list_array ta)
+       )
+    )
+    with
+      (_, zone_list_array) -> zone_list_array
+  in
+  let rec
+      backward_propagate () =
+    let
+        new_zone = ref false
+    in
+    Location_graph.iter_vertex
+      (function l1 ->
+        Location_graph.iter_succ_e
+          (function departure ->
+            let
+                (splittable, unsplittable) =
+              List.partition
+                (function zone ->
+                  match
+                    (clock_constraint_to_dbm_option
+                       ta.clock_names
+                       (Location_graph.label departure).condition
+                    )
+                  with
+                  | None -> false
+                  | Some departure_condition_dbm -> 
+                    dbm_haveIntersection
+                      (zone.zone_constraint2)
+                      (departure_condition_dbm)
+                )
+                zone_list_array.(l1.location_index)
+            in
+            let
+                changed_zone_list =
+              split_zone_list_on_dbm_list
+                dim
+                l1.location_index
+                splittable
+                (List.map
+                   (function zone ->
+                     (dbm_without_reset_clocks
+                        ta.clock_names
+                        departure.clock_resets
+                        zone.zone_constraint2
+                     )
+                   )
+                   zone_list_array.((Location_graph.E.dst departure).location_index)
+                )
+            in
+            (if
+                (List.length changed_zone_list >
+                   List.length splittable
+                )
+             then
+                (new_zone := true;
+                 zone_list_array.(l1.location_index) <-
+                   changed_zone_list @ unsplittable
+                )
+             else
+                ()
+            )
+            ;
+          )
+          ta.location_graph
+          l1
+      )
+      ta.location_graph
+    ;
+    if
+      !new_zone
+    then
+      backward_propagate ()
+    else
+      ()
+  in
+  backward_propagate ();
+  let
+      graph = 
+    Array.map
+      (function zone_list ->
+        List.map
+          (function zone ->
+            (zone,
+             let
+                 departures =
+               (Location_graph.fold_succ_e
+                  (function e -> function partial_list ->
+                    if
+                      (match
+                          clock_constraint_to_dbm_option
+                            ta.clock_names
+                            (Location_graph.E.label e).condition
+                       with
+                       | None -> false
+                       | Some departure_condition ->
+                         dbm_haveIntersection
+                           zone.zone_constraint2
+                           departure_condition)
+                    then
+                      ({action2 = (Location_graph.E.label e).action;
+                        condition2 = (Location_graph.E.label e).condition;
+                        clock_resets2 = (Location_graph.E.label e).clock_resets;
+                        next_location2 = (Location_graph.E.dst e)
+                       })
+                      ::partial_list
+                    else
+                      partial_list
+                  )
+                  (ta.location_graph)
+                  (zone.zone_location2)
+                  [{action2 = -1;
+                    condition2 = [True];
+                    clock_resets2 = [||];
+                    next_location2 = zone.zone_location2
+                   }]
+               )
+             in
+             List.map
+               (function departure ->
+                 (departure,
+                  if (departure.action2 >= 0) then
+                    (*action transition*)
+                    (List.filter
+                       (function arrival_zone ->
+                         dbm_haveIntersection
+                           (dbm_after_clock_resets
+                              ta.clock_names
+                              departure.clock_resets2
+                              zone.zone_constraint2
+                           )
+                           arrival_zone.zone_constraint2
+                       )
+                       zone_list_array.(departure.next_location2)
+                    )
+                  else (*time transition*)
+                    (List.filter
+                       (function arrival_zone ->
+                         (dbm_haveIntersection
+                            (dbm_up zone.zone_constraint2)
+                            arrival_zone.zone_constraint2
+                         )
+                        )
+                         zone_list_array.(departure.next_location2)
+                       )
+                    )
+                 )
+                   departures
+               )
+            )
+              zone_list
+          )
+          zone_list_array
+       in
+      graph
+
+  module Test =
+  struct
+    open Test_base
+    open Zone_stubs_test
+    open UDBM_utilities.Test
+
+    let dim05 = 2
+
+    let dbm05 =
+      match
+        (constraint_list_to_dbm_option
+           dim05
+           [(1, 0, false, 8)]
+        )
+      with
+      | None -> (dbm_init dim05) (* This is not supposed to happen! *)
+      | Some dbm05 -> dbm05
+
+    let test67 =
+      if
+        verify_dbm
+          dim05
+          dbm05
+          [(1, 0, false, 8)]
+      then
+        "test67 passed"
+      else
+        "test67 failed"
+
+    let dim06 = 2
+
+    let dbm06 =
+      match
+        (constraint_list_to_dbm_option
+           dim06
+           [(0, 1, true, -8)]
+        )
+      with
+      | None -> (dbm_init dim06) (* This is not supposed to happen! *)
+      | Some dbm06 -> dbm06
+
+    let test68 =
+      if
+        verify_dbm
+          dim06
+          dbm06
+          [(0, 1, true, -8)]
+      then
+        "test68 passed"
+      else
+        "test68 failed"
+
+    let dim07 = 2
+
+    let dbm07 =
+      match
+        (constraint_list_to_dbm_option
+           dim07
+           [(1, 0, false, 2)]
+        )
+      with
+      | None -> (dbm_init dim07) (* This is not supposed to happen! *)
+      | Some dbm07 -> dbm07
+
+    let test69 =
+      if
+        verify_dbm
+          dim07
+          dbm07
+          [(1, 0, false, 2)]
+      then
+        "test69 passed"
+      else
+        "test69 failed"
+
+    let dim08 = 2
+
+    let dbm08 =
+      match
+        (constraint_list_to_dbm_option
+           dim08
+           [(0, 1, true, -2)]
+        )
+      with
+      | None -> (dbm_init dim08) (* This is not supposed to happen! *)
+      | Some dbm08 -> dbm08
+
+    let test70 =
+      if
+        verify_dbm
+          dim08
+          dbm08
+          [(0, 1, true, -2)]
+      then
+        "test70 passed"
+      else
+        "test70 failed"
+
+    let test71 =
+      let
+          found =
+        List.map
+          (function zone -> zone.zone_constraint2)
+          (new_successor_zones
+             ta1
+             2
+             [{zone_location2 = 2; zone_constraint2 = dbm05};
+              {zone_location2 = 2; zone_constraint2 = dbm06}
+             ]
+             {
+               action = 2;
+               condition = [Gt ("X", 8)];
+               clock_resets = [||];
+               next_location = 0
+             }
+             0
+             [{zone_location2 = 0; zone_constraint2 = dbm07};
+              {zone_location2 = 0; zone_constraint2 = dbm08}
+             ]
+          )
+      in
+      let
+          expected =
+        [[(1, 0, false, 2)]; [(0, 1, true, -2); (1, 0, false, 8)]; [(0, 1, true, -8)]]
+      in
+      if
+        verify_split 2 found expected
+      then
+        "test71 passed"
+      else
+        "test71 failed"
+(* ("test71 failed, dbm are " ^ (string_of_int (List.length found)) ^ *)
+(*     " in number.\n" ^ *)
+(*     "test71 failed, dbm are [" ^ *)
+(*     (String.concat *)
+(*        "; " *)
+(*        (List.map *)
+(*           (function dbm -> dbm_to_string [|"X"; "Y"|] dbm) *)
+(*           (List.filter (function dbm -> not (dbm_isEmpty dbm)) found) *)
+(*        ) *)
+(*     ) *)
+(*  ^ "]") *)
+
+    let ta2 = {
+      numlocations = 1;
+      numtrans = 1;
+      numclocks = 2;
+      numactions = 1;
+      numinit = 0;
+      clock_names = [|"X"; "Y"|];
+      locations =
+        [|
+          {
+            location_index = 0;
+            invariant = [True];
+            departures =
+              [|
+                {
+                  action = 0;
+                  condition = [Eq("Y", 1)];
+                  clock_resets = [|"Y"|];
+                  next_location = 0
+                }
+              |]
+          }
+        |]
+    }
+  end
+                                                     
+@ 
+\end{itemize}

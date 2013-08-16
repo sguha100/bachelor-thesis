@@ -59,18 +59,22 @@ let text_dump ta g =
 let _ =
   let result = parse_timed_automaton stdin in
   let g = generate_zone_valuation_graph result in
-  text_dump result g;
+  let () = text_dump result g in
   let l = lts_of_zone_valuation_graph result in
-  (ZVGLTS2.print_dot
-     l
-     "/tmp/lts.dot");
+  let () = ZVGLTS2.print_dot
+    l   
+    "/tmp/lts.dot"
+  in
   let partition = ZVGLTS2.fernandez l in
-  (ZVGLTS2.print_quotient_dot
-     l
-     partition
-     "/tmp/lts_quotient.dot");
+  let () = ZVGLTS2.print_quotient_dot
+    l
+    partition
+    "/tmp/lts_quotient.dot"
+  in
   let q = ZVGLTS2.quotient_lts l partition in
-  (ZVGQuotientLTS2.print_dot q "/tmp/quotient_lts.dot");
+  let () = 
+  ZVGQuotientLTS2.print_dot q "/tmp/quotient_lts.dot"
+  in
   exit 0
 
 @ 

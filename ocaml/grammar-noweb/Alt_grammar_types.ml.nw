@@ -29,6 +29,13 @@ type transition_label = {
   clock_resets: String_set.t
 }
 
+type transition = {
+  action2: int;
+  condition2: clock_constraint;
+  clock_resets2: string array;
+  next_location2: int
+}
+
 type location_label = {
   location_index: int;
   (* invariant: clock_constraint; *)

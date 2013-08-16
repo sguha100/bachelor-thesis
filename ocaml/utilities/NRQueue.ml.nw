@@ -9,17 +9,13 @@ open Grammar_types
 \begin{itemize}
 \item This is the signature for a queue element.
 <<NRQueue.ml>>=
-module type QUEUE_ELEMENT_TYPE =
-  sig
-    type t
-    val equals: t -> t -> bool
-  end
+module type OrderedType = Set.OrderedType
 
 @ 
-\item This is functor for non-redundant queues.
+\item This is a functor for non-redundant queues.
 <<NRQueue.ml>>=
 module NRQueue =
-  functor (Queue_element: QUEUE_ELEMENT_TYPE) ->
+  functor (Queue_element: OrderedType) ->
     struct
       exception Empty_queue
       type element = Queue_element.t
