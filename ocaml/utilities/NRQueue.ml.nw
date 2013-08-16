@@ -16,38 +16,96 @@ module type OrderedType = Set.OrderedType
 <<NRQueue.ml>>=
 module NRQueue =
   functor (Queue_element: OrderedType) ->
-    struct
-      exception Empty_queue
-      type element = Queue_element.t
-      let equals = Queue_element.equals
-      let empty = []
-      let length queue = List.length queue
-      let is_empty queue =
-        match queue with
-        | [] -> true
-        | _ -> false
-      let element_exists queue element =
-        List.exists
-          (equals element)
-          queue
-      let enqueue queue element =
-        if
-          element_exists queue element
-        then
-          queue
-        else
-          queue@[element]
+    (* struct *)
+    (*   exception Empty_queue *)
+    (*   type element = Queue_element.t *)
+    (*   let equals = Queue_element.equals *)
+    (*   let empty = [] *)
+    (*   let length queue = List.length queue *)
+    (*   let is_empty queue = *)
+    (*     match queue with *)
+    (*     | [] -> true *)
+    (*     | _ -> false *)
+    (*   let element_exists queue element = *)
+    (*     List.exists *)
+    (*       (equals element) *)
+    (*       queue *)
+    (*   let enqueue queue element = *)
+    (*     if *)
+    (*       element_exists queue element *)
+    (*     then *)
+    (*       queue *)
+    (*     else *)
+    (*       queue@[element] *)
             
-      let head queue =
-        match queue with
-        | [] -> raise Empty_queue
-        | hd::tl -> hd
+    (*   let head queue = *)
+    (*     match queue with *)
+    (*     | [] -> raise Empty_queue *)
+    (*     | hd::tl -> hd *)
 
-      let dequeue queue =
-        match queue with
-        | [] -> raise Empty_queue
-        | hd::tl -> (hd, tl)
+    (*   let dequeue queue = *)
+    (*     match queue with *)
+    (*     | [] -> raise Empty_queue *)
+    (*     | hd::tl -> (hd, tl) *)
           
+    (* end *)
+    struct
+      module OTSet = Set.Make(OrderedType)
+      type t = {queue: Queue_element.t Queue.t;  mutable set:OTSet.t }
+      exception Empty
+      let create () = {queue = Queue.create (); set = OTSet.empty }
+      let add x q =
+        let
+            old_cardinal = OTSet.cardinal q.set
+        in
+        let
+            () = q.set <- (OTSet.add x q.set)
+        in
+        if
+          (OTSet.cardinal q.set) > old_cardinal
+        then
+          (Queue.add x q.queue)
+        else
+          ()
+      let push = add
+      let take q =
+        try
+          let
+              first_element = Queue.take q.queue
+          in
+          let
+              () = q.set <- (OTSet.remove first_element q.set)
+          in
+          first_element
+        with
+        | Queue.Empty -> raise Empty
+      let pop = take
+      let peek q =
+        try
+          Queue.peek q.queue
+        with
+        | Queue.Empty -> raise Empty
+      let top = peek
+      let clear q =
+        let
+            () = q.set <- OTSet.empty
+        in
+        Queue.clear q.queue
+      let copy q =
+        {queue = Queue.copy q.queue; set = q.set}
+      let is_empty q =
+        Queue.is_empty q.queue
+      let length q =
+        Queue.length q.queue
+      let iter f q =
+        Queue.iter f q.queue
+      let fold f accu q =
+        Queue.fold f accu q.queue
+      let transfer q1 q2 =
+        let
+            () = iter (fun x -> add x q2) q1
+        in
+        clear q1
     end
 
 @ 
@@ -56,7 +114,7 @@ module NRQueue =
 module PCQueueElement =
   struct
     type t = {parent: int option; edge: transition option; child: int}
-    let equals e1 e2 = (e1.child = e2.child)
+    let compare e1 e2 = Pervasives.compare e1.child e2.child
   end
 
 @ 

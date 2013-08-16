@@ -9,7 +9,7 @@ open UDBM_utilities
 open Clock_constraint_utilities
 
 open NRQueue
-open PCQueue
+(* open PCQueue *)
 open PCQueueElement
 
 @ 
@@ -414,29 +414,40 @@ let self_split ta location zone_list =
 <<Graph_functions2.ml>>=
 let rec empty_queue2 ta (queue, zone_list_array) =
   try
-    (match
-        dequeue queue
-     with
-     | (e, new_queue1) ->
-       (Printf.printf "new_queue1 = [%s]\n"
+    (let
+        e = PCQueue.take queue
+     in
+     let
+         () = 
+       (Printf.printf "most recent to least recent, queue = [%s]\n"
           (String.concat
              "; "
-             (List.map
-                (function e -> string_of_int e.child)
-                new_queue1
+             (PCQueue.fold
+                (fun partial_list e -> (string_of_int e.child)::partial_list)
+                []
+                queue
              )
           )
-       );
-       let
-           changed_zone_list1 =
-         match
-           (e.parent, e.edge)
-         with
-         | (None, None) ->
-           Printf.printf "%s\n" "No parent!";
-           zone_list_array.(e.child)
-         | (Some parent, Some edge) ->
-           Printf.printf "parent: %s\n" (string_of_int parent);
+       )
+     in
+     let
+         changed_zone_list1 =
+       match
+         (e.parent, e.edge)
+       with
+       | (None, None) ->
+         let
+             () = 
+           Printf.printf "%s\n" "No parent!"
+         in
+         zone_list_array.(e.child)
+       | (Some parent, Some edge) ->
+         let
+             () = 
+           Printf.printf "parent: %s\n" (string_of_int parent)
+         in
+         let
+             () = 
            Printf.printf "parent zones: [%s]\n"
              (String.concat
                 "; "
@@ -448,71 +459,82 @@ let rec empty_queue2 ta (queue, zone_list_array) =
                    zone_list_array.(parent)
                 )
              )
-           ;
-           (new_successor_zones
-              ta
-              parent
-              zone_list_array.(parent)
-              edge
-              e.child
-              zone_list_array.(e.child)
-           )
-       in
+         in
+         (new_successor_zones
+            ta
+            parent
+            zone_list_array.(parent)
+            edge
+            e.child
+            zone_list_array.(e.child)
+         )
+     in
+     let
+         changed_zone_list2 =
+       self_split ta e.child changed_zone_list1
+     in
+     let
+         changed_zone_list3 =
+       maximum_constant_abstract_zone_list ta changed_zone_list2
+     in
+     let
+         () =
        let
-           changed_zone_list2 =
-         self_split ta e.child changed_zone_list1
-       in
-       let
-           changed_zone_list3 =
-         maximum_constant_abstract_zone_list ta changed_zone_list2
-       in
-       let
-           new_queue2 =
+           () = 
          Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
            (string_of_int (List.length changed_zone_list2))
            (string_of_int (List.length changed_zone_list1))
            (string_of_int (List.length zone_list_array.(e.child)))
-         ;
-         if
-           ((List.length changed_zone_list3)
-            >
-              (List.length zone_list_array.(e.child))
-            || e.parent = None
+       in
+       if
+         ((List.length changed_zone_list3)
+          >
+            (List.length zone_list_array.(e.child))
+          || e.parent = None
            (*When the parent is None, the zone is new anyway,
              so the successors should be enqueued.*)
-           )
-         then
-           (
-            zone_list_array.(e.child) <- changed_zone_list3;
-            List.fold_left
-              (function new_queue1 -> function departure ->
-                enqueue
-                  new_queue1
-                  {child = departure.next_location;
-                   parent = Some e.child;
-                   edge = Some departure
-                  }
-              )
-              new_queue1
-              (Array.to_list ta.locations.(e.child).departures)
-           )
-         else
-           new_queue1
-       in
-       (Printf.printf "new_queue2 = [%s]\n"
+         )
+       then
+         (
+           let
+               () = 
+             zone_list_array.(e.child) <- changed_zone_list3
+           in
+           List.iter
+             (function departure ->
+               PCQueue.add
+                 {child = departure.next_location;
+                  parent = Some e.child;
+                  edge = Some departure
+                 }
+                 queue
+             )
+             (Array.to_list ta.locations.(e.child).departures)
+         )
+       else
+         ()
+     in
+     let
+         () = 
+       (Printf.printf "most recent to least recent, queue = [%s]\n"
           (String.concat
              "; "
-             (List.map
-                (function e -> string_of_int e.child)
-                new_queue2
+             (PCQueue.fold
+                (fun partial_list e -> (string_of_int e.child)::partial_list)
+                []
+                queue
              )
           )
-       );
-       empty_queue2 ta (new_queue2, zone_list_array)
+       )
+     in
+     empty_queue2 ta (queue, zone_list_array)
     )
   with
-  | Empty_queue ->
-    Printf.printf "%s\n" "Empty_queue caught!";
+  | PCQueue.Empty ->
+    let
+        () = 
+      Printf.printf "%s\n" "Empty caught!"
+    in
     (queue, zone_list_array)
 
 @ 
@@ -522,16 +544,18 @@ let rec empty_queue2 ta (queue, zone_list_array) =
 let generate_zone_valuation_graph ta =
   Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + ta.numclocks in
+  let queue = PCQueue.create () in
+  let () =
+    PCQueue.add
+      {parent = None; edge = None; child = ta.numinit}
+      queue
+  in
   let zone_list_array = 
     match
       Printf.printf "%s\n" "Calling empty_queue2!";
     (empty_queue2
        ta
-       (enqueue
-          empty
-          {parent = None; edge = None; child = ta.numinit},
-        (init_zone_list_array ta)
-       )
+       (queue, init_zone_list_array ta)
     )
     with
       (_, zone_list_array) -> zone_list_array
