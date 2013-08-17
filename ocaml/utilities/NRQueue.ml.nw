@@ -50,7 +50,7 @@ module NRQueue =
           
     (* end *)
     struct
-      module OTSet = Set.Make(OrderedType)
+      module OTSet = Set.Make(Queue_element)
       type t = {queue: Queue_element.t Queue.t;  mutable set:OTSet.t }
       exception Empty
       let create () = {queue = Queue.create (); set = OTSet.empty }

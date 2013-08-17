@@ -23,6 +23,14 @@ module String_set =
     end
   )
 
+module String_map =
+  Map.Make (
+    struct
+      type t = string
+      let compare = Pervasives.compare
+    end
+  )
+
 type transition_label = {
   condition: clock_constraint;
   action: int;
@@ -67,16 +75,87 @@ module Location_invariant_map =
     end
   )
 
-type timed_automaton = {
+type timed_automaton_from_parser = {
   numlocations: int;
   numtrans: int;
   numclocks: int;
   numactions: int;
   numinit: location_label;
-  clock_names: String_set.t;
+  clock_name_set: String_set.t;
   location_graph: Location_graph.t;
   location_invariant_map: clock_constraint Location_invariant_map.t
 }
+
+module Timed_automaton =
+  (struct
+    type m = {
+      numinit2: location_label;
+      clock_name_set2: String_set.t;
+      channel_names2: String_set.t;
+      action_names2: String_set.t;
+      location_graph2: Location_graph.t;
+      location_invariant_map2: clock_constraint Location_invariant_map.t
+    }
+    type t = {
+      numinit3: location_label;
+      numclocks3: int;
+      numlocations3: int;
+      clock_name_array3: string array;
+      clock_name_map3: int String_map.t;
+      clock_name_set3: String_set.t
+      channel_names3: String_set.t;
+      action_names3: String_set.t;
+      location_graph3: Location_graph.t;
+      location_invariant_map3: clock_constraint Location_invariant_map.t
+    }
+    let make_t ta =
+      let
+          clock_name_array3 = Array.of_list (String_set.elements ta.clock_name_set)
+      in
+      let
+          (clock_name_map3, numclocks3) =
+        Array.fold_left
+          (function (partial_map, partial_numclocks) ->
+            function clock_name ->
+              (String_map.add clock_name partial_numclocks partial_map,
+               partial_numclocks + 1)
+          )
+          (String_map.empty, 0)
+          clock_name_array3
+      in
+      {
+        numinit3 = ta.numinit;
+        numclocks3 = numclocks3;
+        numlocations3 = Location_graph.nb_vertex ta.location_graph;
+        clock_name_array3 = clock_name_array3;
+        clock_name_map3 = clock_name_map3;
+        clock_name_set3 = ta.clock_name_set
+        channel_names3 = String_set.empty;
+        action_names3 =
+          Array.fold_left
+            (fun s clock_name -> String_set.add clock_name s)
+            (String_set.empty)
+            (Array.init ta.numactions string_of_int);
+        location_graph3 = ta.location_graph;
+        location_invariant_map3 = ta.location_invariant_map
+      }
+    let get_numclocks ta = ta.numclocks3
+    let get_numlocations ta = ta.numlocations3
+    let get_numinit ta = ta.numinit3
+    let get_location_graph ta = ta.location_graph3
+    let get_location_invariant_map ta = ta.location_invariant_map3
+    let get_clock_name_set ta = ta.clock_names3
+   end: sig
+     type m
+     type t
+     val make_t: timed_automaton_from_parser -> t
+     val get_numclocks: t -> int
+     val get_numlocations: t -> int
+     val get_numinit: t -> location_index
+     val get_location_graph: t -> Location_graph.t
+     val get_location_invariant_map: t -> clock_constraint Location_invariant_map.t
+     val get_clock_name_set: t -> String_set.t
+   end)
 
 type zone_using_dbm = {
   zone_location2: location_label;

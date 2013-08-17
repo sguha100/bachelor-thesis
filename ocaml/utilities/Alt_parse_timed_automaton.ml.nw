@@ -18,7 +18,7 @@ exception Insane_automaton
 let is_sane_unit_clock_constraint ta unit_clock_constraint =
   let f (cn, n) = (n >= 0)
     &&
-      (String_set.mem cn ta.clock_names)
+      (String_set.mem cn ta.clock_name_set)
   in
   match unit_clock_constraint with
     True -> true
@@ -52,7 +52,7 @@ let is_sane_timed_automaton ta =
   &&
     ta.numtrans == Location_graph.nb_edges ta.location_graph
   &&
-    ta.numclocks == String_set.cardinal ta.clock_names
+    ta.numclocks == String_set.cardinal ta.clock_name_set
   &&
     ta.numinit.location_index >= 0
   &&
@@ -88,7 +88,7 @@ let is_sane_timed_automaton ta =
 		    &&
 		      (String_set.subset
                         (Location_graph.E.label transition).clock_resets
-                        ta.clock_names)
+                        ta.clock_name_set)
 		    &&
 		      (Location_graph.E.dst transition).location_index >= 0
 		    &&
@@ -133,7 +133,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -165,7 +165,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -197,7 +197,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -229,7 +229,7 @@ module Test =
       numclocks=0;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -261,7 +261,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 1};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -293,7 +293,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -325,7 +325,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -357,7 +357,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -389,7 +389,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -421,7 +421,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create
@@ -453,7 +453,7 @@ module Test =
       numclocks=1;
       numactions=1;
       numinit={location_index = 0};
-      clock_names = (String_set.add "X" String_set.empty);
+      clock_name_set = (String_set.add "X" String_set.empty);
       location_graph = (Location_graph.add_edge_e
                           Location_graph.empty
                           (Location_graph.E.create

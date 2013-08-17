@@ -64,8 +64,8 @@ This file provides the parser for timed automata.
 
 %start main             /* the entry point */
 
-%type <Alt_grammar_types.timed_automaton> main
-%type <Alt_grammar_types.String_set.t> clock_name_set
+%type <Alt_grammar_types.timed_automaton_from_parser> main
+%type <String_set.t> clock_name_set
 %type <Alt_grammar_types.location_label * Alt_grammar_types.clock_constraint * ((Alt_grammar_types.transition_label * Alt_grammar_types.location_label) list)> location
 %type <(Alt_grammar_types.location_label * Alt_grammar_types.clock_constraint * ((Alt_grammar_types.transition_label * Alt_grammar_types.location_label) list)) list> locationlist
 %type <Alt_grammar_types.clock_constraint> clock_constraint
@@ -85,7 +85,7 @@ INT clock_name_set locationlist EOF
    numclocks=$6;
    numactions=$8;
    numinit={location_index = $10};
-   clock_names = $11;
+   clock_name_set = $11;
    location_graph = graph;
    location_invariant_map = map} }
 ;
