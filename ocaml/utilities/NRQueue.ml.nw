@@ -2,9 +2,6 @@
 This provides the non-redundant queue (duplicate entries disallowed)
 which we use for the forward analysis.
 
-<<NRQueue.ml>>=
-open Grammar_types
-
 @ 
 \begin{itemize}
 \item This is the signature for a queue element.
@@ -113,7 +110,13 @@ module NRQueue =
 <<NRQueue.ml>>=
 module PCQueueElement =
   struct
-    type t = {parent: int option; edge: transition option; child: int}
+    type t = {parent: int option; edge: Grammar_types.transition option; child: int}
+    let compare e1 e2 = Pervasives.compare e1.child e2.child
+  end
+
+module Alt_PCQueueElement =
+  struct
+    type t = {parent: int option; edge: Alt_grammar_types.transition option; child: int}
     let compare e1 e2 = Pervasives.compare e1.child e2.child
   end
 
@@ -121,6 +124,8 @@ module PCQueueElement =
 \item This is the type of queue we use for our zone graph building algorithm.
 <<NRQueue.ml>>=
 module PCQueue = NRQueue(PCQueueElement)
+
+module Alt_PCQueue = NRQueue(Alt_PCQueueElement)
 
 @ 
 \end{itemize}

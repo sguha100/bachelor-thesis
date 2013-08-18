@@ -102,7 +102,7 @@ module Timed_automaton =
       numlocations3: int;
       clock_name_array3: string array;
       clock_name_map3: int String_map.t;
-      clock_name_set3: String_set.t
+      clock_name_set3: String_set.t;
       channel_names3: String_set.t;
       action_names3: String_set.t;
       location_graph3: Location_graph.t;
@@ -129,7 +129,7 @@ module Timed_automaton =
         numlocations3 = Location_graph.nb_vertex ta.location_graph;
         clock_name_array3 = clock_name_array3;
         clock_name_map3 = clock_name_map3;
-        clock_name_set3 = ta.clock_name_set
+        clock_name_set3 = ta.clock_name_set;
         channel_names3 = String_set.empty;
         action_names3 =
           Array.fold_left
@@ -144,17 +144,21 @@ module Timed_automaton =
     let get_numinit ta = ta.numinit3
     let get_location_graph ta = ta.location_graph3
     let get_location_invariant_map ta = ta.location_invariant_map3
-    let get_clock_name_set ta = ta.clock_names3
+    let get_clock_name_set ta = ta.clock_name_set3
+    let get_clock_name_array ta = ta.clock_name_array3
+    let get_clock_name_map ta = ta.clock_name_map3
    end: sig
      type m
      type t
      val make_t: timed_automaton_from_parser -> t
      val get_numclocks: t -> int
      val get_numlocations: t -> int
-     val get_numinit: t -> location_index
+     val get_numinit: t -> location_label
      val get_location_graph: t -> Location_graph.t
      val get_location_invariant_map: t -> clock_constraint Location_invariant_map.t
      val get_clock_name_set: t -> String_set.t
+     val get_clock_name_array: t -> string array
+     val get_clock_name_map: t -> int String_map.t
    end)
 
 type zone_using_dbm = {

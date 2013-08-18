@@ -5,12 +5,12 @@ This file provides the essential functions for building the minimal
 <<Alt_graph_functions2.ml>>=
 open Alt_grammar_types
 open Zone_stubs
-open UDBM_utilities
-open Clock_constraint_utilities
+open Alt_UDBM_utilities
+open Alt_clock_constraint_utilities
 
 open NRQueue
 (* open PCQueue *)
-open PCQueueElement
+open Alt_PCQueueElement
 
 module TA = Timed_automaton
 
@@ -76,7 +76,7 @@ let init_zone_list_array ta =
        if
          (i = (TA.get_numinit ta).location_index)
        then
-         [{zone_location2 = i;
+         [{zone_location2 = {location_index = i};
            zone_constraint2 =
              dbm_up (dbm_zero (dbm_init dim))
           }]
@@ -98,7 +98,7 @@ let useful_predecessor_zones
     (function zone ->
       match
         clock_constraint_to_dbm_option
-          (TA.get_clock_name_set ta)
+          (TA.get_clock_name_array ta)
           edge_condition
       with
       | None -> false
@@ -121,7 +121,7 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
       maxcon = maximum_constant ta
   in
   let
-      dim = 1 + (TA.get_clock_name_set ta)
+      dim = 1 + (TA.get_numclocks ta)
   in
   let
       constraint_list_without_abstraction =
@@ -167,11 +167,11 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
         (Invalid_argument
            ("Abstraction failed, Constraint_list_without_abstraction = "
             ^ (constraint_list_to_string
-                 (TA.get_clock_name_set ta)
+                 (TA.get_clock_name_array ta)
                  constraint_list_without_abstraction
             ) ^ ", constraint_list_with_abstraction = " ^
               (constraint_list_to_string
-                 (TA.get_clock_name_set ta)
+                 (TA.get_clock_name_array ta)
                  constraint_list_with_abstraction
               )
            )
@@ -198,20 +198,20 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
           with
           | (_, false) ->
             Printf.printf "The zone (%s, %s) did not get abstracted.\n"
-              (string_of_int next_zone.zone_location2)
+              (string_of_int next_zone.zone_location2.location_index)
               (dbm_to_string
-                 (TA.get_clock_name_set ta)
+                 (TA.get_clock_name_array ta)
                  next_zone.zone_constraint2);
             (abstracted_zones, next_zone::unabstracted_zones)
           | (abstracted_dbm, true) ->
             Printf.printf "The zone (%s, %s) got abstracted to (%s, %s)\n"
-              (string_of_int next_zone.zone_location2)
+              (string_of_int next_zone.zone_location2.location_index)
               (dbm_to_string
-                 (TA.get_clock_name_set ta)
+                 (TA.get_clock_name_array ta)
                  next_zone.zone_constraint2)
-              (string_of_int next_zone.zone_location2)
+              (string_of_int next_zone.zone_location2.location_index)
               (dbm_to_string
-                 (TA.get_clock_name_set ta)
+                 (TA.get_clock_name_array ta)
                  abstracted_dbm)
             ;
             ({zone_location2 = next_zone.zone_location2;
@@ -255,19 +255,19 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
           in
           Printf.printf
             "The abstracted zone (%s, %s) got split into [%s]\n"
-            (string_of_int abstracted_zone.zone_location2)
+            (string_of_int abstracted_zone.zone_location2.location_index)
             (dbm_to_string
-               (TA.get_clock_name_set ta)
+               (TA.get_clock_name_array ta)
                abstracted_zone.zone_constraint2)
             (String.concat
                "; "
                (List.map
                   (function zone ->
                     "(" ^
-                      (string_of_int zone.zone_location2)
+                      (string_of_int zone.zone_location2.location_index)
                     ^ ", " ^
                       (dbm_to_string
-                         (TA.get_clock_name_set ta)
+                         (TA.get_clock_name_array ta)
                          zone.zone_constraint2)
                     ^ ")"
                   )
@@ -293,21 +293,24 @@ let successor_zones_from_predecessor
     edge =
   match
     clock_constraint_to_dbm_option
-      (TA.get_clock_name_set ta.clock_name)
-      edge.condition
+      (TA.get_clock_name_array ta)
+      edge.condition2
   with
   | None -> []
   | Some edge_condition ->
     List.map
       (function zone ->
-        {zone_location2 = edge.next_location;
+        {zone_location2 = {location_index = edge.next_location2};
          zone_constraint2 =
             let
                 dbm_without_abstraction =
               dbm_up
                 (dbm_after_clock_resets
-                   ta.clock_names
-                   edge.clock_resets
+                   (TA.get_clock_name_map ta)
+                   (Array.fold_right
+                      String_set.add
+                      edge.clock_resets2
+                      String_set.empty)
                    (dbm_intersection
                       edge_condition
                       (dbm_up zone.zone_constraint2)
@@ -320,7 +323,7 @@ let successor_zones_from_predecessor
       (useful_predecessor_zones
          ta
          predecessor_zone_list
-         edge.condition
+         edge.condition2
       )
       
 @ 
@@ -381,7 +384,9 @@ let new_successor_zones
 let self_split ta location zone_list =
   let
       constraint_list =
-    (ta.locations.(location).invariant
+    ((Location_invariant_map.find
+        location
+        (TA.get_location_invariant_map ta))
      ::
        (List.concat
           (List.map
@@ -399,7 +404,7 @@ let self_split ta location zone_list =
              )
              (Location_graph.succ_e
                 (TA.get_location_graph ta)
-                {location_index = location}
+                location
              )
           )
        )
@@ -407,12 +412,12 @@ let self_split ta location zone_list =
   in
   (Printf.printf
      "Self-splitting location %s, constraint_list length = %s\n"
-     (string_of_int location)
+     (string_of_int location.location_index)
      (string_of_int (List.length constraint_list))
   );
   flush stdout;
   (split_zone_list_on_constraint_list
-     (TA.get_clock_name_set ta)
+     (TA.get_clock_name_array ta)
      location
      zone_list
      constraint_list
@@ -425,14 +430,14 @@ let self_split ta location zone_list =
 let rec empty_queue2 ta (queue, zone_list_array) =
   try
     (let
-        e = PCQueue.take queue
+        e = Alt_PCQueue.take queue
      in
      let
          () = 
        (Printf.printf "most recent to least recent, queue = [%s]\n"
           (String.concat
              "; "
-             (PCQueue.fold
+             (Alt_PCQueue.fold
                 (fun partial_list e -> (string_of_int e.child)::partial_list)
                 []
                 queue
@@ -464,7 +469,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
                 (List.map
                    (function zone ->
                      dbm_to_string
-                       (TA.get_clock_names ta)
+                       (TA.get_clock_name_array ta)
                        zone.zone_constraint2)
                    zone_list_array.(parent)
                 )
@@ -475,13 +480,13 @@ let rec empty_queue2 ta (queue, zone_list_array) =
             parent
             zone_list_array.(parent)
             edge
-            e.child
+            {location_index = e.child}
             zone_list_array.(e.child)
          )
      in
      let
          changed_zone_list2 =
-       self_split ta e.child changed_zone_list1
+       self_split ta {location_index = e.child} changed_zone_list1
      in
      let
          changed_zone_list3 =
@@ -512,7 +517,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
            in
            Location_graph.iter_succ_e
              (function departure ->
-               PCQueue.add
+               Alt_PCQueue.add
                  {child = (Location_graph.E.dst departure).location_index;
                   parent = Some e.child;
                   edge =
@@ -543,7 +548,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
        (Printf.printf "most recent to least recent, queue = [%s]\n"
           (String.concat
              "; "
-             (PCQueue.fold
+             (Alt_PCQueue.fold
                 (fun partial_list e -> (string_of_int e.child)::partial_list)
                 []
                 queue
@@ -554,7 +559,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
      empty_queue2 ta (queue, zone_list_array)
     )
   with
-  | PCQueue.Empty ->
+  | Alt_PCQueue.Empty ->
     let
         () = 
       Printf.printf "%s\n" "Empty caught!"
@@ -568,9 +573,9 @@ let rec empty_queue2 ta (queue, zone_list_array) =
 let generate_zone_valuation_graph ta =
   Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + (TA.get_numclocks ta) in
-  let queue = PCQueue.create () in
+  let queue = Alt_PCQueue.create () in
   let () =
-    PCQueue.add
+    Alt_PCQueue.add
       {parent = None; edge = None; child = (TA.get_numinit ta).location_index}
       queue
   in
@@ -599,7 +604,7 @@ let generate_zone_valuation_graph ta =
                 (function zone ->
                   match
                     (clock_constraint_to_dbm_option
-                       ta.clock_names
+                       (TA.get_clock_name_array ta)
                        (Location_graph.E.label departure).condition
                     )
                   with
@@ -615,12 +620,12 @@ let generate_zone_valuation_graph ta =
                 changed_zone_list =
               split_zone_list_on_dbm_list
                 dim
-                l1.location_index
+                l1
                 splittable
                 (List.map
                    (function zone ->
                      (dbm_without_reset_clocks
-                        (TA.get_clock_name_set ta)
+                        (TA.get_clock_name_map ta)
                         (Location_graph.E.label departure).clock_resets
                         zone.zone_constraint2
                      )
@@ -667,7 +672,7 @@ let generate_zone_valuation_graph ta =
                {action2 = -1;
                 condition2 = [True];
                 clock_resets2 = [||];
-                next_location2 = zone.zone_location2
+                next_location2 = zone.zone_location2.location_index
                } (*This one is a time transition.*)
                ::
                  (List.map
@@ -692,7 +697,7 @@ let generate_zone_valuation_graph ta =
                        (function departure ->
                          match
                            clock_constraint_to_dbm_option
-                             (TA.get_clock_name_set ta)
+                             (TA.get_clock_name_array ta)
                              (Location_graph.E.label departure).condition
                          with
                          | None -> false
@@ -703,7 +708,7 @@ let generate_zone_valuation_graph ta =
                        )
                        (Location_graph.succ_e
                           (TA.get_location_graph ta)
-                          {location_index = zone.zone_location2}
+                          zone.zone_location2
                        )
                     )
                  )
@@ -717,8 +722,11 @@ let generate_zone_valuation_graph ta =
                        (function arrival_zone ->
                          dbm_haveIntersection
                            (dbm_after_clock_resets
-                              (TA.get_clock_name_set ta)
-                              departure.clock_resets2
+                              (TA.get_clock_name_map ta)
+                              (Array.fold_right
+                                 String_set.add
+                                 departure.clock_resets2
+                                 String_set.empty)
                               zone.zone_constraint2
                            )
                            arrival_zone.zone_constraint2
@@ -748,7 +756,7 @@ let generate_zone_valuation_graph ta =
 
   module Test =
   struct
-    open Test_base
+    open Alt_test_base
     open Zone_stubs_test
     open UDBM_utilities.Test
 
@@ -852,18 +860,23 @@ let generate_zone_valuation_graph ta =
           (new_successor_zones
              ta1
              2
-             [{zone_location2 = 2; zone_constraint2 = dbm05};
-              {zone_location2 = 2; zone_constraint2 = dbm06}
+             [{zone_location2 =
+                 {location_index = 2};
+               zone_constraint2 = dbm05};
+              {zone_location2 =
+                 {location_index = 2}; zone_constraint2 = dbm06}
              ]
              {
-               action = 2;
-               condition = [Gt ("X", 8)];
-               clock_resets = [||];
-               next_location = 0
+               action2 = 2;
+               condition2 = [Gt ("X", 8)];
+               clock_resets2 = [||];
+               next_location2 = 0
              }
-             0
-             [{zone_location2 = 0; zone_constraint2 = dbm07};
-              {zone_location2 = 0; zone_constraint2 = dbm08}
+             {location_index = 0}
+             [{zone_location2 =
+                 {location_index = 0}; zone_constraint2 = dbm07};
+              {zone_location2 =
+                 {location_index = 0}; zone_constraint2 = dbm08}
              ]
           )
       in
@@ -889,29 +902,32 @@ let generate_zone_valuation_graph ta =
 (*     ) *)
 (*  ^ "]") *)
 
-    let ta2 = {
+    let ta2 = TA.make_t {
       numlocations = 1;
       numtrans = 1;
       numclocks = 2;
       numactions = 1;
-      numinit = 0;
-      clock_names = [|"X"; "Y"|];
-      locations =
-        [|
-          {
-            location_index = 0;
-            invariant = [True];
-            departures =
-              [|
-                {
-                  action = 0;
-                  condition = [Eq("Y", 1)];
-                  clock_resets = [|"Y"|];
-                  next_location = 0
-                }
-              |]
-          }
-        |]
+      numinit = {location_index = 0};
+      clock_name_set =
+        List.fold_left
+          (fun s clock_name -> String_set.add clock_name s)
+          String_set.empty
+          ["X"; "Y"];
+      location_graph =
+        Location_graph.add_edge_e
+          (Location_graph.empty)
+          (Location_graph.E.create
+             {location_index = 0}
+             {action = 0;
+              condition = [Eq("Y", 1)];
+              clock_resets = String_set.singleton "Y"}
+             {location_index = 0}
+          );
+      location_invariant_map =
+        Location_invariant_map.add
+          {location_index = 0}
+          [True]
+          Location_invariant_map.empty
     }
   end
                                                      

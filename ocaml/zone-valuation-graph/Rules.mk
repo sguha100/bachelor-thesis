@@ -4,6 +4,8 @@ d := $(dir)
 
 TGT_$(d) := $(d)/Graph_functions2.ml \
 $(d)/Graph_functions2.ml.tex \
+$(d)/Alt_graph_functions2.ml \
+$(d)/Alt_graph_functions2.ml.tex \
 $(d)/ZVG_modules.ml \
 $(d)/ZVG_modules.ml.tex \
 $(d)/calc.ml \

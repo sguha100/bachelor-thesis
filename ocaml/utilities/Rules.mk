@@ -4,12 +4,16 @@ d := $(dir)
 
 TGT_$(d) := $(d)/Clock_constraint_utilities.ml \
 $(d)/Clock_constraint_utilities.ml.tex \
+$(d)/Alt_clock_constraint_utilities.ml \
+$(d)/Alt_clock_constraint_utilities.ml.tex \
 $(d)/NRQueue.ml \
 $(d)/NRQueue.ml.tex \
 $(d)/Table_using_list.ml \
 $(d)/Table_using_list.ml.tex \
 $(d)/UDBM_utilities.ml \
 $(d)/UDBM_utilities.ml.tex \
+$(d)/Alt_UDBM_utilities.ml \
+$(d)/Alt_UDBM_utilities.ml.tex \
 $(d)/parse_timed_automaton.ml \
 $(d)/parse_timed_automaton.ml.tex \
 $(d)/Alt_parse_timed_automaton.ml \

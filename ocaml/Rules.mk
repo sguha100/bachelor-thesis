@@ -91,6 +91,9 @@ grammar-noweb/Alt_grammar_types.ml \
 grammar-noweb/Alt_timed_automaton_lexer.mll \
 grammar-noweb/Alt_timed_automaton_parser.mly \
 utilities/Alt_parse_timed_automaton.ml \
+zone-valuation-graph/Alt_graph_functions2.ml \
+utilities/Alt_clock_constraint_utilities.ml \
+utilities/Alt_UDBM_utilities.ml \
 $(COMMON_DEPS)
 
 libzone_stubs.a: \
