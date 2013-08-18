@@ -4,7 +4,7 @@ older kind.)
 
 <<Alt_clock_constraint_utilities.ml>>=
 open Alt_grammar_types
-open UDBM_utilities
+open Alt_UDBM_utilities
 
 module TA = Timed_automaton
 
@@ -117,6 +117,24 @@ let maximum_constant ta =
     )
     (TA.get_location_graph ta)
     0
-
+  
 @ 
 \end{itemize}
+
+<<Alt_clock_constraint_utilities.ml>>=
+module Test = 
+struct
+  let test19 =
+    if
+      [Eq ("X1", 0); Eq ("X3", 0); Gt ("X2", 3); Lt
+        ("X2", 5)]
+      =
+      (clock_constraint_after_clock_resets
+         [Ge ("X1", 5); Gt ("X2", 3); Le ("X1", 7); Lt ("X3", 5); Lt
+           ("X2", 5)]
+         (List.fold_right String_set.add ["X1"; "X3"] String_set.empty))
+    then
+      "test19 passed"
+    else
+      "test19 failed"
+end
