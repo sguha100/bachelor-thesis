@@ -8,8 +8,12 @@ $(d)/Alt_graph_functions2.ml \
 $(d)/Alt_graph_functions2.ml.tex \
 $(d)/ZVG_modules.ml \
 $(d)/ZVG_modules.ml.tex \
+$(d)/Alt_ZVG_modules.ml \
+$(d)/Alt_ZVG_modules.ml.tex \
 $(d)/calc.ml \
 $(d)/calc.ml.tex \
+$(d)/Alt_calc.ml \
+$(d)/Alt_calc.ml.tex \
 $(d)/compare_automata.ml \
 $(d)/compare_automata.ml.tex
 

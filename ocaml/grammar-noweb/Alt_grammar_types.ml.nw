@@ -100,6 +100,8 @@ module Timed_automaton =
       numinit3: location_label;
       numclocks3: int;
       numlocations3: int;
+      numtrans3: int;
+      numactions3: int;
       clock_name_array3: string array;
       clock_name_map3: int String_map.t;
       clock_name_set3: String_set.t;
@@ -127,6 +129,8 @@ module Timed_automaton =
         numinit3 = ta.numinit;
         numclocks3 = numclocks3;
         numlocations3 = Location_graph.nb_vertex ta.location_graph;
+        numtrans3 = Location_graph.nb_edges ta.location_graph;
+        numactions3 = ta.numactions;
         clock_name_array3 = clock_name_array3;
         clock_name_map3 = clock_name_map3;
         clock_name_set3 = ta.clock_name_set;
@@ -141,6 +145,8 @@ module Timed_automaton =
       }
     let get_numclocks ta = ta.numclocks3
     let get_numlocations ta = ta.numlocations3
+    let get_numtrans ta = ta.numtrans3
+    let get_numactions ta = ta.numactions3
     let get_numinit ta = ta.numinit3
     let get_location_graph ta = ta.location_graph3
     let get_location_invariant_map ta = ta.location_invariant_map3
@@ -153,6 +159,8 @@ module Timed_automaton =
      val make_t: timed_automaton_from_parser -> t
      val get_numclocks: t -> int
      val get_numlocations: t -> int
+     val get_numtrans: t -> int
+     val get_numactions: t -> int
      val get_numinit: t -> location_label
      val get_location_graph: t -> Location_graph.t
      val get_location_invariant_map: t -> clock_constraint Location_invariant_map.t

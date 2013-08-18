@@ -9,6 +9,8 @@ OCAMLLIBS := graph
 # level.
 grammar_types := grammar-noweb/grammar_types.ml
 
+Alt_grammar_types := grammar-noweb/Alt_grammar_types.ml
+
 fernandez := fernandez-ocaml-noweb/Fernandez_modules.ml
 
 dir := c
@@ -33,7 +35,7 @@ include $(dir)/Rules.mk
 .PHONY: targets
 targets: \
 calc.native test.native compare_automata.native \
-thesis/thesis.pdf
+thesis/thesis.pdf Alt_calc.native
 
 COMMON_DEPS := \
 Rules.mk \
@@ -47,6 +49,16 @@ $(grammar_types) \
 grammar-noweb/timed_automaton_lexer.mll \
 grammar-noweb/timed_automaton_parser.mly \
 utilities/parse_timed_automaton.ml \
+fernandez-ocaml-noweb/Fernandez_modules.ml \
+$(COMMON_DEPS)
+
+ALT_CALC_NATIVE_DEPS := \
+zone-valuation-graph/Alt_calc.ml \
+zone-valuation-graph/Alt_ZVG_modules.ml \
+$(Alt_grammar_types) \
+grammar-noweb/Alt_timed_automaton_lexer.mll \
+grammar-noweb/Alt_timed_automaton_parser.mly \
+utilities/Alt_parse_timed_automaton.ml \
 fernandez-ocaml-noweb/Fernandez_modules.ml \
 $(COMMON_DEPS)
 
@@ -112,8 +124,9 @@ test.native: $(TEST_DEPS)
 
 %.native: \
 $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
-$(TEST_DEPS)
+$(TEST_DEPS) $(ALT_CALC_NATIVE_DEPS)
 	$(OCAMLBUILD)  \
 	zone-valuation-graph/calc.native \
 	test/test.native \
 	zone-valuation-graph/compare_automata.native \
+	zone-valuation-graph/Alt_calc.native \

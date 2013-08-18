@@ -120,3 +120,5 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/zone-valuation-graph/#Graph_functions2.ml#
 /ocaml/zone-valuation-graph/Alt_graph_functions2.ml
 /ocaml/thesis/#title.tex#
+/ocaml/zone-valuation-graph/Alt_ZVG_modules.ml
+/ocaml/zone-valuation-graph/Alt_calc.ml
