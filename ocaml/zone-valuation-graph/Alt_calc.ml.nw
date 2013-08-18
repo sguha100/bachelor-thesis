@@ -18,7 +18,7 @@ module TA = Timed_automaton
 \item This function prints a text version of the zone graph.
 <<Alt_calc.ml>>=
 let text_dump ta g = 
-  let txt_out = open_out "/tmp/lts.txt" in
+  let txt_out = open_out "/tmp/Alt_lts.txt" in
   Printf.fprintf
     txt_out
     "#locations %s\n"
