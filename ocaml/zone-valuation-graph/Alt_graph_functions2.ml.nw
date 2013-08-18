@@ -98,7 +98,7 @@ let useful_predecessor_zones
     (function zone ->
       match
         clock_constraint_to_dbm_option
-          (TA.get_clock_name_array ta)
+          (TA.get_clock_name_map ta)
           edge_condition
       with
       | None -> false
@@ -293,7 +293,7 @@ let successor_zones_from_predecessor
     edge =
   match
     clock_constraint_to_dbm_option
-      (TA.get_clock_name_array ta)
+      (TA.get_clock_name_map ta)
       edge.condition2
   with
   | None -> []
@@ -417,7 +417,7 @@ let self_split ta location zone_list =
   );
   flush stdout;
   (split_zone_list_on_constraint_list
-     (TA.get_clock_name_array ta)
+     (TA.get_clock_name_map ta)
      location
      zone_list
      constraint_list
@@ -604,7 +604,7 @@ let generate_zone_valuation_graph ta =
                 (function zone ->
                   match
                     (clock_constraint_to_dbm_option
-                       (TA.get_clock_name_array ta)
+                       (TA.get_clock_name_map ta)
                        (Location_graph.E.label departure).condition
                     )
                   with
@@ -697,7 +697,7 @@ let generate_zone_valuation_graph ta =
                        (function departure ->
                          match
                            clock_constraint_to_dbm_option
-                             (TA.get_clock_name_array ta)
+                             (TA.get_clock_name_map ta)
                              (Location_graph.E.label departure).condition
                          with
                          | None -> false

@@ -8,7 +8,6 @@ open Alt_UDBM_utilities.Test
 open Test_base_clutter
 open Clock_constraint_clutter_test
 open PCQueue_test
-(* open Graph_functions2.Test *)
 open Alt_graph_functions2.Test
 open Alt_grammar_types.Test
 open Alt_parse_timed_automaton.Test
@@ -36,12 +35,6 @@ let _ =
   print_string test12;
   print_newline ();
   print_string test13;
-  print_newline ();
-  print_string test14;
-  print_newline ();
-  print_string test15;
-  print_newline ();
-  print_string test16;
   print_newline ();
   print_string test17;
   print_newline ();

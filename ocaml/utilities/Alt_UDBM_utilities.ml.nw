@@ -5,25 +5,6 @@ This file provides some essential higher-level utilities that involve DBM operat
 open Zone_stubs
 open Alt_grammar_types
 
-@ 
-\begin{itemize}
-\item This function returns the clock index corresponding to a given
-  clock name, and -1 if there is no such clock.
-<<Alt_UDBM_utilities.ml>>=
-let clock_name_to_index cn clock_names =
-  let rec f i cn list =
-    match list with
-      [] -> -1
-    | hd::tl ->
-      if
-        hd = cn
-      then
-        i
-      else
-        f (i+1) cn tl
-  in
-  f 0 cn (Array.to_list clock_names)
-
 let dbm_clock_reset_operation operation clock_names clock_resets dbm =
   String_set.fold
     operation
@@ -31,6 +12,7 @@ let dbm_clock_reset_operation operation clock_names clock_resets dbm =
     dbm
 
 @ 
+\begin{itemize}
 \item This function implements post-reset on DBM.
 <<Alt_UDBM_utilities.ml>>=
 let dbm_after_clock_resets clock_name_map =
@@ -62,14 +44,14 @@ let dbm_without_reset_clocks clock_name_map =
                                                             bound)} constraints.
 <<Alt_UDBM_utilities.ml>>=
 let unit_clock_constraint_to_constraint_list_option
-    clock_names
+    clock_name_map
     unit_clock_constraint =
   let
       index cn =
     1 + 
-      (clock_name_to_index
+      (String_map.find
          cn
-         clock_names)
+         clock_name_map)
   in
   match unit_clock_constraint with
     True -> Some []
@@ -78,7 +60,7 @@ let unit_clock_constraint_to_constraint_list_option
   | Le (cn, n) -> Some [(index cn, 0, false, n)]
   | Eq (cn, n) -> Some [(0, index cn, false, 0-n);
                         (index cn, 0, false, n)
-		       ]
+                       ]
   | Ge (cn, n) -> Some [(0, index cn, false, 0-n)]
   | Gt (cn, n) -> Some [(0, index cn, true, 0-n)]
 
@@ -86,9 +68,9 @@ let unit_clock_constraint_to_constraint_list_option
 \item This function turns clock constraints to DBM, except when they
   are empty, in which case it returns None.
 <<Alt_UDBM_utilities.ml>>=
-let rec clock_constraint_to_dbm_option clock_names clock_constraint =
+let rec clock_constraint_to_dbm_option clock_name_map clock_constraint =
   let
-      dim = (1 + Array.length clock_names)
+      dim = (1 + String_map.cardinal clock_name_map)
   in
   List.fold_left
     (function
@@ -97,7 +79,7 @@ let rec clock_constraint_to_dbm_option clock_names clock_constraint =
       (function unit_clock_constraint -> 
         (match
           unit_clock_constraint_to_constraint_list_option
-            clock_names
+            clock_name_map
             unit_clock_constraint
         with
           None -> None
@@ -328,14 +310,14 @@ let split_dbm_list_on_dbm
 \item This function splits a list of DBM using a clock constraint.
 <<Alt_UDBM_utilities.ml>>=
 let split_dbm_list_on_clock_constraint
-    clock_names
+    clock_name_map
     dbm_list
     clock_constraint =
   let
-      dim = 1 + Array.length clock_names
+      dim = 1 + String_map.cardinal clock_name_map
   in
   match
-    (clock_constraint_to_dbm_option clock_names clock_constraint)
+    (clock_constraint_to_dbm_option clock_name_map clock_constraint)
   with
   | None -> dbm_list
   | Some dbm -> split_dbm_list_on_dbm dim dbm_list dbm
@@ -347,36 +329,15 @@ let split_dbm_list_on_clock_constraint
 module Test =
 struct
   open Test_base
-  
-  let test14 =
-    if
-      0 = clock_name_to_index "X" [|"X"; "Y"|]
-    then
-      "test14 passed"
-    else
-      "test14 failed"
-
-  let test15 =
-    if
-      1 = clock_name_to_index "Y" [|"X"; "Y"|]
-    then
-      "test15 passed"
-    else
-      "test15 failed"
-
-  let test16 =
-    if
-      -1 = clock_name_to_index "Z" [|"X"; "Y"|]
-    then
-      "test16 passed"
-    else
-      "test16 failed"
 
   let test17 =
     if
       None <>
         (clock_constraint_to_dbm_option
-           [|"X"; "Y"|]
+           (List.fold_right
+              (fun (x, y) -> String_map.add x y)
+              [("X", 0); ("Y", 1)]
+              String_map.empty)
            [Le("X", 4); Ge ("X", 3)]
         )
     then
@@ -387,7 +348,10 @@ struct
   let test18 =
     if
       None = (clock_constraint_to_dbm_option
-                [|"X"; "Y"|]
+                (List.fold_right
+                   (fun (x, y) -> String_map.add x y)
+                   [("X", 0); ("Y", 1)]
+                   String_map.empty)
                 [Le("X", 3); Ge ("X", 4)]
     )
     then
@@ -408,12 +372,12 @@ struct
     )
     expected
 
-  let verify_dbm_translation clock_names clock_constraint expected =
+  let verify_dbm_translation clock_name_map clock_constraint expected =
     match
-      (clock_constraint_to_dbm_option clock_names clock_constraint)
+      (clock_constraint_to_dbm_option clock_name_map clock_constraint)
     with
     | None -> false
-    | Some dbm -> verify_dbm (1 + Array.length clock_names) dbm expected
+    | Some dbm -> verify_dbm (1 + String_map.cardinal clock_name_map) dbm expected
 
   let dim01 = 3
 
@@ -694,12 +658,16 @@ struct
              )
           )
        ^ "]")
-        
+
   let test57 =
     let
         found =
       split_dbm_list_on_clock_constraint
-        [|"X"; "Y"|]
+        (List.fold_left
+           (fun m (x, y) -> String_map.add x y m)
+           String_map.empty
+           [("X", 0); ("Y", 1)]
+        )
         [dbm05]
         [Le ("X", 3); Le ("Y", 3)]
     in
