@@ -438,7 +438,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
           (String.concat
              "; "
              (Alt_PCQueue.fold
-                (fun partial_list e -> (string_of_int e.child)::partial_list)
+                (fun partial_list e -> (string_of_int e.child.location_index)::partial_list)
                 []
                 queue
              )
@@ -455,11 +455,11 @@ let rec empty_queue2 ta (queue, zone_list_array) =
              () = 
            Printf.printf "%s\n" "No parent!"
          in
-         zone_list_array.(e.child)
+         zone_list_array.(e.child.location_index)
        | (Some parent, Some edge) ->
          let
              () = 
-           Printf.printf "parent: %s\n" (string_of_int parent)
+           Printf.printf "parent: %s\n" (string_of_int parent.location_index)
          in
          let
              () = 
@@ -471,22 +471,22 @@ let rec empty_queue2 ta (queue, zone_list_array) =
                      dbm_to_string
                        (TA.get_clock_name_array ta)
                        zone.zone_constraint2)
-                   zone_list_array.(parent)
+                   zone_list_array.(parent.location_index)
                 )
              )
          in
          (new_successor_zones
             ta
             parent
-            zone_list_array.(parent)
+            zone_list_array.(parent.location_index)
             edge
-            {location_index = e.child}
-            zone_list_array.(e.child)
+            e.child
+            zone_list_array.(e.child.location_index)
          )
      in
      let
          changed_zone_list2 =
-       self_split ta {location_index = e.child} changed_zone_list1
+       self_split ta e.child changed_zone_list1
      in
      let
          changed_zone_list3 =
@@ -499,12 +499,12 @@ let rec empty_queue2 ta (queue, zone_list_array) =
          Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
            (string_of_int (List.length changed_zone_list2))
            (string_of_int (List.length changed_zone_list1))
-           (string_of_int (List.length zone_list_array.(e.child)))
+           (string_of_int (List.length zone_list_array.(e.child.location_index)))
        in
        if
          ((List.length changed_zone_list3)
           >
-            (List.length zone_list_array.(e.child))
+            (List.length zone_list_array.(e.child.location_index))
           || e.parent = None
            (*When the parent is None, the zone is new anyway,
              so the successors should be enqueued.*)
@@ -513,12 +513,12 @@ let rec empty_queue2 ta (queue, zone_list_array) =
          (
            let
                () = 
-             zone_list_array.(e.child) <- changed_zone_list3
+             zone_list_array.(e.child.location_index) <- changed_zone_list3
            in
            Location_graph.iter_succ_e
              (function departure ->
                Alt_PCQueue.add
-                 {child = (Location_graph.E.dst departure).location_index;
+                 {child = Location_graph.E.dst departure;
                   parent = Some e.child;
                   edge =
                      Some {
@@ -538,7 +538,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
                  queue
              )
              (TA.get_location_graph ta)
-             {location_index = e.child}
+             e.child
          )
        else
          ()
@@ -549,7 +549,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
           (String.concat
              "; "
              (Alt_PCQueue.fold
-                (fun partial_list e -> (string_of_int e.child)::partial_list)
+                (fun partial_list e -> (string_of_int e.child.location_index)::partial_list)
                 []
                 queue
              )
@@ -576,7 +576,7 @@ let generate_zone_valuation_graph ta =
   let queue = Alt_PCQueue.create () in
   let () =
     Alt_PCQueue.add
-      {parent = None; edge = None; child = (TA.get_numinit ta).location_index}
+      {parent = None; edge = None; child = TA.get_numinit ta}
       queue
   in
   let zone_list_array = 

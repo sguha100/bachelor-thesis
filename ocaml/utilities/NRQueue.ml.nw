@@ -13,39 +13,6 @@ module type OrderedType = Set.OrderedType
 <<NRQueue.ml>>=
 module NRQueue =
   functor (Queue_element: OrderedType) ->
-    (* struct *)
-    (*   exception Empty_queue *)
-    (*   type element = Queue_element.t *)
-    (*   let equals = Queue_element.equals *)
-    (*   let empty = [] *)
-    (*   let length queue = List.length queue *)
-    (*   let is_empty queue = *)
-    (*     match queue with *)
-    (*     | [] -> true *)
-    (*     | _ -> false *)
-    (*   let element_exists queue element = *)
-    (*     List.exists *)
-    (*       (equals element) *)
-    (*       queue *)
-    (*   let enqueue queue element = *)
-    (*     if *)
-    (*       element_exists queue element *)
-    (*     then *)
-    (*       queue *)
-    (*     else *)
-    (*       queue@[element] *)
-            
-    (*   let head queue = *)
-    (*     match queue with *)
-    (*     | [] -> raise Empty_queue *)
-    (*     | hd::tl -> hd *)
-
-    (*   let dequeue queue = *)
-    (*     match queue with *)
-    (*     | [] -> raise Empty_queue *)
-    (*     | hd::tl -> (hd, tl) *)
-          
-    (* end *)
     struct
       module OTSet = Set.Make(Queue_element)
       type t = {queue: Queue_element.t Queue.t;  mutable set:OTSet.t }
@@ -116,7 +83,9 @@ module PCQueueElement =
 
 module Alt_PCQueueElement =
   struct
-    type t = {parent: int option; edge: Alt_grammar_types.transition option; child: int}
+    type t = {parent: Alt_grammar_types.location_label option;
+              edge: Alt_grammar_types.transition option;
+              child: Alt_grammar_types.location_label}
     let compare e1 e2 = Pervasives.compare e1.child e2.child
   end
 

@@ -252,7 +252,7 @@ extern "C" {
     CAMLparam1(dim);
     dbm_struct_t s;
     s.dim = Int_val(dim);
-    s.dbm = (raw_t *)malloc(Int_val(dim)*Int_val(dim)*sizeof(raw_t));
+    s.dbm = (raw_t *)malloc(s.dim*s.dim*sizeof(raw_t));
     dbm_init(s.dbm, s.dim);
     CAMLreturn (alloc_dbm_struct_t(s));
   }

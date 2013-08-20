@@ -84,6 +84,7 @@ let _ =
   let result = TA.make_t (parse_timed_automaton stdin) in
   let g = generate_zone_valuation_graph result in
   let () = text_dump result g in
+  let () = Gc.full_major () in
   let l = lts_of_zone_valuation_graph result in
   let () = ZVGLTS2.print_dot
     l   
