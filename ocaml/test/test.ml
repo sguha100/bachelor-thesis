@@ -1,16 +1,16 @@
-open Alt_grammar_types
-open Alt_clock_constraint_utilities.Test
+open Grammar_types
+open Clock_constraint_utilities.Test
 open Graph_functions3_test
 open Unit_constraint_intersection_test
 open Zone_stubs
 open Zone_stubs_test
-open Alt_UDBM_utilities.Test
+open UDBM_utilities.Test
 open Test_base_clutter
 open Clock_constraint_clutter_test
 open PCQueue_test
-open Alt_graph_functions2.Test
-open Alt_grammar_types.Test
-open Alt_parse_timed_automaton.Test
+open Graph_functions2.Test
+open Grammar_types.Test
+open Parse_timed_automaton.Test
     
 let _ =
   print_string test2;

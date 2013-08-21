@@ -1,7 +1,7 @@
-\subsection{Alt_grammar\_types.ml}
+\subsection{Grammar\_types.ml}
 This file provides the essential datatypes we work with.
 
-<<Alt_grammar_types.ml>>=
+<<Grammar_types.ml>>=
 open Zone_stubs
 open Graph
 
@@ -175,6 +175,6 @@ type zone_using_dbm = {
 }
 
 module Test =
-  struct
-    
-  end
+struct
+  
+end

@@ -1,8 +1,8 @@
-\subsection{Alt_timed\_automaton\_parser.mly}
+\subsection{Timed\_automaton\_parser.mly}
 This file provides the parser for timed automata.
 
-<<Alt_timed_automaton_parser.mly>>=
-/* File Alt_timed_automaton_parser.mly */
+<<Timed_automaton_parser.mly>>=
+/* File Timed_automaton_parser.mly */
 %token <int> INT
 %token <string> IDENT
 %token LPAREN RPAREN
@@ -35,7 +35,7 @@ This file provides the parser for timed automata.
 %left AND
 
 %{
-  open Alt_grammar_types
+  open Grammar_types
   let build_graph_and_map locations =
     List.fold_left
       (function (g1, m) ->
@@ -64,14 +64,14 @@ This file provides the parser for timed automata.
 
 %start main             /* the entry point */
 
-%type <Alt_grammar_types.timed_automaton_from_parser> main
+%type <Grammar_types.timed_automaton_from_parser> main
 %type <String_set.t> clock_name_set
-%type <Alt_grammar_types.location_label * Alt_grammar_types.clock_constraint * ((Alt_grammar_types.transition_label * Alt_grammar_types.location_label) list)> location
-%type <(Alt_grammar_types.location_label * Alt_grammar_types.clock_constraint * ((Alt_grammar_types.transition_label * Alt_grammar_types.location_label) list)) list> locationlist
-%type <Alt_grammar_types.clock_constraint> clock_constraint
-%type <Alt_grammar_types.unit_clock_constraint> unit_clock_constraint
-%type <Alt_grammar_types.transition_label * Alt_grammar_types.location_label> transition
-%type <(Alt_grammar_types.transition_label * Alt_grammar_types.location_label) list> transitionlist
+%type <Grammar_types.location_label * Grammar_types.clock_constraint * ((Grammar_types.transition_label * Grammar_types.location_label) list)> location
+%type <(Grammar_types.location_label * Grammar_types.clock_constraint * ((Grammar_types.transition_label * Grammar_types.location_label) list)) list> locationlist
+%type <Grammar_types.clock_constraint> clock_constraint
+%type <Grammar_types.unit_clock_constraint> unit_clock_constraint
+%type <Grammar_types.transition_label * Grammar_types.location_label> transition
+%type <(Grammar_types.transition_label * Grammar_types.location_label) list> transitionlist
 
 %%
 main:

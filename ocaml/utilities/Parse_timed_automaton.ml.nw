@@ -1,20 +1,19 @@
-\subsection{Alt_parse\_timed\_automaton.ml}
+\subsection{Parse\_timed\_automaton.ml}
 This file provides functions for parsing timed automata and checking their sanity.
 
-<<Alt_parse_timed_automaton.ml>>=
-open Alt_grammar_types
-(* open Zone_stubs *)
+<<Parse_timed_automaton.ml>>=
+open Grammar_types
 
 @ 
 \begin{itemize}
 \item This exception is thrown when a timed automaton is parsed and
   found to violate sanity checks.
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 exception Insane_automaton
 
 @ 
 \item This function checks the sanity of a unit clock constraint.
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 let is_sane_unit_clock_constraint ta unit_clock_constraint =
   let f (cn, n) = (n >= 0)
     &&
@@ -31,7 +30,7 @@ let is_sane_unit_clock_constraint ta unit_clock_constraint =
 
 @ 
 \item This function checks the sanity of a clock constraint.
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 let rec is_sane_clock_constraint ta clock_constraint = 
   List.fold_left
     (function partial_sanity -> 
@@ -46,7 +45,7 @@ let rec is_sane_clock_constraint ta clock_constraint =
 
 @ 
 \item This function checks the sanity of a timed automaton.
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 let is_sane_timed_automaton ta = 
   ta.numlocations == Location_graph.nb_vertex ta.location_graph
   &&
@@ -105,13 +104,13 @@ let is_sane_timed_automaton ta =
     
 @ 
 \item This function parses a timed automaton from a given input channel.
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 let parse_timed_automaton channel =
   let
       lexbuf = Lexing.from_channel channel
   in
   let
-      ta = Alt_timed_automaton_parser.main Alt_timed_automaton_lexer.token lexbuf
+      ta = Timed_automaton_parser.main Timed_automaton_lexer.token lexbuf
   in
   if
     is_sane_timed_automaton ta
@@ -123,7 +122,7 @@ let parse_timed_automaton channel =
 @ 
 \end{itemize}
 
-<<Alt_parse_timed_automaton.ml>>=
+<<Parse_timed_automaton.ml>>=
 module Test = 
   struct
 

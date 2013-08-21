@@ -14,8 +14,8 @@ $(d)/UDBM_utilities.ml \
 $(d)/UDBM_utilities.ml.tex \
 $(d)/Alt_UDBM_utilities.ml \
 $(d)/Alt_UDBM_utilities.ml.tex \
-$(d)/parse_timed_automaton.ml \
-$(d)/parse_timed_automaton.ml.tex \
+$(d)/Parse_timed_automaton.ml \
+$(d)/Parse_timed_automaton.ml.tex \
 $(d)/Alt_parse_timed_automaton.ml \
 $(d)/Alt_parse_timed_automaton.ml.tex
 

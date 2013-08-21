@@ -1,3 +1,4 @@
+open Grammar_types
 open NRQueue
 open PCQueue
 open PCQueueElement
@@ -36,16 +37,16 @@ let test65 =
       q1 = create ()
   in
   let
-      () = add {parent = Some 0; edge = None; child = 1} q1
+      () = add {parent = Some {location_index = 0}; edge = None; child = {location_index = 1}} q1
   in
   let
       q2 = create ()
   in
   let
-      () = add {parent = Some 0; edge = None; child = 1} q2
+      () = add {parent = Some {location_index = 0}; edge = None; child = {location_index = 1}} q2
   in
   let
-      () = add {parent = Some 2; edge = None; child = 1} q2
+      () = add {parent = Some {location_index = 2}; edge = None; child = {location_index = 1}} q2
   in
   if
     (length q1)
@@ -61,16 +62,16 @@ let test66 =
       q1 = create ()
   in
   let
-      () = add {parent = Some 0; edge = None; child = 1} q1
+      () = add {parent = Some {location_index = 0}; edge = None; child = {location_index = 1}} q1
   in
   let
       q2 = create ()
   in
   let
-      () = add {parent = None; edge = None; child = 1} q2
+      () = add {parent = None; edge = None; child = {location_index = 1}} q2
   in
   let
-      () = add {parent = Some 0; edge = None; child = 2} q2
+      () = add {parent = Some {location_index = 0}; edge = None; child = {location_index = 2}} q2
   in
   if
     (length q1)

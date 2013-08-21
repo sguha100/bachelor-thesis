@@ -7,6 +7,8 @@ open Grammar_types
 open Zone_stubs
 open UDBM_utilities
 
+module TA = Timed_automaton
+
 module RelationCheckingFunctor =
   functor (Table: DP_TABLE_TYPE) ->
     functor (Relation: TA_RELATION_TYPE) ->
@@ -179,7 +181,8 @@ struct
           (function z1 ->
             List.exists
               (function node_ref1 ->
-                (node_ref1.zone_location2 = ta1.numinit)
+                (node_ref1.zone_location2 =
+                    TA.get_numinit ta1)
                 &&
                   (dbm_isZeroIncluded node_ref1.zone_constraint2)
               )
@@ -196,8 +199,10 @@ struct
       (function node_ref1 ->
         Printf.printf
           "node_ref1 = %s %s\n"
-          (string_of_int node_ref1.zone_location2)
-          (dbm_to_string ta1.clock_names node_ref1.zone_constraint2)
+          (string_of_int node_ref1.zone_location2.location_index)
+          (dbm_to_string
+             (TA.get_clock_name_array ta1)
+             node_ref1.zone_constraint2)
         ;
       )
       q1.ZVGQuotient2.nodes.(z1).ZVGQuotient2.node_ref_list;
@@ -208,7 +213,8 @@ struct
           (function z2 ->
             List.exists
               (function node_ref2 ->
-                (node_ref2.zone_location2 = ta2.numinit)
+                (node_ref2.zone_location2 =
+                    (TA.get_numinit ta2))
                 &&
                   (dbm_isZeroIncluded node_ref2.zone_constraint2)
               )
@@ -225,8 +231,10 @@ struct
       (function node_ref2 ->
         Printf.printf
           "node_ref2 = %s %s\n"
-          (string_of_int node_ref2.zone_location2)
-          (dbm_to_string ta2.clock_names node_ref2.zone_constraint2)
+          (string_of_int node_ref2.zone_location2.location_index)
+          (dbm_to_string
+             (TA.get_clock_name_array ta2)
+             node_ref2.zone_constraint2)
         ;
       )
       q2.ZVGQuotient2.nodes.(z2).ZVGQuotient2.node_ref_list;

@@ -7,9 +7,7 @@ OCAMLLIBS := graph
 
 # The next three are to compact some of the dependencies in the top
 # level.
-grammar_types := grammar-noweb/grammar_types.ml
-
-Alt_grammar_types := grammar-noweb/Alt_grammar_types.ml
+grammar_types := grammar-noweb/Grammar_types.ml
 
 fernandez := fernandez-ocaml-noweb/Fernandez_modules.ml
 
@@ -46,19 +44,9 @@ CALC_NATIVE_DEPS := \
 zone-valuation-graph/calc.ml \
 zone-valuation-graph/ZVG_modules.ml \
 $(grammar_types) \
-grammar-noweb/timed_automaton_lexer.mll \
-grammar-noweb/timed_automaton_parser.mly \
-utilities/parse_timed_automaton.ml \
-fernandez-ocaml-noweb/Fernandez_modules.ml \
-$(COMMON_DEPS)
-
-ALT_CALC_NATIVE_DEPS := \
-zone-valuation-graph/Alt_calc.ml \
-zone-valuation-graph/Alt_ZVG_modules.ml \
-$(Alt_grammar_types) \
-grammar-noweb/Alt_timed_automaton_lexer.mll \
-grammar-noweb/Alt_timed_automaton_parser.mly \
-utilities/Alt_parse_timed_automaton.ml \
+grammar-noweb/Timed_automaton_lexer.mll \
+grammar-noweb/Timed_automaton_parser.mly \
+utilities/Parse_timed_automaton.ml \
 fernandez-ocaml-noweb/Fernandez_modules.ml \
 $(COMMON_DEPS)
 
@@ -74,9 +62,9 @@ $(COMMON_DEPS)
 NEXT_STEP_DEPS := \
 clutter/next_step/next_step.ml \
 $(grammar_types) \
-grammar-noweb/timed_automaton_lexer.mll \
-grammar-noweb/timed_automaton_parser.mly \
-utilities/parse_timed_automaton.ml \
+grammar-noweb/Timed_automaton_lexer.mll \
+grammar-noweb/Timed_automaton_parser.mly \
+utilities/Parse_timed_automaton.ml \
 $(fernandez) \
 c/zone_stubs.mli \
 c/zone_stubs.c \
@@ -99,13 +87,6 @@ c/zone_stubs.mli \
 c/Zone_stubs_test.ml \
 utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
-grammar-noweb/Alt_grammar_types.ml \
-grammar-noweb/Alt_timed_automaton_lexer.mll \
-grammar-noweb/Alt_timed_automaton_parser.mly \
-utilities/Alt_parse_timed_automaton.ml \
-zone-valuation-graph/Alt_graph_functions2.ml \
-utilities/Alt_clock_constraint_utilities.ml \
-utilities/Alt_UDBM_utilities.ml \
 $(COMMON_DEPS)
 
 libzone_stubs.a: \
@@ -129,4 +110,3 @@ $(TEST_DEPS) $(ALT_CALC_NATIVE_DEPS)
 	zone-valuation-graph/calc.native \
 	test/test.native \
 	zone-valuation-graph/compare_automata.native \
-	zone-valuation-graph/Alt_calc.native \

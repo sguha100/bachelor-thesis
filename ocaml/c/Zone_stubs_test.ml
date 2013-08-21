@@ -3,10 +3,9 @@ open Zone_stubs
 open Grammar_types
 open UDBM_utilities.Test
     
-    
 let test41 =
   if
-    verify_dbm_translation [|"X"|] [Le ("X", 3)] [(1, 0, false, 3)]
+    verify_dbm_translation (String_map.singleton "X" 0) [Le ("X", 3)] [(1, 0, false, 3)]
   then
     "test41 passed"
   else
@@ -14,7 +13,7 @@ let test41 =
 
 let test42 =
   if
-    verify_dbm_translation [|"X"|] [Gt ("X", 3)] [(0, 1, true, -3)]
+    verify_dbm_translation (String_map.singleton "X" 0) [Gt ("X", 3)] [(0, 1, true, -3)]
   then
     "test42 passed"
   else
@@ -23,7 +22,7 @@ let test42 =
 let test43 =
   if
     verify_dbm_translation
-      [|"X"; "Y"|]
+      (String_map.add "Y" 1 (String_map.singleton "X" 0))
       [Gt ("Y", 3); Ge ("Y", 3)]
       [(0, 2, true, -3)]
   then
@@ -34,7 +33,7 @@ let test43 =
 let test44 =
   if
     verify_dbm_translation
-      [|"X"; "Y"|]
+      (String_map.add "Y" 1 (String_map.singleton "X" 0))
       [Lt ("X", 3); Gt ("Y", 3); Ge ("Y", 3); Le ("X", 2)]
       [(0, 2, true, -3); (1, 0, false, 2)]
   then

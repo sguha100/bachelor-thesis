@@ -1,4 +1,8 @@
-  (* File timed_automaton_lexer.mll *)
+\subsection{Timed\_automaton\_lexer.mll}
+This provides the lexical analyser for timed automata.
+
+<<Timed_automaton_lexer.mll>>=
+  (* File Timed_automaton_lexer.mll *)
   {
    open Timed_automaton_parser        (* The type token is defined in parser.mli *)
 exception Eof

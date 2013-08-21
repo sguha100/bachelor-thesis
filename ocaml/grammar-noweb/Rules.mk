@@ -2,18 +2,12 @@ sp 		:= $(sp).x
 dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 
-TGT_$(d) := $(d)/timed_automaton_lexer.mll \
-$(d)/timed_automaton_lexer.mll.tex \
-$(d)/timed_automaton_parser.mly \
-$(d)/timed_automaton_parser.mly.tex \
-$(d)/grammar_types.ml \
-$(d)/grammar_types.ml.tex \
-$(d)/Alt_grammar_types.ml \
-$(d)/Alt_grammar_types.ml.tex \
-$(d)/Alt_timed_automaton_lexer.mll \
-$(d)/Alt_timed_automaton_lexer.mll.tex \
-$(d)/Alt_timed_automaton_parser.mly \
-$(d)/Alt_timed_automaton_parser.mly.tex 
+TGT_$(d) := $(d)/Timed_automaton_lexer.mll \
+$(d)/Timed_automaton_lexer.mll.tex \
+$(d)/Timed_automaton_parser.mly \
+$(d)/Timed_automaton_parser.mly.tex \
+$(d)/Grammar_types.ml \
+$(d)/Grammar_types.ml.tex
 
 $(TGT_$(d)): d := $(d)
 #This is a target-specific variable, meant to
@@ -24,25 +18,15 @@ $(TGT_$(d)): $(d)/Rules.mk
 #We do want the related targets to be re-built when the Makefile
 #fragment is updated.
 
-$(d)/timed_automaton_lexer.mll:$(d)/timed_automaton_lexer.mll.nw
-	notangle -Rtimed_automaton_lexer.mll $(d)/timed_automaton_lexer.mll.nw >$(d)/timed_automaton_lexer.mll
+$(d)/Timed_automaton_lexer.mll:$(d)/Timed_automaton_lexer.mll.nw
+	notangle -RTimed_automaton_lexer.mll $(d)/Timed_automaton_lexer.mll.nw >$(d)/Timed_automaton_lexer.mll
 
-$(d)/timed_automaton_parser.mly:$(d)/timed_automaton_parser.mly.nw
-	notangle -Rtimed_automaton_parser.mly $(d)/timed_automaton_parser.mly.nw >$(d)/timed_automaton_parser.mly
+$(d)/Timed_automaton_parser.mly:$(d)/Timed_automaton_parser.mly.nw
+	notangle -RTimed_automaton_parser.mly $(d)/Timed_automaton_parser.mly.nw >$(d)/Timed_automaton_parser.mly
 
-$(d)/Alt_timed_automaton_parser.mly:$(d)/Alt_timed_automaton_parser.mly.nw
-	notangle -RAlt_timed_automaton_parser.mly $(d)/Alt_timed_automaton_parser.mly.nw >$(d)/Alt_timed_automaton_parser.mly
-
-$(d)/grammar_types.ml:$(d)/grammar_types.ml.nw
-	notangle -Rgrammar_types.ml $(d)/grammar_types.ml.nw \
->$(d)/grammar_types.ml
-
-$(d)/Alt_grammar_types.ml:$(d)/Alt_grammar_types.ml.nw
-	notangle -RAlt_grammar_types.ml $(d)/Alt_grammar_types.ml.nw \
->$(d)/Alt_grammar_types.ml
-
-$(d)/Alt_timed_automaton_lexer.mll:$(d)/Alt_timed_automaton_lexer.mll.nw
-	notangle -RAlt_timed_automaton_lexer.mll $(d)/Alt_timed_automaton_lexer.mll.nw >$(d)/Alt_timed_automaton_lexer.mll
+$(d)/Grammar_types.ml:$(d)/Grammar_types.ml.nw
+	notangle -RGrammar_types.ml $(d)/Grammar_types.ml.nw \
+>$(d)/Grammar_types.ml
 
 $(d)/%.tex: $(d)/%.nw
 	noweave -n -filter 'sed "/^@use /s/_/\\\\_/g;/^@defn /s/_/\\\\_/g"' -latex $< > $@

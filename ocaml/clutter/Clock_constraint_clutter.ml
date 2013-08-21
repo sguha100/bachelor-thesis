@@ -1,6 +1,40 @@
 open Grammar_types
 open Grammar_types_clutter
 open UDBM_utilities
+open UDBM_utilities_clutter
+open Clock_constraint_utilities
+
+let clock_constraint_without_reset_clocks
+    clock_constraint
+    clock_resets =
+  Array.fold_right
+    (function clock_name -> function clock_constraint ->
+      List.filter
+        (function
+        | True
+        | False -> true
+        | Lt (cn, _)
+        | Le (cn, _)
+        | Eq (cn, _)
+        | Ge (cn, _)
+        | Gt (cn, _) -> cn <> clock_name
+        )
+        clock_constraint
+    )
+    clock_resets
+    clock_constraint
+
+let clock_constraint_after_clock_resets
+    clock_constraint
+    clock_resets =
+  (List.map
+     (function clock_reset -> Eq (clock_reset, 0))
+     (Array.to_list clock_resets)
+  )
+  @
+    (clock_constraint_without_reset_clocks
+       clock_constraint
+       clock_resets)
 
 let unit_clock_constraint_max unit_clock_constraint cn =
   match

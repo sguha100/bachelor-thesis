@@ -34,7 +34,7 @@ struct
       zone1 = zone2
   let node_name =
     function l -> function zone ->
-      ((string_of_int zone.zone_location2) ^ " " ^
+      ((string_of_int zone.zone_location2.location_index) ^ " " ^
           (dbm_to_string
              l.clock_names
              zone.zone_constraint2)
@@ -70,7 +70,7 @@ struct
           (function (zone1, dl) ->
             List.exists
               (function (departure, zone_list) ->
-                departure.action = a
+                departure.action2 = a
                 &&
                   (List.exists
                      (node_equality l zone)
@@ -112,9 +112,9 @@ module ZVGQuotientLTS2 = LTS (ZVGQuotient2)
 \item This function generates the LTS form of the minimal zone graph.
 <<ZVG_modules.ml>>=
 let lts_of_zone_valuation_graph ta =
-  {ZVGLT2.action_count = ta.numactions;
+  {ZVGLT2.action_count = (TA.get_numactions ta);
    ZVGLT2.nodes = generate_zone_valuation_graph ta;
-   ZVGLT2.clock_names = ta.clock_names
+   ZVGLT2.clock_names = (TA.get_clock_name_array ta)
   }
 
 type half_key = ZVGQuotient2.node_ref_t

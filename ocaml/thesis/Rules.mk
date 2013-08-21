@@ -19,14 +19,14 @@ $(d)/regiongraph01.pdf_tex \
 $(d)/regiongraph02.pdf_tex
 
 SOURCE_TEX := \
-$(d)/grammar_types.ml.tex \
-$(d)/timed_automaton_parser.mly.tex \
-$(d)/timed_automaton_lexer.mll.tex \
+$(d)/Grammar_types.ml.tex \
+$(d)/Timed_automaton_parser.mly.tex \
+$(d)/Timed_automaton_lexer.mll.tex \
 $(d)/Clock_constraint_utilities.ml.tex \
 $(d)/NRQueue.ml.tex \
 $(d)/Table_using_list.ml.tex \
 $(d)/UDBM_utilities.ml.tex \
-$(d)/parse_timed_automaton.ml.tex \
+$(d)/Parse_timed_automaton.ml.tex \
 $(d)/UDBM_utilities.ml.tex \
 $(d)/Graph_functions2.ml.tex \
 $(d)/ZVG_modules.ml.tex \
@@ -58,13 +58,13 @@ $(d)/%.pdf_tex: $(d)/%.svg
 	inkscape -D -z --file=$< --export-pdf=$(subst pdf_tex,pdf,$@) \
 	--export-latex
 
-$(d)/grammar_types.ml.tex: grammar-noweb/grammar_types.ml.tex
+$(d)/Grammar_types.ml.tex: grammar-noweb/Grammar_types.ml.tex
 	cp $< $@
 
-$(d)/timed_automaton_parser.mly.tex: grammar-noweb/timed_automaton_parser.mly.tex
+$(d)/Timed_automaton_parser.mly.tex: grammar-noweb/Timed_automaton_parser.mly.tex
 	cp $< $@
 
-$(d)/timed_automaton_lexer.mll.tex: grammar-noweb/timed_automaton_lexer.mll.tex
+$(d)/Timed_automaton_lexer.mll.tex: grammar-noweb/Timed_automaton_lexer.mll.tex
 	cp $< $@
 
 $(d)/Clock_constraint_utilities.ml.tex : utilities/Clock_constraint_utilities.ml.tex
@@ -79,7 +79,7 @@ $(d)/Table_using_list.ml.tex: utilities/Table_using_list.ml.tex
 $(d)/UDBM_utilities.ml.tex: utilities/UDBM_utilities.ml.tex
 	cp $< $@
 
-$(d)/parse_timed_automaton.ml.tex: utilities/parse_timed_automaton.ml.tex
+$(d)/Parse_timed_automaton.ml.tex: utilities/Parse_timed_automaton.ml.tex
 	cp $< $@
 
 $(d)/Graph_functions2.ml.tex: zone-valuation-graph/Graph_functions2.ml.tex

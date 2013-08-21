@@ -3,6 +3,7 @@ open Grammar_types_clutter
 open Unit_constraint_intersection
 open Zone_stubs
 open UDBM_utilities
+open UDBM_utilities_clutter
 open Clock_constraint_utilities
 open Clock_constraint_clutter
 open ZVG_tree

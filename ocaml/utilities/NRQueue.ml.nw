@@ -75,26 +75,27 @@ module NRQueue =
 @ 
 \item This is the type of element we use in the queue for our zone graph building algorithm.
 <<NRQueue.ml>>=
+(* module PCQueueElement = *)
+(*   struct *)
+(*     type t = {parent: int option; edge: Grammar_types.transition option; child: int} *)
+(*     let compare e1 e2 = Pervasives.compare e1.child e2.child *)
+(*   end *)
+
 module PCQueueElement =
   struct
-    type t = {parent: int option; edge: Grammar_types.transition option; child: int}
+    type t = {parent: Grammar_types.location_label option;
+              edge:  Grammar_types.transition option;
+              child: Grammar_types.location_label}
     let compare e1 e2 = Pervasives.compare e1.child e2.child
   end
 
-module Alt_PCQueueElement =
-  struct
-    type t = {parent: Alt_grammar_types.location_label option;
-              edge: Alt_grammar_types.transition option;
-              child: Alt_grammar_types.location_label}
-    let compare e1 e2 = Pervasives.compare e1.child e2.child
-  end
 
 @ 
 \item This is the type of queue we use for our zone graph building algorithm.
 <<NRQueue.ml>>=
 module PCQueue = NRQueue(PCQueueElement)
 
-module Alt_PCQueue = NRQueue(Alt_PCQueueElement)
+(* module Alt_PCQueue = NRQueue(Alt_PCQueueElement) *)
 
 @ 
 \end{itemize}

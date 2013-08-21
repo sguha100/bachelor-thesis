@@ -6,6 +6,8 @@ older kind.)
 open Grammar_types
 open UDBM_utilities
 
+module TA = Timed_automaton
+
 @ 
 \begin{itemize}
 \item This function turns a clock constraint (in the old
@@ -35,8 +37,8 @@ the rider that the zero-ness of the clocks in question is not checked.
 let clock_constraint_without_reset_clocks
     clock_constraint
     clock_resets =
-  List.fold_left
-    (function clock_constraint -> function clock_reset ->
+  String_set.fold
+    (function clock_name -> function clock_constraint ->
       List.filter
         (function
         | True
@@ -45,12 +47,12 @@ let clock_constraint_without_reset_clocks
         | Le (cn, _)
         | Eq (cn, _)
         | Ge (cn, _)
-        | Gt (cn, _) -> cn <> clock_reset
+        | Gt (cn, _) -> cn <> clock_name
         )
         clock_constraint
     )
+    clock_resets
     clock_constraint
-    (Array.to_list clock_resets)
 
 @ 
 \item This function  implements the post-reset operation.
@@ -60,7 +62,7 @@ let clock_constraint_after_clock_resets
     clock_resets =
   (List.map
      (function clock_reset -> Eq (clock_reset, 0))
-     (Array.to_list clock_resets)
+     (String_set.elements clock_resets)
   )
   @
     (clock_constraint_without_reset_clocks
@@ -88,29 +90,34 @@ let maximum_constant ta =
       0
       clock_constraint
   in
-  Array.fold_left
-    (function max -> function location ->
-      Array.fold_left
-        (function max -> function departure ->
+  Location_graph.fold_vertex
+    (function location -> function max ->
+      Location_graph.fold_succ_e
+        (function departure -> function max -> 
           if
-            (max > f departure.condition)
+            (max > f (Location_graph.E.label departure).condition)
           then
             max
           else
-            (f departure.condition) 
+            (f (Location_graph.E.label departure).condition) 
         )
+        (TA.get_location_graph ta)
+        location
         (if
-            (max > f location.invariant)
+            (max >
+               f (Location_invariant_map.find location
+                    (TA.get_location_invariant_map ta))
+            )
          then
             max
          else
-            (f location.invariant)
+            f (Location_invariant_map.find location
+                    (TA.get_location_invariant_map ta))
         )
-        location.departures
     )
+    (TA.get_location_graph ta)
     0
-    ta.locations
-
+  
 @ 
 \end{itemize}
 
@@ -125,7 +132,7 @@ struct
       (clock_constraint_after_clock_resets
          [Ge ("X1", 5); Gt ("X2", 3); Le ("X1", 7); Lt ("X3", 5); Lt
            ("X2", 5)]
-         [|"X1"; "X3"|])
+         (List.fold_right String_set.add ["X1"; "X3"] String_set.empty))
     then
       "test19 passed"
     else
