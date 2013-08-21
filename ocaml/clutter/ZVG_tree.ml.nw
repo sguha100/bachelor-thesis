@@ -1,5 +1,6 @@
 <<ZVG_tree.ml>>=
 open Grammar_types
+open Grammar_types_clutter
 type tree = {parent_with_edge: (int * transition) option; elements:
   int list}
 
