@@ -426,7 +426,7 @@ let self_split ta location zone_list =
 \item This function recursively calls itself until the queue is
   empty. This completes the forward analysis part of the algorithm.
 <<Graph_functions2.ml>>=
-let rec empty_queue2 ta (queue, zone_list_array) =
+let rec empty_queue ta (queue, zone_list_array) =
   try
     (let
         e = PCQueue.take queue
@@ -555,7 +555,7 @@ let rec empty_queue2 ta (queue, zone_list_array) =
           )
        )
      in
-     empty_queue2 ta (queue, zone_list_array)
+     empty_queue ta (queue, zone_list_array)
     )
   with
   | PCQueue.Empty ->
@@ -580,8 +580,8 @@ let generate_zone_valuation_graph ta =
   in
   let zone_list_array = 
     match
-      Printf.printf "%s\n" "Calling empty_queue2!";
-    (empty_queue2
+      Printf.printf "%s\n" "Calling empty_queue!";
+    (empty_queue
        ta
        (queue, init_zone_list_array ta)
     )
