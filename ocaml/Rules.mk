@@ -105,7 +105,7 @@ test.native: $(TEST_DEPS)
 
 %.native: \
 $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
-$(TEST_DEPS) $(ALT_CALC_NATIVE_DEPS)
+$(TEST_DEPS)
 	$(OCAMLBUILD)  \
 	zone-valuation-graph/calc.native \
 	test/test.native \
