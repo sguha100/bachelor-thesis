@@ -33,7 +33,7 @@ include $(dir)/Rules.mk
 .PHONY: targets
 targets: \
 calc.native test.native compare_automata.native \
-thesis/thesis.pdf Alt_calc.native
+thesis/thesis.pdf
 
 COMMON_DEPS := \
 Rules.mk \
