@@ -88,17 +88,17 @@ let _ =
   let l = lts_of_zone_valuation_graph result in
   let () = ZVGLTS2.print_dot
     l   
-    "/tmp/Alt_lts.dot"
+    "/tmp/lts.dot"
   in
   let partition = ZVGLTS2.fernandez l in
   let () = ZVGLTS2.print_quotient_dot
     l
     partition
-    "/tmp/Alt_lts_quotient.dot"
+    "/tmp/lts_quotient.dot"
   in
   let q = ZVGLTS2.quotient_lts l partition in
   let () = 
-  ZVGQuotientLTS2.print_dot q "/tmp/Alt_quotient_lts.dot"
+  ZVGQuotientLTS2.print_dot q "/tmp/quotient_lts.dot"
   in
   exit 0
 
