@@ -103,11 +103,13 @@ let is_sane_timed_automaton ta =
        true)
     
 @ 
-\item This function parses a timed automaton from a given input channel.
+\item This function provides the core functionality for both the
+  functions parse_timed_automaton and
+  parse_timed_automaton_from_string . 
 <<Parse_timed_automaton.ml>>=
-let parse_timed_automaton channel =
+let meta_parse_timed_automaton input_reader input =
   let
-      lexbuf = Lexing.from_channel channel
+      lexbuf = input_reader input
   in
   let
       ta = Timed_automaton_parser.main Timed_automaton_lexer.token lexbuf
@@ -118,6 +120,19 @@ let parse_timed_automaton channel =
     ta
   else
     raise Insane_automaton
+
+@ 
+\item This function parses a timed automaton from a given input channel.
+<<Parse_timed_automaton.ml>>=
+let parse_timed_automaton =
+  meta_parse_timed_automaton Lexing.from_channel
+
+@ 
+\item This function parses a timed automaton from a given input
+  string. Mainly used for tests.
+<<Parse_timed_automaton.ml>>=
+let parse_timed_automaton_from_string =
+  meta_parse_timed_automaton Lexing.from_string
 
 @ 
 \end{itemize}
@@ -477,38 +492,15 @@ module Test =
 
     let is_valid_automaton_string string =
       let
-          (pipe_in, pipe_out) = Unix.pipe ()
-      in
-      let
-          (fout, fin) = (Unix.out_channel_of_descr pipe_out,
-                         Unix.in_channel_of_descr pipe_in)
-      in
-      let
-          ((), ()) = (set_binary_mode_out fout false,
-                      set_binary_mode_in fin false)
-      in
-      let
-          () =
-        output_string
-          fout
-          string
-      in
-      let
-          () = close_out fout
-      in
-      let
       result =
         (try
            (match
-               parse_timed_automaton fin
+               parse_timed_automaton_from_string string
             with
             | _ -> true)
          with
          | Insane_automaton -> false
          | Parsing.Parse_error -> false)
-      in
-      let
-          () = close_in fin
       in
       result
 

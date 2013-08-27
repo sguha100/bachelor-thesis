@@ -344,3 +344,134 @@ let out_adjacency_with_delay_earlier_and_later l z a =
 
 @ 
 \end{itemize}
+
+<<ZVG_modules.ml>>=
+module Test = struct
+  open Parse_timed_automaton
+  open ZVGLT2
+
+  module TA = Timed_automaton
+
+  module Vertex_set = Set.Make
+    (struct
+      type t = zone_using_dbm
+      let compare = Pervasives.compare
+     end)
+
+  module Edge_set = Set.Make
+    (struct
+      type t = zone_using_dbm * action_label * zone_using_dbm
+      let compare = Pervasives.compare
+     end)
+
+  let test105 =
+    let result =
+      TA.make_t
+        (parse_timed_automaton_from_string
+           ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init" ^ 
+    " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
+    ^ " ACT 0; RESET {}; goto 1\n\nlocation: 1\ninvar:" ^ 
+    " TRUE\ntrans:\nX\ >= 4 and X <= 6 => ACT 0; RESET {}; goto" ^ 
+    " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+        )
+    in
+    let l = lts_of_zone_valuation_graph result in
+    let
+        vertex_set =
+      List.fold_right
+        (function (zone_location, zone_constraint) ->
+          Vertex_set.add
+            {zone_location2 = {location_index = zone_location};
+             zone_constraint2 =
+                match
+                  clock_constraint_to_dbm_option
+                    (TA.get_clock_name_map result)
+                    zone_constraint
+                with
+                | Some dbm -> dbm
+            })
+        [(2, [Ge ("X", 4)]);
+         (1, [Lt ("X", 4); Ge ("X", 2)]);
+         (1, [Le ("X", 6); Ge ("X", 4)]);
+         (1, [Gt ("X", 6)]);
+         (0, [Lt ("X", 2)]);
+         (0, [Le ("X", 3); Ge ("X", 2)]);
+         (0, [Gt ("X", 3)])]
+        Vertex_set.empty
+    in
+    let
+        edge_set =
+      List.fold_right
+        (function ((zone_location1, zone_constraint1),
+                   action,
+                   (zone_location2, zone_constraint2)) ->
+          Edge_set.add
+            (Zone_graph.E.create
+               {zone_location2 = {location_index = zone_location1};
+                zone_constraint2 =
+                   match
+                     clock_constraint_to_dbm_option
+                       (TA.get_clock_name_map result)
+                       zone_constraint1
+                   with
+                   | Some dbm -> dbm
+               }
+               action
+               {zone_location2 = {location_index = zone_location2};
+                zone_constraint2 =
+                   match
+                     clock_constraint_to_dbm_option
+                       (TA.get_clock_name_map result)
+                       zone_constraint2
+                   with
+                   | Some dbm -> dbm
+               }
+            )
+        )
+        [((2, [Ge ("X", 4)]), Delay, (2, [Ge ("X", 4)]));
+         ((1, [Le ("X", 6); Ge ("X", 4)]), Action 0, (2, [Ge ("X", 4)]));
+         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Lt ("X", 4); Ge ("X", 2)]));
+         ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 4); Ge ("X", 2)]));
+         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+         ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 6)]));
+         ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Gt ("X", 6)]));
+         ((1, [Gt ("X", 6)]), Delay, (1, [Gt ("X", 6)]));
+         ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
+         ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+         ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+         ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+         ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+         ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]))]
+        Edge_set.empty
+    in
+    if
+      (Zone_graph.nb_vertex l.zone_graph
+       =
+          Vertex_set.cardinal vertex_set) &&
+      (Zone_graph.fold_vertex
+         (function zone ->
+           Pervasives.(&&)
+             (Vertex_set.mem
+                zone
+                vertex_set)
+         )
+         l.zone_graph
+         true
+      ) &&
+      (Zone_graph.nb_edges l.zone_graph = Edge_set.cardinal edge_set)
+    (* && *)
+    (*   (Zone_graph.fold_edges_e *)
+    (*      (function edge -> *)
+    (*        Pervasives.(&&) *)
+    (*          (Edge_set.mem edge edge_set) *)
+    (*      ) *)
+    (*      l.zone_graph *)
+    (*      true *)
+    (*   ) *)
+    then
+      "test105 passed"
+    else
+      "test105 failed"
+
+end

@@ -11,6 +11,7 @@ open PCQueue_test
 open Graph_functions2.Test
 open Grammar_types.Test
 open Parse_timed_automaton.Test
+open ZVG_modules.Test
     
 let _ =
   print_string test2;
@@ -197,5 +198,7 @@ let _ =
   print_string test103;
   print_newline ();
   print_string test104;
+  print_newline ();
+  print_string test105;
   print_newline ();
   exit 0
