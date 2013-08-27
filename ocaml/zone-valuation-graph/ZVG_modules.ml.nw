@@ -364,18 +364,13 @@ module Test = struct
       let compare = Pervasives.compare
      end)
 
-  let test105 =
+  let verify_zone_graph timed_automaton_string vertex_list edge_list =
     let result =
       TA.make_t
         (parse_timed_automaton_from_string
-           ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init" ^ 
-    " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
-    ^ " ACT 0; RESET {}; goto 1\n\nlocation: 1\ninvar:" ^ 
-    " TRUE\ntrans:\nX\ >= 4 and X <= 6 => ACT 0; RESET {}; goto" ^ 
-    " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+           timed_automaton_string
         )
     in
-    let l = lts_of_zone_valuation_graph result in
     let
         vertex_set =
       List.fold_right
@@ -390,13 +385,7 @@ module Test = struct
                 with
                 | Some dbm -> dbm
             })
-        [(2, [Ge ("X", 4)]);
-         (1, [Lt ("X", 4); Ge ("X", 2)]);
-         (1, [Le ("X", 6); Ge ("X", 4)]);
-         (1, [Gt ("X", 6)]);
-         (0, [Lt ("X", 2)]);
-         (0, [Le ("X", 3); Ge ("X", 2)]);
-         (0, [Gt ("X", 3)])]
+        vertex_list
         Vertex_set.empty
     in
     let
@@ -428,27 +417,13 @@ module Test = struct
                }
             )
         )
-        [((2, [Ge ("X", 4)]), Delay, (2, [Ge ("X", 4)]));
-         ((1, [Le ("X", 6); Ge ("X", 4)]), Action 0, (2, [Ge ("X", 4)]));
-         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Lt ("X", 4); Ge ("X", 2)]));
-         ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 4); Ge ("X", 2)]));
-         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
-         ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
-         ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 6)]));
-         ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Gt ("X", 6)]));
-         ((1, [Gt ("X", 6)]), Delay, (1, [Gt ("X", 6)]));
-         ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
-         ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
-         ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
-         ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
-         ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
-         ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]))]
+        edge_list
         Edge_set.empty
     in
-    if
-      (Zone_graph.nb_vertex l.zone_graph
-       =
-          Vertex_set.cardinal vertex_set) &&
+    let l = lts_of_zone_valuation_graph result in
+    (Zone_graph.nb_vertex l.zone_graph
+     =
+        Vertex_set.cardinal vertex_set) &&
       (Zone_graph.fold_vertex
          (function zone ->
            Pervasives.(&&)
@@ -460,15 +435,55 @@ module Test = struct
          true
       ) &&
       (Zone_graph.nb_edges l.zone_graph = Edge_set.cardinal edge_set)
-    (* && *)
-    (*   (Zone_graph.fold_edges_e *)
-    (*      (function edge -> *)
-    (*        Pervasives.(&&) *)
-    (*          (Edge_set.mem edge edge_set) *)
-    (*      ) *)
-    (*      l.zone_graph *)
-    (*      true *)
-    (*   ) *)
+    &&
+      (Zone_graph.fold_edges_e
+         (function edge ->
+           Pervasives.(&&)
+             (Edge_set.mem edge edge_set)
+         )
+         l.zone_graph
+         true
+      )
+      
+  let test105 = 
+    let
+        timed_automaton_string =
+      ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init" ^ 
+          " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
+       ^ " ACT 0; RESET {}; goto 1\n\nlocation: 1\ninvar:" ^ 
+         " TRUE\ntrans:\nX\ >= 4 and X <= 6 => ACT 0; RESET {}; goto" ^ 
+         " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+    in
+    let
+        vertex_list =
+      [(2, [Ge ("X", 4)]);
+         (1, [Lt ("X", 4); Ge ("X", 2)]);
+         (1, [Le ("X", 6); Ge ("X", 4)]);
+         (1, [Gt ("X", 6)]);
+         (0, [Lt ("X", 2)]);
+         (0, [Le ("X", 3); Ge ("X", 2)]);
+         (0, [Gt ("X", 3)])]
+    in
+    let
+        edge_list =
+      [((2, [Ge ("X", 4)]), Delay, (2, [Ge ("X", 4)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Action 0, (2, [Ge ("X", 4)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Lt ("X", 4); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 4); Ge ("X", 2)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 6)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Gt ("X", 6)]));
+       ((1, [Gt ("X", 6)]), Delay, (1, [Gt ("X", 6)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]))]
+    in
+    if
+      verify_zone_graph timed_automaton_string vertex_list edge_list
     then
       "test105 passed"
     else
