@@ -28,15 +28,6 @@ module Zone_graph =
       let default = Delay
      end)
 
-let temp1 =
-  Zone_graph.add_edge_e
-    Zone_graph.empty
-    (Zone_graph.E.create
-       {zone_location2 = {location_index = 0}; zone_constraint2 = dbm_init 3}
-       Delay
-       {zone_location2 = {location_index = 0}; zone_constraint2 = dbm_init 3}
-    )
-
 @ 
 \begin{itemize}
 \item This module implements the LTS data type for a zone graph.
