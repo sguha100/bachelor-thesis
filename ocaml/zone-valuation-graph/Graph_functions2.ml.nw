@@ -739,19 +739,19 @@ let generate_zone_valuation_graph ta =
                             (dbm_up zone.zone_constraint2)
                             arrival_zone.zone_constraint2
                          )
-                        )
-                         zone_list_array.(departure.next_location2)
                        )
+                       zone_list_array.(departure.next_location2)
                     )
                  )
-                   departures
                )
+               departures
             )
-              zone_list
           )
-          zone_list_array
-       in
-      graph
+          zone_list
+      )
+      zone_list_array
+  in
+  graph
 
   module Test =
   struct
