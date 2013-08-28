@@ -201,4 +201,6 @@ let _ =
   print_newline ();
   print_string test105;
   print_newline ();
+  print_string test106;
+  print_newline ();
   exit 0

@@ -35,17 +35,7 @@ module Zone_graph =
 module ZVGLT2 =
 struct
   type node_ref_t = zone_using_dbm
-  (* type action_t = int *)
   type action_t = action_label
-  (* type lts_t = {nodes: *)
-  (*                  ((zone_using_dbm * *)
-  (*                      ((transition * *)
-  (*                          (zone_using_dbm list)) *)
-  (*                          list)) *)
-  (*                      list) array; *)
-  (*               action_count: int; *)
-  (*               clock_names: string array *)
-  (*              } *)
   type lts_t = {zone_graph: Zone_graph.t;
                 action_count: int;
                 clock_names: string array
@@ -67,29 +57,12 @@ struct
       with
       | Delay -> "d"
       | Action a -> string_of_int a
-  (* let nodes = *)
-  (*   function l -> *)
-  (*     List.map *)
-  (*       (function (zone, _) -> zone) *)
-  (*       (List.concat *)
-  (*          (Array.to_list *)
-  (*             l.nodes *)
-  (*          ) *)
-  (*       ) *)
   let nodes =
     function l ->
       Zone_graph.fold_vertex
         (function vertex -> function partial_list -> vertex::partial_list)
         l.zone_graph
         []
-  (* let actions = *)
-  (*   function l -> *)
-  (*     Array.to_list *)
-  (*       (Array.init *)
-  (*          (\*The extra action is -1, for time transitions.*\) *)
-  (*          (1 + l.action_count)  *)
-  (*          (function a-> a - 1) *)
-  (*       ) *)
   let actions =
     function l ->
       Delay::
@@ -100,38 +73,6 @@ struct
               (function a-> Action a)
            )
         )
-  (* let in_adjacency = function l -> function zone -> *)
-  (*   (function a -> *)
-  (*     let *)
-  (*         all_zones_with_departures = *)
-  (*       List.concat *)
-  (*         (Array.to_list l.nodes) *)
-  (*     in *)
-  (*     let *)
-  (*         useful_zones_with_departures = *)
-  (*       List.filter *)
-  (*         (function (zone1, dl) -> *)
-  (*           List.exists *)
-  (*             (function (departure, zone_list) -> *)
-  (*               departure.action2 = a *)
-  (*               && *)
-  (*                 (List.exists *)
-  (*                    (node_equality l zone) *)
-  (*                    zone_list *)
-  (*                 ) *)
-  (*             ) *)
-  (*             dl *)
-  (*         ) *)
-  (*         all_zones_with_departures *)
-  (*     in *)
-  (*     let *)
-  (*         useful_zones = *)
-  (*       List.map *)
-  (*         (function (zone1, _) -> zone1) *)
-  (*         useful_zones_with_departures *)
-  (*     in *)
-  (*     useful_zones *)
-  (*   ) *)
   let in_adjacency = function l -> function zone ->
     (function a ->
       List.map
@@ -161,12 +102,6 @@ module ZVGQuotient2 = ZVGLTS2.Quotient_LTS
   Quotient graphs as DOT graphs.
 <<ZVG_modules.ml>>=
 module ZVGQuotientLTS2 = LTS (ZVGQuotient2)
-
-(* let lts_of_zone_valuation_graph ta = *)
-(*   {ZVGLT2.action_count = (TA.get_numactions ta); *)
-(*    ZVGLT2.nodes = generate_zone_valuation_graph ta; *)
-(*    ZVGLT2.clock_names = (TA.get_clock_name_array ta) *)
-(*   } *)
 
 @ 
 \item This function generates the LTS form of the minimal zone graph.
@@ -448,12 +383,12 @@ module Test = struct
     let
         vertex_list =
       [(2, [Ge ("X", 4)]);
-         (1, [Lt ("X", 4); Ge ("X", 2)]);
-         (1, [Le ("X", 6); Ge ("X", 4)]);
-         (1, [Gt ("X", 6)]);
-         (0, [Lt ("X", 2)]);
-         (0, [Le ("X", 3); Ge ("X", 2)]);
-         (0, [Gt ("X", 3)])]
+       (1, [Lt ("X", 4); Ge ("X", 2)]);
+       (1, [Le ("X", 6); Ge ("X", 4)]);
+       (1, [Gt ("X", 6)]);
+       (0, [Lt ("X", 2)]);
+       (0, [Le ("X", 3); Ge ("X", 2)]);
+       (0, [Gt ("X", 3)])]
     in
     let
         edge_list =
@@ -479,5 +414,51 @@ module Test = struct
       "test105 passed"
     else
       "test105 failed"
+      
+  let test106 = 
+    let
+        timed_automaton_string =
+      ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init"
+       ^ " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
+       ^ " ACT 0; RESET {X}; goto 1\n\nlocation: 1\ninvar:"
+       ^ " TRUE\ntrans:\nX >= 2 and X <= 4 => ACT 0; RESET {}; goto"
+       ^ " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+    in
+    let
+        vertex_list =
+      [(2, [Ge ("X", 2)]);
+       (1, [Lt ("X", 2)]);
+       (1, [Le ("X", 4); Ge ("X", 2)]);
+       (1, [Gt ("X", 4)]);
+       (0, [Lt ("X", 2)]);
+       (0, [Le ("X", 3); Ge ("X", 2)]);
+       (0, [Gt ("X", 3)])
+      ]
+    in
+    let
+        edge_list =
+      [((2, [Ge ("X", 2)]), Delay, (2, [Ge ("X", 2)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Action 0, (2, [Ge ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Lt ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Le ("X", 4); Ge ("X", 2)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 4); Ge ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Gt ("X", 4)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 4)]));
+       ((1, [Gt ("X", 4)]), Delay, (1, [Gt ("X", 4)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]));
+      ]
+    in
+    if
+      verify_zone_graph timed_automaton_string vertex_list edge_list
+    then
+      "test106 passed"
+    else
+      "test106 failed"
 
 end
