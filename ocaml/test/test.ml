@@ -13,7 +13,7 @@ open Grammar_types.Test
 open Parse_timed_automaton.Test
 open ZVG_modules.Test
     
-let _ =
+let execute =
   print_string test2;
   print_newline ();
   print_string test3;
@@ -199,8 +199,8 @@ let _ =
   print_newline ();
   print_string test104;
   print_newline ();
-  print_string test105;
+  print_string (test105 ());
   print_newline ();
-  print_string test106;
+  print_string (test106 ());
   print_newline ();
   exit 0

@@ -134,3 +134,4 @@ ocaml/zone-valuation-graph/graph_functions.ml
 /ocaml/thesis/Timed_automaton_parser.mly.tex
 /ocaml/utilities/Parse_timed_automaton.ml
 /ocaml/utilities/Parse_timed_automaton.ml.tex
+/ocaml/reltool

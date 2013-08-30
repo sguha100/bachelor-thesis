@@ -9,23 +9,9 @@ open Relations
 
 module TA = Timed_automaton
 
-let _ =
-  let first = ref "" in
-  let second = ref "" in
-  let
-      speclist =
-    [("-first", Arg.Set_string first, "first TA");
-     ("-second", Arg.Set_string second, "second TA")]
-  in
-  let anon_fun =
-    (function _ ->
-      raise (Arg.Bad "illegal anonymous argument")
-    )
-  in
-  let usage_msg = "usage: -first and -second are required." in
-  Arg.parse speclist anon_fun usage_msg;
-  let in1 = open_in !first in
-  let in2 = open_in !second in
+let process first second = 
+  let in1 = open_in first in
+  let in2 = open_in second in
   let ta1 = TA.make_t (parse_timed_automaton in1) in
   let ta2 = TA.make_t (parse_timed_automaton in2) in
   let l1 = lts_of_zone_valuation_graph ta1 in
@@ -52,3 +38,30 @@ let _ =
   close_in in1;
   close_in in2;
   exit 0
+
+let main () =
+  Printf.printf "%s\n" "Got here!";
+  let first = ref "" in
+  let second = ref "" in
+  let
+      speclist =
+    [("-first", Arg.Set_string first, "first TA");
+     ("-second", Arg.Set_string second, "second TA")]
+  in
+  let anon_fun =
+    (function _ ->
+      raise (Arg.Bad "illegal anonymous argument")
+    )
+  in
+  let usage_msg = "usage: -first and -second are required." in
+  Printf.printf "%s\n" "Got here!";
+  Arg.parse speclist anon_fun usage_msg;
+  Printf.printf
+    "first = \"%s\", second = \"%s\"\n"
+    !first
+    !second
+  ;
+  flush stdout;
+  process !first !second;;
+
+main ()

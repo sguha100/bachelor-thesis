@@ -33,7 +33,8 @@ include $(dir)/Rules.mk
 .PHONY: targets
 targets: \
 calc.native test.native compare_automata.native \
-thesis/thesis.pdf
+reltool.native thesis/thesis.pdf \
+reltool
 
 COMMON_DEPS := \
 Rules.mk \
@@ -89,6 +90,13 @@ utilities/NRQueue.ml \
 utilities/PCQueue_test.ml \
 $(COMMON_DEPS)
 
+RELTOOL_DEPS := \
+reltool.ml \
+$(COMPARE_AUTOMATA_DEPS) \
+$(CALC_NATIVE_DEPS) \
+$(TEST_DEPS) \
+$(COMMON_DEPS)
+
 libzone_stubs.a: \
 c/zone_stubs.mli \
 c/zone.mllib \
@@ -105,8 +113,12 @@ test.native: $(TEST_DEPS)
 
 %.native: \
 $(COMPARE_AUTOMATA_DEPS) $(CALC_NATIVE_DEPS) \
-$(TEST_DEPS)
+$(TEST_DEPS) $(RELTOOL_DEPS)
 	$(OCAMLBUILD)  \
 	zone-valuation-graph/calc.native \
 	test/test.native \
 	zone-valuation-graph/compare_automata.native \
+	reltool.native \
+
+reltool: reltool.native
+	objcopy reltool.native reltool

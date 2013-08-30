@@ -371,7 +371,8 @@ module Test = struct
          true
       )
       
-  let test105 = 
+  let test105 () = 
+    Printf.printf "%s\n" "statements in test105 executing here!";
     let
         timed_automaton_string =
       ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init" ^ 
@@ -415,7 +416,7 @@ module Test = struct
     else
       "test105 failed"
       
-  let test106 = 
+  let test106 () = 
     let
         timed_automaton_string =
       ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init"

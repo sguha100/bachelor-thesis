@@ -80,8 +80,10 @@ let text_dump ta g =
 \item This function writes out the DOT files for zone graphs, minimal
   zone graphs, and other such things into places in /tmp.
 <<calc.ml>>=
-let _ =
-  let result = TA.make_t (parse_timed_automaton stdin) in
+let process filename = 
+  let in_channel = open_in filename in
+  let result = TA.make_t (parse_timed_automaton in_channel) in
+  let () = close_in in_channel in
   let g = generate_zone_valuation_graph result in
   let () = text_dump result g in
   let () = Gc.full_major () in
@@ -101,6 +103,9 @@ let _ =
   ZVGQuotientLTS2.print_dot q "/tmp/quotient_lts.dot"
   in
   exit 0
+  
+let execute =
+  process "/proc/self/fd/0" (* standard input *)
 
 @ 
 \end{itemize}
