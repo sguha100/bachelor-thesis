@@ -103,7 +103,9 @@ let useful_predecessor_zones
       | None -> false
       | Some edge_condition -> 
         dbm_haveIntersection
-          (dbm_up zone.zone_constraint2)
+          (* (dbm_up *)
+             zone.zone_constraint2
+          (* ) *)
           edge_condition
     )
     predecessor_zone_list
@@ -312,7 +314,10 @@ let successor_zones_from_predecessor
                       String_set.empty)
                    (dbm_intersection
                       edge_condition
-                      (dbm_up zone.zone_constraint2)
+                      (* (dbm_up *) (* these lines are commented because *)
+                      (* extra zones turn up. *)
+                         zone.zone_constraint2
+                      (* ) *)
                    )
                 )
             in
