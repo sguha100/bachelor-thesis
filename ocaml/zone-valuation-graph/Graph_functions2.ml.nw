@@ -578,6 +578,7 @@ let generate_zone_valuation_graph ta =
   Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + (TA.get_numclocks ta) in
   let queue = PCQueue.create () in
+  let clock_name_map = TA.get_clock_name_map ta in
   let () =
     PCQueue.add
       {parent = None; edge = None; child = TA.get_numinit ta}
@@ -598,70 +599,95 @@ let generate_zone_valuation_graph ta =
     let
         new_zone = ref false
     in
-    Location_graph.iter_vertex
-      (function l1 ->
-        Location_graph.iter_succ_e
-          (function departure ->
-            let
-                (splittable, unsplittable) =
-              List.partition
-                (function zone ->
-                  match
-                    (clock_constraint_to_dbm_option
-                       (TA.get_clock_name_map ta)
-                       (Location_graph.E.label departure).condition
-                    )
-                  with
-                  | None -> false
-                  | Some departure_condition_dbm -> 
-                    dbm_haveIntersection
-                      (zone.zone_constraint2)
-                      (departure_condition_dbm)
-                )
-                zone_list_array.(l1.location_index)
-            in
-            let
-                changed_zone_list =
-              split_zone_list_on_dbm_list
-                dim
-                l1
-                splittable
-                (List.map
-                   (function zone ->
-                     (dbm_without_reset_clocks
-                        (TA.get_clock_name_map ta)
-                        (Location_graph.E.label departure).clock_resets
-                        zone.zone_constraint2
+    let
+        () = 
+      Location_graph.iter_vertex
+        (function l1 ->
+          Location_graph.iter_succ_e
+            (function departure ->
+              let
+                  (splittable, unsplittable) =
+                List.partition
+                  (function zone ->
+                    match
+                      (clock_constraint_to_dbm_option
+                         (TA.get_clock_name_map ta)
+                         (Location_graph.E.label departure).condition
+                      )
+                    with
+                    | None -> false
+                    | Some departure_condition_dbm -> 
+                      dbm_haveIntersection
+                        (zone.zone_constraint2)
+                        (departure_condition_dbm)
+                  )
+                  zone_list_array.(l1.location_index)
+              in
+              let
+                  changed_zone_list =
+                split_zone_list_on_dbm_list
+                  dim
+                  l1
+                  splittable
+                  (List.map
+                     (function zone ->
+                       String_set.fold
+                         (function clock_name ->
+                           function partial_dbm ->
+                             dbm_freeClock
+                               partial_dbm
+                               (1 + (String_map.find clock_name clock_name_map))
+                         )
+                         (Location_graph.E.label departure).clock_resets
+                         (dbm_intersection
+                            (String_set.fold
+                               (function clock_name ->
+                                 function partial_dbm ->
+                                   dbm_updateValue
+                                     partial_dbm
+                                     (1 + (String_map.find clock_name clock_name_map))
+                                     0
+                               )
+                               (Location_graph.E.label departure).clock_resets
+                               (dbm_init
+                                  (1 + (TA.get_numclocks ta))
+                               )
+                            )
+                            (dbm_down
+                               
+                               zone.zone_constraint2
+                            )
+                         )
                      )
-                   )
-                   zone_list_array.((Location_graph.E.src departure).location_index)
-                )
-            in
-            (if
-                (List.length changed_zone_list >
-                   List.length splittable
-                )
-             then
-                (new_zone := true;
-                 zone_list_array.(l1.location_index) <-
-                   changed_zone_list @ unsplittable
-                )
-             else
-                ()
+                     zone_list_array.((Location_graph.E.dst departure).location_index)
+                  )
+              in
+              (if
+                  (List.length changed_zone_list >
+                     List.length splittable
+                  )
+               then
+                  (new_zone := true;
+                   zone_list_array.(l1.location_index) <-
+                     changed_zone_list @ unsplittable
+                  )
+               else
+                  ()
+              )
+              ;
             )
-            ;
-          )
-          (TA.get_location_graph ta)
-          l1
-      )
-      (TA.get_location_graph ta)
-    ;
-    if
-      !new_zone
-    then
-      backward_propagate ()
-    else
-      ()
+            (TA.get_location_graph ta)
+            l1
+        )
+        (TA.get_location_graph ta)
+    in
+    (if
+        !new_zone
+     then
+        backward_propagate ()
+     else
+        ()
+    )
   in
   backward_propagate ();
   let

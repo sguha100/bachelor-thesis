@@ -29,6 +29,9 @@ external dbm_updateValue:
 external dbm_up:
   dbm_struct_t -> dbm_struct_t =
   "zone_dbm_up"
+external dbm_down:
+  dbm_struct_t -> dbm_struct_t =
+  "zone_dbm_down"
 external dbm_toString:
   dbm_struct_t -> string =
   "zone_dbm_toString"
