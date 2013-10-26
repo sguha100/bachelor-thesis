@@ -42,23 +42,63 @@ let split_zone_list_on_constraint_list
   bound matrices for the resulting zones to be stable with respect to
   each of these difference bound matrices.
 <<Graph_functions2.ml>>=
-let split_zone_list_on_dbm_list
-    dim
-    location
-    zone_list
-    dbm_list =
-  List.map
-    (function dbm ->
-      {zone_location2 = location; zone_constraint2 = dbm}
-    )
-    (List.fold_left
-       (split_dbm_list_on_dbm dim)
-       (List.map
-          (function zone -> zone.zone_constraint2)
-          zone_list
-       )
-       (dbm_list)
-    )
+  let split_zone_list_on_dbm_list
+      dim
+      location
+      zone_list
+      dbm_list =
+    let
+        ()
+        =
+      Printf.printf "%s\n" "split_zone_list_on_dbm_list called!";
+    in
+    let
+    result = 
+        List.map
+          (function dbm ->
+            {zone_location2 = location; zone_constraint2 = dbm}
+          )
+          (List.fold_left
+             (split_dbm_list_on_dbm dim)
+             (List.map
+                (function zone -> zone.zone_constraint2)
+                zone_list
+             )
+             dbm_list
+          )
+  in
+  let
+      () =
+    if
+      (true || (location.location_index = 1))
+    then
+      Printf.printf
+        "zone_list = [%s]\ndbm_list = [%s]\nresult= [%s]\n"
+        (String.concat
+           "; "
+           (List.map
+              (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
+              zone_list
+           )
+        )
+        (String.concat
+           "; "
+           (List.map
+              (dbm_to_string [|"X"; "Y"|])
+              dbm_list
+           )
+        )
+        (String.concat
+           "; "
+           (List.map
+              (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
+              result
+           )
+        )
+    else
+      ()
+  in
+  result
     
 @ 
 \item This function creates the initial zone list array, which assigns
@@ -138,7 +178,6 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
              (bound > maxcon)
            then
              (abstraction := true;
-              Printf.printf "%s\n" "ABSTRACTION!";
               flush stdout;
               [])
            else
@@ -146,7 +185,6 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
                (bound < (-maxcon))
              then
                (abstraction := true;
-                Printf.printf "%s\n" "ABSTRACTION!";
                 flush stdout;
                 [(i, j, true, -maxcon)])
              else
@@ -243,7 +281,10 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
                    )
                    old_zone_list
                )
-               (split_zone_list_on_dbm_list
+               ((Printf.printf "%s\n" ("split_zone_list_on_dbm_list"
+                                       ^ " called from"
+                                       ^ " maximum_constant_abstract_zone_list!"));
+                split_zone_list_on_dbm_list
                   dim
                   abstracted_zone.zone_location2
                   [abstracted_zone]
@@ -356,7 +397,10 @@ let new_successor_zones
              )
              successor_zone_list
          )
-         (split_zone_list_on_dbm_list
+         ((Printf.printf "%s\n" ("split_zone_list_on_dbm_list"
+                                       ^ " called from"
+                                       ^ " new_successor_zones!"));
+          split_zone_list_on_dbm_list
             dim
             successor
             [z1]
@@ -367,7 +411,10 @@ let new_successor_zones
          )
       )
       @
-        (split_zone_list_on_dbm_list
+        ((Printf.printf "%s\n" ("split_zone_list_on_dbm_list"
+                                       ^ " called from"
+                                       ^ " new_successor_zones!"));
+         split_zone_list_on_dbm_list
            dim
            successor
            successor_zone_list
@@ -564,10 +611,6 @@ let rec empty_queue ta (queue, zone_list_array) =
     )
   with
   | PCQueue.Empty ->
-    let
-        () = 
-      Printf.printf "%s\n" "Empty caught!"
-    in
     (queue, zone_list_array)
 
 @ 
@@ -575,7 +618,6 @@ let rec empty_queue ta (queue, zone_list_array) =
     automaton.
 <<Graph_functions2.ml>>=
 let generate_zone_valuation_graph ta =
-  Printf.printf "%s\n" "generate_zone_valuation_graph called!";
   let dim = 1 + (TA.get_numclocks ta) in
   let queue = PCQueue.create () in
   let clock_name_map = TA.get_clock_name_map ta in
@@ -586,7 +628,6 @@ let generate_zone_valuation_graph ta =
   in
   let zone_list_array = 
     match
-      Printf.printf "%s\n" "Calling empty_queue!";
     (empty_queue
        ta
        (queue, init_zone_list_array ta)
@@ -625,6 +666,9 @@ let generate_zone_valuation_graph ta =
               in
               let
                   changed_zone_list =
+                (Printf.printf "%s\n" ("split_zone_list_on_dbm_list"
+                                       ^ " called from"
+                                       ^ " backward_propagate!"));
                 split_zone_list_on_dbm_list
                   dim
                   l1
@@ -654,7 +698,6 @@ let generate_zone_valuation_graph ta =
                                )
                             )
                             (dbm_down
-                               
                                zone.zone_constraint2
                             )
                          )
@@ -669,7 +712,38 @@ let generate_zone_valuation_graph ta =
                then
                   (new_zone := true;
                    zone_list_array.(l1.location_index) <-
-                     changed_zone_list @ unsplittable
+                     changed_zone_list @ unsplittable;
+                   let rec delay_split () =
+                     let
+                         changed_zone_list =
+                       (Printf.printf "%s\n" ("split_zone_list_on_dbm_list"
+                                       ^ " called from"
+                                       ^ " delay_split!"));
+                       split_zone_list_on_dbm_list
+                         dim
+                         l1
+                         zone_list_array.(l1.location_index)
+                         (List.map
+                            (function zone ->
+                              dbm_down
+                                zone.zone_constraint2
+                            )
+                            zone_list_array.(l1.location_index)
+                         )    
+                     in
+                     if
+                       (List.length changed_zone_list >
+                          List.length zone_list_array.(l1.location_index)
+                       )
+                     then
+                       (zone_list_array.(l1.location_index) <-
+                         changed_zone_list;
+                        delay_split ()
+                       )
+                     else
+                       ()
+                   in
+                   (delay_split ())
                   )
                else
                   ()

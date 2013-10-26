@@ -241,16 +241,25 @@ let split_dbm_on_dbm dim dbm1 dbm2 =
   else
     List.fold_left
       (function dbm_list -> function (i, j, strictness, bound) ->
-        List.concat
-          (List.map
-             (function dbm ->
-               split_dbm_on_constraint
-                 dim
-                 dbm
-                 (i, j, strictness, bound)
-             )
+        match
+          (List.partition
+             (dbm_haveIntersection dbm2)
              dbm_list
           )
+        with
+        | (dbm_list1, dbm_list2) ->
+          List.concat
+            (dbm_list2 ::
+               (List.map
+                  (function dbm ->
+                    split_dbm_on_constraint
+                      dim
+                      dbm
+                      (i, j, strictness, bound)
+                  )
+                  dbm_list1
+               )
+            )
       )
       [dbm1]
       (dbm_toConstraintList dbm2)

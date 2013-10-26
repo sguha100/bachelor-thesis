@@ -12,7 +12,68 @@ open Graph_functions2.Test
 open Grammar_types.Test
 open Parse_timed_automaton.Test
 open ZVG_modules.Test
-    
+
+open Graph_functions2
+open UDBM_utilities
+let test107 () =
+  "test107: [" ^
+    (String.concat
+       "; "
+       (List.map
+          (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
+          (split_zone_list_on_dbm_list
+             3
+             {Grammar_types.location_index = 1}
+             (List.map
+                (function constraint_list ->
+                  match
+                    (constraint_list_to_dbm_option
+                       3
+                       constraint_list
+                    )
+                  with
+                  | Some dbm ->
+                    {Grammar_types.zone_location2 =
+                        {Grammar_types.location_index = 1};
+                     Grammar_types.zone_constraint2 = dbm}
+                )
+                [
+                  [(2, 1, false, 0); (2, 0, true, 8);
+                   (1, 2, false, 6)]
+                ]
+             )
+             (List.map
+                (function zone ->
+                  dbm_down
+                    zone.zone_constraint2
+                )
+                (List.map
+                   (function constraint_list ->
+                     match
+                       (constraint_list_to_dbm_option
+                          3
+                        constraint_list
+                       )
+                     with
+                     | Some dbm ->
+                       {Grammar_types.zone_location2 =
+                           {Grammar_types.location_index = 1};
+                        Grammar_types.zone_constraint2 = dbm}
+                   )
+                   [
+                     [(2, 1, false, -2); (1, 2, false, 2);
+                      (1, 0, false, 10); (0, 1, false, -2)] (*why
+                                                              should
+                                                              such a
+                                                              DBM
+                                                              exist?*)
+                   ]
+                )
+             )
+          )
+       )
+    ) ^ "]"
+
 let execute =
   print_string test2;
   print_newline ();
@@ -202,5 +263,9 @@ let execute =
   print_string (test105 ());
   print_newline ();
   print_string (test106 ());
+  print_newline ();
+  print_string (test106 ());
+  print_newline ();
+  print_string (test107 ());
   print_newline ();
   exit 0
