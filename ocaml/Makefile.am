@@ -19,6 +19,7 @@ CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
 
 include $(srcdir)/zone-valuation-graph/Makefile.am
 include $(srcdir)/test/Makefile.am
+include $(srcdir)/utilities/Makefile.am
 
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
 	$(OCAMLLINK)
