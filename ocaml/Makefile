@@ -80,9 +80,9 @@ bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) test/test$(EXEEXT) \
 	zone-valuation-graph/compare_automata$(EXEEXT)
 DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
 	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) compile depcomp \
-	install-sh missing
+	$(srcdir)/grammar-noweb/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) compile depcomp install-sh missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ocaml.m4 \
@@ -191,7 +191,7 @@ AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CPPFLAGS = 
+CPPFLAGS = -I/home/mihir/uppaal/include
 CXX = g++
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
@@ -288,22 +288,27 @@ top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS = -linkpkg
-OCAMLCOMP = $(OCAMLFIND) ocamlc $(OCAMLPACKAGES) -c -o $@ $^
+# OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c $(OCAMLPACKAGES) -c -o $@ $^
+OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
 OCAMLLINK = $(OCAMLFIND) ocamlc $(OCAMLPACKAGES) $(OCAMLLIBS) -o $@ $^
+OCAMLCXXCOMP = \
+$(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
+$(flag)) -o $@ $^
+
+NOTANGLERULE = notangle -R$(shell basename $@) $^ >$@
 CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
 CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
 zone_valuation_graph_calc_SOURCES = zone-valuation-graph/calc.ml
-zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare-automata.ml
+zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare_automata.ml
 test_test_SOURCES = test/test.ml
 EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .o
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -326,7 +331,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am:
+$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -384,10 +389,6 @@ test/$(am__dirstamp):
 zone-valuation-graph/$(am__dirstamp):
 	@$(MKDIR_P) zone-valuation-graph
 	@: > zone-valuation-graph/$(am__dirstamp)
-
-zone-valuation-graph/compare_automata$(EXEEXT): $(zone_valuation_graph_compare_automata_OBJECTS) $(zone_valuation_graph_compare_automata_DEPENDENCIES) $(EXTRA_zone_valuation_graph_compare_automata_DEPENDENCIES) zone-valuation-graph/$(am__dirstamp)
-	@rm -f zone-valuation-graph/compare_automata$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(zone_valuation_graph_compare_automata_OBJECTS) $(zone_valuation_graph_compare_automata_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -746,11 +747,23 @@ uninstall-am: uninstall-binPROGRAMS
 	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 
-%.cmo: %.ml
+%.cmo %.cmi: %.ml
+	$(OCAMLCOMP)
+
+%.cmi: %.mli
 	$(OCAMLCOMP)
 
 %.ml: %.ml.nw
-	notangle -R$(shell basename $@) $^ >$@
+	$(NOTANGLERULE)
+
+%.mli: %.mli.nw
+	$(NOTANGLERULE)
+
+%.c: %.c.nw
+	$(NOTANGLERULE)
+
+%.o: %.c
+	$(OCAMLCXXCOMP)
 
 zone-valuation-graph/calc$(EXEEXT): \
 zone-valuation-graph/calc.cmo
@@ -764,13 +777,16 @@ grammar-noweb/Grammar_types.cmo \
 utilities/UDBM_utilities.cmo \
 zone-valuation-graph/ZVG_modules.cmo
 
-zone-valuation-graph/compare-automata$(EXEEXT): zone-valuation-graph/compare-automata.cmo
+zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_automata.cmo
 	$(OCAMLLINK)
 
 test/test$(EXEEXT): test/test.cmo
 	$(OCAMLLINK)
 utilities/Parse_timed_automaton.cmo: \
 grammar-noweb/Grammar_types.cmo
+grammar-noweb/Grammar_types.cmo: \
+c/zone_stubs.o \
+c/Zone_stubs.cmi
 
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
 	$(OCAMLLINK)
@@ -782,9 +798,6 @@ random_lts$(EXEEXT): random_lts.o
 	$(CXXLINK)
 
 relts.cmo: LTS_modules.cmo
-
-.cpp.o:
-	$(CXXCOMP)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

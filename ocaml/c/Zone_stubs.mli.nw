@@ -1,7 +1,7 @@
-\subsection{zone\_stubs.mli}
+\subsection{Zone\_stubs.mli}
 This file provides the Ocaml side of the interface between Ocaml and C.
 
-<<zone_stubs.mli>>=
+<<Zone_stubs.mli>>=
 type dbm_struct_t (*This usually dbm_struct_t values, which
                     themselves contain malloc()-ated pointers.*)
 type constraint_t

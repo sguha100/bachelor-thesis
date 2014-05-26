@@ -12,7 +12,7 @@ grammar-noweb/Grammar_types.cmo \
 utilities/UDBM_utilities.cmo \
 %D%/ZVG_modules.cmo
 
-%C%_compare_automata_SOURCES = %D%/compare-automata.ml
+%C%_compare_automata_SOURCES = %D%/compare_automata.ml
 
-%D%/compare-automata$(EXEEXT): %D%/compare-automata.cmo
+%D%/compare_automata$(EXEEXT): %D%/compare_automata.cmo
 	$(OCAMLLINK)
