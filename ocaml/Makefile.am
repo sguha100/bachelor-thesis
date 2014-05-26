@@ -5,8 +5,11 @@ bin_PROGRAMS = zone-valuation-graph/calc test/test zone-valuation-graph/compare_
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS     = -linkpkg
 # OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c $(OCAMLPACKAGES) -c -o $@ $^
-OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
+OCAMLCOMP = \
+$(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
 OCAMLLINK = $(OCAMLFIND) ocamlc $(OCAMLPACKAGES) $(OCAMLLIBS) -o $@ $^
+OCAMLYACCRULE = ocamlyacc $<
+OCAMLLEXRULE = ocamllex $<
 OCAMLCXXCOMP = \
 $(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
 $(flag)) -o $@ $^
@@ -14,16 +17,28 @@ NOTANGLERULE = notangle -R$(shell basename $@) $^ >$@
 CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
 CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
 
-%.cmo %.cmi: %.ml
+%.cmi: %.mli
 	$(OCAMLCOMP)
 
-%.cmi: %.mli
+%.cmo %.cmi: %.ml
 	$(OCAMLCOMP)
 
 %.ml: %.ml.nw
 	$(NOTANGLERULE)
 
+%.ml %.mli: %.mly
+	$(OCAMLYACCRULE)
+
+%.ml: %.mll
+	$(OCAMLLEXRULE)
+
 %.mli: %.mli.nw
+	$(NOTANGLERULE)
+
+%.mly: %.mly.nw
+	$(NOTANGLERULE)
+
+%.mll: %.mll.nw
 	$(NOTANGLERULE)
 
 %.c: %.c.nw

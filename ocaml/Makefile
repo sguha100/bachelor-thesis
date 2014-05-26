@@ -289,8 +289,12 @@ ACLOCAL_AMFLAGS = -I m4
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS = -linkpkg
 # OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c $(OCAMLPACKAGES) -c -o $@ $^
-OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
+OCAMLCOMP = \
+$(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
+
 OCAMLLINK = $(OCAMLFIND) ocamlc $(OCAMLPACKAGES) $(OCAMLLIBS) -o $@ $^
+OCAMLYACCRULE = ocamlyacc $<
+OCAMLLEXRULE = ocamllex $<
 OCAMLCXXCOMP = \
 $(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
 $(flag)) -o $@ $^
@@ -747,16 +751,28 @@ uninstall-am: uninstall-binPROGRAMS
 	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 
-%.cmo %.cmi: %.ml
+%.cmi: %.mli
 	$(OCAMLCOMP)
 
-%.cmi: %.mli
+%.cmo %.cmi: %.ml
 	$(OCAMLCOMP)
 
 %.ml: %.ml.nw
 	$(NOTANGLERULE)
 
+%.ml %.mli: %.mly
+	$(OCAMLYACCRULE)
+
+%.ml: %.mll
+	$(OCAMLLEXRULE)
+
 %.mli: %.mli.nw
+	$(NOTANGLERULE)
+
+%.mly: %.mly.nw
+	$(NOTANGLERULE)
+
+%.mll: %.mll.nw
 	$(NOTANGLERULE)
 
 %.c: %.c.nw
@@ -783,10 +799,15 @@ zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_aut
 test/test$(EXEEXT): test/test.cmo
 	$(OCAMLLINK)
 utilities/Parse_timed_automaton.cmo: \
-grammar-noweb/Grammar_types.cmo
+grammar-noweb/Grammar_types.cmi \
+grammar-noweb/Timed_automaton_parser.cmi \
+grammar-noweb/Timed_automaton_lexer.cmi
 grammar-noweb/Grammar_types.cmo: \
 c/zone_stubs.o \
 c/Zone_stubs.cmi
+
+grammar-noweb/Timed_automaton_parser.cmo: \
+grammar-noweb/Timed_automaton_parser.cmi
 
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
 	$(OCAMLLINK)
