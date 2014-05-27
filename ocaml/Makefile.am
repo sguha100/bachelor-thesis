@@ -82,6 +82,6 @@ include $(srcdir)/grammar-noweb/Makefile.am
 include $(srcdir)/clutter/Makefile.am
 include $(srcdir)/relations/Makefile.am
 
-EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
+EXTRA_DIST =
 
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
