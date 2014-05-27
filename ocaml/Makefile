@@ -81,9 +81,10 @@ bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) test/test$(EXEEXT) \
 DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
 	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
 	$(srcdir)/grammar-noweb/Makefile.am \
-	$(srcdir)/clutter/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) compile depcomp install-sh missing
+	$(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+	$(top_srcdir)/configure $(am__configure_deps) compile depcomp \
+	install-sh missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ocaml.m4 \
@@ -296,7 +297,8 @@ OCAMLINCLUDES = \
 -I utilities \
 -I zone-valuation-graph \
 -I fernandez-ocaml-noweb \
--I clutter
+-I clutter \
+-I relations
 
 OCAMLCOMP = \
 $(OCAMLFIND) ocamlc -custom $(OCAMLINCLUDES) $(OCAMLPACKAGES) -c $<
@@ -337,7 +339,7 @@ all: all-am
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -360,7 +362,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am:
+$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -840,6 +842,9 @@ fernandez-ocaml-noweb/Fernandez_modules.cmi
 zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_automata.cmo
 	$(OCAMLLINK)
 
+zone-valuation-graph/compare_automata.cmo: \
+relations/Relations.cmi
+
 test/test$(EXEEXT): \
 grammar-noweb/Grammar_types.cmo \
 utilities/UDBM_utilities.cmo \
@@ -897,6 +902,11 @@ clutter/UDBM_utilities_clutter.cmi \
 clutter/Clock_constraint_clutter.cmi \
 clutter/ZVG_tree.cmi \
 clutter/Test_base_clutter.cmi
+relations/Relations.cmi: \
+relations/STAB.cmi \
+relations/TADB.cmi \
+relations/TAOB.cmi \
+utilities/Table_using_list.cmi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

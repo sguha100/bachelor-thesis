@@ -35,3 +35,7 @@ fernandez-ocaml-noweb/Fernandez_modules.cmi
 
 %D%/compare_automata$(EXEEXT): %D%/compare_automata.cmo
 	$(OCAMLLINK)
+
+%D%/compare_automata.cmo: \
+relations/Relations.cmi
+

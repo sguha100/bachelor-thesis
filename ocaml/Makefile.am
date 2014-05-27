@@ -12,7 +12,8 @@ OCAMLINCLUDES = \
 -I utilities \
 -I zone-valuation-graph \
 -I fernandez-ocaml-noweb \
--I clutter
+-I clutter \
+-I relations
 
 OCAMLCOMP = \
 $(OCAMLFIND) ocamlc -custom $(OCAMLINCLUDES) $(OCAMLPACKAGES) -c $<
@@ -79,6 +80,7 @@ include $(srcdir)/test/Makefile.am
 include $(srcdir)/utilities/Makefile.am
 include $(srcdir)/grammar-noweb/Makefile.am
 include $(srcdir)/clutter/Makefile.am
+include $(srcdir)/relations/Makefile.am
 
 EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 
