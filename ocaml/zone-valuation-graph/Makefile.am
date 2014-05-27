@@ -33,7 +33,25 @@ fernandez-ocaml-noweb/Fernandez_modules.cmi
 
 %C%_compare_automata_SOURCES = %D%/compare_automata.ml
 
-%D%/compare_automata$(EXEEXT): %D%/compare_automata.cmo
+%D%/compare_automata$(EXEEXT): \
+grammar-noweb/Timed_automaton_lexer.cmo \
+grammar-noweb/Grammar_types.cmo \
+grammar-noweb/Timed_automaton_parser.cmo \
+utilities/Parse_timed_automaton.cmo \
+utilities/UDBM_utilities.cmo \
+utilities/NRQueue.cmo \
+utilities/Clock_constraint_utilities.cmo \
+test/Test_base.cmo \
+%D%/Graph_functions2.cmo \
+fernandez-ocaml-noweb/Fernandez_modules.cmo \
+%D%/ZVG_modules.cmo \
+relations/STAB.cmo \
+relations/TADB.cmo \
+relations/TAOB.cmo \
+utilities/Table_using_list.cmo \
+relations/Relations.cmo \
+%D%/compare_automata.cmo \
+c/zone_stubs.o
 	$(OCAMLLINK)
 
 %D%/compare_automata.cmo: \

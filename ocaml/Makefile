@@ -839,7 +839,25 @@ c/Zone_stubs_test.cmi
 zone-valuation-graph/ZVG_modules.cmi: \
 fernandez-ocaml-noweb/Fernandez_modules.cmi
 
-zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_automata.cmo
+zone-valuation-graph/compare_automata$(EXEEXT): \
+grammar-noweb/Timed_automaton_lexer.cmo \
+grammar-noweb/Grammar_types.cmo \
+grammar-noweb/Timed_automaton_parser.cmo \
+utilities/Parse_timed_automaton.cmo \
+utilities/UDBM_utilities.cmo \
+utilities/NRQueue.cmo \
+utilities/Clock_constraint_utilities.cmo \
+test/Test_base.cmo \
+zone-valuation-graph/Graph_functions2.cmo \
+fernandez-ocaml-noweb/Fernandez_modules.cmo \
+zone-valuation-graph/ZVG_modules.cmo \
+relations/STAB.cmo \
+relations/TADB.cmo \
+relations/TAOB.cmo \
+utilities/Table_using_list.cmo \
+relations/Relations.cmo \
+zone-valuation-graph/compare_automata.cmo \
+c/zone_stubs.o
 	$(OCAMLLINK)
 
 zone-valuation-graph/compare_automata.cmo: \
