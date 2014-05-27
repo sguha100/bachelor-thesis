@@ -288,20 +288,28 @@ top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS = -linkpkg
-# OCAMLCOMP = $(OCAMLFIND) ocamlc -custom -I c $(OCAMLPACKAGES) -c -o $@ $^
 OCAMLCOMP = \
-$(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb $(OCAMLPACKAGES) -c $<
+$(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb -I test -I utilities \
+-I zone-valuation-graph -I fernandez-ocaml-noweb $(OCAMLPACKAGES) -c $<
 
-OCAMLLINK = $(OCAMLFIND) ocamlc $(OCAMLPACKAGES) $(OCAMLLIBS) -o $@ $^
+OCAMLLINK = \
+$(OCAMLFIND) ocamlc -custom \
+$(foreach flag, $(LDFLAGS),-ccopt $(LDFLAGS)) \
+$(OCAMLPACKAGES) $(OCAMLLIBS) \
+-o $@ $^ \
+$(foreach lib, $(LIBS),-cclib $(lib))
+
 OCAMLYACCRULE = ocamlyacc $<
 OCAMLLEXRULE = ocamllex $<
+# OCAMLCXXCOMP = \
+# $(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
+# $(flag)) -o $@ $^
 OCAMLCXXCOMP = \
-$(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
-$(flag)) -o $@ $^
+$(CXX) -c -I$(shell ocamlc -where) $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 
 NOTANGLERULE = notangle -R$(shell basename $@) $^ >$@
-CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
-CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
+CXXLINK = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+CXXCOMP = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 zone_valuation_graph_calc_SOURCES = zone-valuation-graph/calc.ml
 zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare_automata.ml
 test_test_SOURCES = test/test.ml
@@ -782,16 +790,35 @@ uninstall-am: uninstall-binPROGRAMS
 	$(OCAMLCXXCOMP)
 
 zone-valuation-graph/calc$(EXEEXT): \
+grammar-noweb/Timed_automaton_lexer.cmo \
+grammar-noweb/Grammar_types.cmo \
+grammar-noweb/Timed_automaton_parser.cmo \
+utilities/Parse_timed_automaton.cmo \
+c/zone_stubs.o \
+utilities/UDBM_utilities.cmo \
+utilities/NRQueue.cmo \
+utilities/Clock_constraint_utilities.cmo \
+test/Test_base.cmo \
+zone-valuation-graph/Graph_functions2.cmo \
+fernandez-ocaml-noweb/Fernandez_modules.cmo \
+zone-valuation-graph/ZVG_modules.cmo \
 zone-valuation-graph/calc.cmo
 	$(OCAMLLINK)
 
 zone-valuation-graph/calc.cmo: \
-utilities/Parse_timed_automaton.cmo \
-utilities/Clock_constraint_utilities.cmo \
-zone-valuation-graph/Graph_functions2.cmo \
-grammar-noweb/Grammar_types.cmo \
-utilities/UDBM_utilities.cmo \
-zone-valuation-graph/ZVG_modules.cmo
+utilities/Parse_timed_automaton.cmi \
+utilities/Clock_constraint_utilities.cmi \
+zone-valuation-graph/Graph_functions2.cmi \
+grammar-noweb/Grammar_types.cmi \
+utilities/UDBM_utilities.cmi \
+zone-valuation-graph/ZVG_modules.cmi
+
+zone-valuation-graph/Graph_functions2.cmi: \
+utilities/NRQueue.cmi \
+c/Zone_stubs_test.cmi
+
+zone-valuation-graph/ZVG_modules.cmi: \
+fernandez-ocaml-noweb/Fernandez_modules.cmi
 
 zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_automata.cmo
 	$(OCAMLLINK)
@@ -802,23 +829,19 @@ utilities/Parse_timed_automaton.cmo: \
 grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
 grammar-noweb/Timed_automaton_lexer.cmi
+
+utilities/Clock_constraint_utilities.cmo: \
+grammar-noweb/Grammar_types.cmi \
+utilities/UDBM_utilities.cmi
+
+utilities/UDBM_utilities.cmo: \
+test/Test_base.cmi
 grammar-noweb/Grammar_types.cmo: \
 c/zone_stubs.o \
 c/Zone_stubs.cmi
 
 grammar-noweb/Timed_automaton_parser.cmo: \
 grammar-noweb/Timed_automaton_parser.cmi
-
-relts$(EXEEXT): LTS_modules.cmo relts.cmo
-	$(OCAMLLINK)
-
-LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
-	$(OCAMLLINK)
-
-random_lts$(EXEEXT): random_lts.o
-	$(CXXLINK)
-
-relts.cmo: LTS_modules.cmo
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
