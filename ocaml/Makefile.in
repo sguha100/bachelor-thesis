@@ -76,8 +76,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) test/test$(EXEEXT) \
-	zone-valuation-graph/compare_automata$(EXEEXT)
+bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) \
+	zone-valuation-graph/compare_automata$(EXEEXT) \
+	test/test$(EXEEXT)
 DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
 	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
 	$(srcdir)/grammar-noweb/Makefile.am \
@@ -329,7 +330,21 @@ $(CXX) -c -I$(shell ocamlc -where) $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 NOTANGLERULE = notangle -R$(shell basename $@) $^ >$@
 CXXLINK = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 CXXCOMP = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
-zone_valuation_graph_calc_SOURCES = zone-valuation-graph/calc.ml
+zone_valuation_graph_calc_SOURCES = \
+grammar-noweb/Timed_automaton_lexer.mll.nw \
+grammar-noweb/Grammar_types.ml.nw \
+grammar-noweb/Timed_automaton_parser.mly.nw \
+utilities/Parse_timed_automaton.ml.nw \
+c/zone_stubs.c.nw \
+utilities/UDBM_utilities.ml.nw \
+utilities/NRQueue.ml.nw \
+utilities/Clock_constraint_utilities.ml.nw \
+test/Test_base.ml \
+zone-valuation-graph/Graph_functions2.ml.nw \
+fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
+zone-valuation-graph/ZVG_modules.ml.nw \
+zone-valuation-graph/calc.ml
+
 zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare_automata.ml
 test_test_SOURCES = test/test.ml
 EXTRA_DIST = 

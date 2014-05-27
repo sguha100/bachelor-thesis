@@ -1,4 +1,19 @@
-%C%_calc_SOURCES = %D%/calc.ml
+bin_PROGRAMS += %D%/calc %D%/compare_automata
+
+%C%_calc_SOURCES = \
+grammar-noweb/Timed_automaton_lexer.mll.nw \
+grammar-noweb/Grammar_types.ml.nw \
+grammar-noweb/Timed_automaton_parser.mly.nw \
+utilities/Parse_timed_automaton.ml.nw \
+c/zone_stubs.c.nw \
+utilities/UDBM_utilities.ml.nw \
+utilities/NRQueue.ml.nw \
+utilities/Clock_constraint_utilities.ml.nw \
+test/Test_base.ml \
+%D%/Graph_functions2.ml.nw \
+fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
+%D%/ZVG_modules.ml.nw \
+%D%/calc.ml
 
 %D%/calc$(EXEEXT): \
 grammar-noweb/Timed_automaton_lexer.cmo \

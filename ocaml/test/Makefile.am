@@ -1,3 +1,5 @@
+bin_PROGRAMS += %D%/test
+
 %C%_test_SOURCES = %D%/test.ml
 
 %D%/test$(EXEEXT): \

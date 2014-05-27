@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 ACLOCAL_AMFLAGS = -I m4
 
-bin_PROGRAMS = zone-valuation-graph/calc test/test zone-valuation-graph/compare_automata
+bin_PROGRAMS =
 
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS     = -linkpkg
