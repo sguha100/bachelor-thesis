@@ -80,7 +80,8 @@ bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) test/test$(EXEEXT) \
 	zone-valuation-graph/compare_automata$(EXEEXT)
 DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
 	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
-	$(srcdir)/grammar-noweb/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/grammar-noweb/Makefile.am \
+	$(srcdir)/clutter/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) compile depcomp install-sh missing
 subdir = .
@@ -288,10 +289,22 @@ top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
 OCAMLPACKAGES = -package ocamlgraph
 OCAMLLIBS = -linkpkg
-OCAMLCOMP = \
-$(OCAMLFIND) ocamlc -custom -I c -I grammar-noweb -I test -I utilities \
--I zone-valuation-graph -I fernandez-ocaml-noweb $(OCAMLPACKAGES) -c $<
+OCAMLINCLUDES = \
+-I c \
+-I grammar-noweb \
+-I test \
+-I utilities \
+-I zone-valuation-graph \
+-I fernandez-ocaml-noweb \
+-I clutter
 
+OCAMLCOMP = \
+$(OCAMLFIND) ocamlc -custom $(OCAMLINCLUDES) $(OCAMLPACKAGES) -c $<
+
+
+# the C libraries in $(LIBS) are placed at the end of the link command
+# because placing them elsewhere simply did not work. the hint was
+# taken from the curses example in section 19.6 of the ocaml 4.01 manual.
 OCAMLLINK = \
 $(OCAMLFIND) ocamlc -custom \
 $(foreach flag, $(LDFLAGS),-ccopt $(LDFLAGS)) \
@@ -301,9 +314,13 @@ $(foreach lib, $(LIBS),-cclib $(lib))
 
 OCAMLYACCRULE = ocamlyacc $<
 OCAMLLEXRULE = ocamllex $<
-# OCAMLCXXCOMP = \
-# $(OCAMLFIND) ocamlc -cc $(CXX) $(foreach flag,$(CPPFLAGS) $(CXXFLAGS),-ccopt \
-# $(flag)) -o $@ $^
+
+# we use the C++ compiler directly, instead of going through ocamlc,
+# for the simple reason that ocamlc is incapable of placing object
+# files in subdirectories. this is ONLY for compilation of .c files
+# into .o files, it does not seem to apply to compilation of .ml files
+# into .cmo and .cmi files, or to compilation of .mli files into .cmi
+# files.
 OCAMLCXXCOMP = \
 $(CXX) -c -I$(shell ocamlc -where) $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 
@@ -320,7 +337,7 @@ all: all-am
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -343,7 +360,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am:
+$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -825,6 +842,13 @@ zone-valuation-graph/compare_automata$(EXEEXT): zone-valuation-graph/compare_aut
 
 test/test$(EXEEXT): test/test.cmo
 	$(OCAMLLINK)
+
+test/test.cmo: \
+clutter/Graph_functions3.cmi \
+clutter/Graph_functions3_test.cmi \
+clutter/Unit_constraint_intersection_test.cmi \
+clutter/Clock_constraint_clutter_test.cmi \
+utilities/PCQueue_test.cmi
 utilities/Parse_timed_automaton.cmo: \
 grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
@@ -842,6 +866,13 @@ c/Zone_stubs.cmi
 
 grammar-noweb/Timed_automaton_parser.cmo: \
 grammar-noweb/Timed_automaton_parser.cmi
+clutter/Graph_functions3.cmi: \
+clutter/Grammar_types_clutter.cmi \
+clutter/Unit_constraint_intersection.cmi \
+clutter/UDBM_utilities_clutter.cmi \
+clutter/Clock_constraint_clutter.cmi \
+clutter/ZVG_tree.cmi \
+clutter/Test_base_clutter.cmi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
