@@ -3,7 +3,7 @@ grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
 grammar-noweb/Timed_automaton_lexer.cmi
 
-%D%/Clock_constraint_utilities.cmo: \
+%D%/Clock_constraint_utilities.cmo %D%/Clock_constraint_utilities.cmi: \
 grammar-noweb/Grammar_types.cmi \
 %D%/UDBM_utilities.cmi
 
@@ -17,3 +17,7 @@ grammar-noweb/Grammar_types.cmi
 
 %D%/PCQueue_test.cmo %D%/PCQueue_test.cmi: \
 %D%/NRQueue.cmi
+
+%D%/Table_using_list.cmo %D%/Table_using_list.cmi: \
+zone-valuation-graph/ZVG_modules.cmi
+

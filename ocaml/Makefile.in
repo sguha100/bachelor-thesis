@@ -347,7 +347,28 @@ fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
 zone-valuation-graph/ZVG_modules.ml.nw \
 zone-valuation-graph/calc.ml
 
-zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare_automata.ml
+zone_valuation_graph_compare_automata_SOURCES = \
+c/Zone_stubs.mli.nw \
+fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
+grammar-noweb/Grammar_types.ml.nw \
+test/Test_base.ml \
+utilities/UDBM_utilities.ml.nw \
+utilities/Clock_constraint_utilities.ml.nw \
+utilities/NRQueue.ml.nw \
+c/Zone_stubs_test.ml \
+zone-valuation-graph/Graph_functions2.ml.nw \
+grammar-noweb/Timed_automaton_parser.mly.nw \
+grammar-noweb/Timed_automaton_lexer.mll.nw \
+utilities/Parse_timed_automaton.ml.nw \
+zone-valuation-graph/ZVG_modules.ml.nw \
+relations/STAB.ml.nw \
+relations/TADB.ml.nw \
+relations/TAOB.ml.nw \
+utilities/Table_using_list.ml.nw \
+relations/Relations.ml.nw \
+c/zone_stubs.c.nw \
+zone-valuation-graph/compare_automata.ml
+
 test_test_SOURCES = \
 grammar-noweb/Grammar_types.ml.nw \
 test/Test_base.ml \
@@ -880,8 +901,7 @@ zone-valuation-graph/ZVG_modules.cmi
 zone-valuation-graph/Graph_functions2.cmi zone-valuation-graph/Graph_functions2.cmo: \
 utilities/NRQueue.cmi \
 c/Zone_stubs_test.cmi \
-utilities/Clock_constraint_utilities.cmi \
-c/Zone_stubs_test.cmi
+utilities/Clock_constraint_utilities.cmi
 
 zone-valuation-graph/ZVG_modules.cmo zone-valuation-graph/ZVG_modules.cmi: \
 fernandez-ocaml-noweb/Fernandez_modules.cmi \
@@ -956,7 +976,7 @@ grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
 grammar-noweb/Timed_automaton_lexer.cmi
 
-utilities/Clock_constraint_utilities.cmo: \
+utilities/Clock_constraint_utilities.cmo utilities/Clock_constraint_utilities.cmi: \
 grammar-noweb/Grammar_types.cmi \
 utilities/UDBM_utilities.cmi
 
@@ -970,6 +990,9 @@ grammar-noweb/Grammar_types.cmi
 
 utilities/PCQueue_test.cmo utilities/PCQueue_test.cmi: \
 utilities/NRQueue.cmi
+
+utilities/Table_using_list.cmo utilities/Table_using_list.cmi: \
+zone-valuation-graph/ZVG_modules.cmi
 grammar-noweb/Grammar_types.cmo grammar-noweb/Grammar_types.cmi: \
 c/Zone_stubs.cmi
 
@@ -1002,11 +1025,20 @@ clutter/Grammar_types_clutter.cmi \
 utilities/UDBM_utilities.cmi \
 clutter/UDBM_utilities_clutter.cmi \
 utilities/Clock_constraint_utilities.cmi
-relations/Relations.cmi: \
+relations/Relations.cmo relations/Relations.cmi: \
 relations/STAB.cmi \
 relations/TADB.cmi \
 relations/TAOB.cmi \
 utilities/Table_using_list.cmi
+
+relations/STAB.cmo relations/STAB.cmi: \
+zone-valuation-graph/ZVG_modules.cmi
+
+relations/TADB.cmo relations/TADB.cmi: \
+zone-valuation-graph/ZVG_modules.cmi
+
+relations/TAOB.cmo relations/TAOB.cmi: \
+zone-valuation-graph/ZVG_modules.cmi
 c/Zone_stubs_test.cmo c/Zone_stubs_test.cmi: \
 test/Test_base.cmi \
 utilities/UDBM_utilities.cmi
