@@ -9,3 +9,7 @@ grammar-noweb/Grammar_types.cmi \
 
 %D%/UDBM_utilities.cmo: \
 test/Test_base.cmi
+
+%D%/NRQueue.cmo %D%/NRQueue.cmi: \
+grammar-noweb/Grammar_types.cmi
+

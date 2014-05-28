@@ -81,6 +81,7 @@ include $(srcdir)/utilities/Makefile.am
 include $(srcdir)/grammar-noweb/Makefile.am
 include $(srcdir)/clutter/Makefile.am
 include $(srcdir)/relations/Makefile.am
+include $(srcdir)/c/Makefile.am
 
 EXTRA_DIST =
 

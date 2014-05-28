@@ -83,9 +83,9 @@ DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
 	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
 	$(srcdir)/grammar-noweb/Makefile.am \
 	$(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) compile depcomp \
-	install-sh missing
+	$(srcdir)/c/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) compile depcomp install-sh missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ocaml.m4 \
@@ -336,6 +336,8 @@ grammar-noweb/Grammar_types.ml.nw \
 grammar-noweb/Timed_automaton_parser.mly.nw \
 utilities/Parse_timed_automaton.ml.nw \
 c/zone_stubs.c.nw \
+c/Zone_stubs.mli.nw \
+c/Zone_stubs_test.ml \
 utilities/UDBM_utilities.ml.nw \
 utilities/NRQueue.ml.nw \
 utilities/Clock_constraint_utilities.ml.nw \
@@ -354,7 +356,7 @@ all: all-am
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(srcdir)/c/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -377,7 +379,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am:
+$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(srcdir)/c/Makefile.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -847,9 +849,10 @@ grammar-noweb/Grammar_types.cmi \
 utilities/UDBM_utilities.cmi \
 zone-valuation-graph/ZVG_modules.cmi
 
-zone-valuation-graph/Graph_functions2.cmi: \
+zone-valuation-graph/Graph_functions2.cmi zone-valuation-graph/Graph_functions2.cmo: \
 utilities/NRQueue.cmi \
-c/Zone_stubs_test.cmi
+c/Zone_stubs_test.cmi \
+utilities/Clock_constraint_utilities.cmi
 
 zone-valuation-graph/ZVG_modules.cmi: \
 fernandez-ocaml-noweb/Fernandez_modules.cmi
@@ -911,6 +914,9 @@ clutter/Graph_functions3_test.cmi \
 clutter/Unit_constraint_intersection_test.cmi \
 clutter/Clock_constraint_clutter_test.cmi \
 utilities/PCQueue_test.cmi
+
+test/Test_base.cmo test/Test_base.cmi: \
+grammar-noweb/Grammar_types.cmi
 utilities/Parse_timed_automaton.cmo: \
 grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
@@ -922,9 +928,17 @@ utilities/UDBM_utilities.cmi
 
 utilities/UDBM_utilities.cmo: \
 test/Test_base.cmi
-grammar-noweb/Grammar_types.cmo: \
-c/zone_stubs.o \
+
+utilities/NRQueue.cmo utilities/NRQueue.cmi: \
+grammar-noweb/Grammar_types.cmi
+grammar-noweb/Grammar_types.cmo grammar-noweb/Grammar_types.cmi: \
 c/Zone_stubs.cmi
+
+grammar-noweb/Timed_automaton_lexer.cmo grammar-noweb/Timed_automaton_lexer.cmi: \
+grammar-noweb/Timed_automaton_parser.cmi
+
+grammar-noweb/Timed_automaton_parser.cmo grammar-noweb/Timed_automaton_parser.cmi: \
+grammar-noweb/Grammar_types.cmi
 
 grammar-noweb/Timed_automaton_parser.cmo: \
 grammar-noweb/Timed_automaton_parser.cmi
@@ -940,6 +954,9 @@ relations/STAB.cmi \
 relations/TADB.cmi \
 relations/TAOB.cmi \
 utilities/Table_using_list.cmi
+c/Zone_stubs_test.cmo c/Zone_stubs_test.cmi: \
+test/Test_base.cmi \
+utilities/UDBM_utilities.cmi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

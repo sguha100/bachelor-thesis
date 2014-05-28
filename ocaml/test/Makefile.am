@@ -35,3 +35,7 @@ clutter/Graph_functions3_test.cmi \
 clutter/Unit_constraint_intersection_test.cmi \
 clutter/Clock_constraint_clutter_test.cmi \
 utilities/PCQueue_test.cmi
+
+%D%/Test_base.cmo %D%/Test_base.cmi: \
+grammar-noweb/Grammar_types.cmi
+

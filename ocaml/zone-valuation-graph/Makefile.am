@@ -6,6 +6,8 @@ grammar-noweb/Grammar_types.ml.nw \
 grammar-noweb/Timed_automaton_parser.mly.nw \
 utilities/Parse_timed_automaton.ml.nw \
 c/zone_stubs.c.nw \
+c/Zone_stubs.mli.nw \
+c/Zone_stubs_test.ml \
 utilities/UDBM_utilities.ml.nw \
 utilities/NRQueue.ml.nw \
 utilities/Clock_constraint_utilities.ml.nw \
@@ -39,9 +41,10 @@ grammar-noweb/Grammar_types.cmi \
 utilities/UDBM_utilities.cmi \
 %D%/ZVG_modules.cmi
 
-%D%/Graph_functions2.cmi: \
+%D%/Graph_functions2.cmi %D%/Graph_functions2.cmo: \
 utilities/NRQueue.cmi \
-c/Zone_stubs_test.cmi
+c/Zone_stubs_test.cmi \
+utilities/Clock_constraint_utilities.cmi
 
 %D%/ZVG_modules.cmi: \
 fernandez-ocaml-noweb/Fernandez_modules.cmi
