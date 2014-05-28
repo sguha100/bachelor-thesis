@@ -348,7 +348,35 @@ zone-valuation-graph/ZVG_modules.ml.nw \
 zone-valuation-graph/calc.ml
 
 zone_valuation_graph_compare_automata_SOURCES = zone-valuation-graph/compare_automata.ml
-test_test_SOURCES = test/test.ml
+test_test_SOURCES = \
+grammar-noweb/Grammar_types.ml.nw \
+test/Test_base.ml \
+utilities/UDBM_utilities.ml.nw \
+c/Zone_stubs.mli.nw \
+utilities/Clock_constraint_utilities.ml.nw \
+clutter/Unit_constraint_intersection.ml \
+clutter/Grammar_types_clutter.ml \
+clutter/UDBM_utilities_clutter.ml \
+clutter/Clock_constraint_clutter.ml \
+clutter/Test_base_clutter.ml \
+clutter/Unit_constraint_intersection.ml \
+clutter/Unit_constraint_intersection_test.ml \
+clutter/Clock_constraint_clutter_test.ml \
+clutter/ZVG_tree.ml.nw \
+clutter/Graph_functions3.ml \
+clutter/Graph_functions3_test.ml \
+utilities/NRQueue.ml.nw \
+utilities/PCQueue_test.ml \
+fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
+c/Zone_stubs_test.ml \
+zone-valuation-graph/Graph_functions2.ml.nw \
+grammar-noweb/Timed_automaton_parser.mly.nw \
+grammar-noweb/Timed_automaton_lexer.mll.nw \
+utilities/Parse_timed_automaton.ml.nw \
+zone-valuation-graph/ZVG_modules.ml.nw \
+c/zone_stubs.c.nw \
+test/test.ml
+
 EXTRA_DIST = 
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
 all: all-am
@@ -852,10 +880,16 @@ zone-valuation-graph/ZVG_modules.cmi
 zone-valuation-graph/Graph_functions2.cmi zone-valuation-graph/Graph_functions2.cmo: \
 utilities/NRQueue.cmi \
 c/Zone_stubs_test.cmi \
-utilities/Clock_constraint_utilities.cmi
+utilities/Clock_constraint_utilities.cmi \
+c/Zone_stubs_test.cmi
 
-zone-valuation-graph/ZVG_modules.cmi: \
-fernandez-ocaml-noweb/Fernandez_modules.cmi
+zone-valuation-graph/ZVG_modules.cmo zone-valuation-graph/ZVG_modules.cmi: \
+fernandez-ocaml-noweb/Fernandez_modules.cmi \
+grammar-noweb/Grammar_types.cmi \
+utilities/UDBM_utilities.cmi \
+utilities/Clock_constraint_utilities.cmi \
+zone-valuation-graph/Graph_functions2.cmi \
+utilities/Parse_timed_automaton.cmi
 
 zone-valuation-graph/compare_automata$(EXEEXT): \
 grammar-noweb/Timed_automaton_lexer.cmo \
@@ -917,7 +951,7 @@ utilities/PCQueue_test.cmi
 
 test/Test_base.cmo test/Test_base.cmi: \
 grammar-noweb/Grammar_types.cmi
-utilities/Parse_timed_automaton.cmo: \
+utilities/Parse_timed_automaton.cmo utilities/Parse_timed_automaton.cmi: \
 grammar-noweb/Grammar_types.cmi \
 grammar-noweb/Timed_automaton_parser.cmi \
 grammar-noweb/Timed_automaton_lexer.cmi
@@ -926,11 +960,16 @@ utilities/Clock_constraint_utilities.cmo: \
 grammar-noweb/Grammar_types.cmi \
 utilities/UDBM_utilities.cmi
 
-utilities/UDBM_utilities.cmo: \
-test/Test_base.cmi
+utilities/UDBM_utilities.cmo utilities/UDBM_utilities.cmi: \
+test/Test_base.cmi \
+c/Zone_stubs.cmi \
+grammar-noweb/Grammar_types.cmi
 
 utilities/NRQueue.cmo utilities/NRQueue.cmi: \
 grammar-noweb/Grammar_types.cmi
+
+utilities/PCQueue_test.cmo utilities/PCQueue_test.cmi: \
+utilities/NRQueue.cmi
 grammar-noweb/Grammar_types.cmo grammar-noweb/Grammar_types.cmi: \
 c/Zone_stubs.cmi
 
@@ -942,13 +981,27 @@ grammar-noweb/Grammar_types.cmi
 
 grammar-noweb/Timed_automaton_parser.cmo: \
 grammar-noweb/Timed_automaton_parser.cmi
-clutter/Graph_functions3.cmi: \
+clutter/Graph_functions3.cmi clutter/Graph_functions3.cmo: \
 clutter/Grammar_types_clutter.cmi \
 clutter/Unit_constraint_intersection.cmi \
 clutter/UDBM_utilities_clutter.cmi \
 clutter/Clock_constraint_clutter.cmi \
 clutter/ZVG_tree.cmi \
 clutter/Test_base_clutter.cmi
+
+clutter/Test_base_clutter.cmo clutter/Test_base_clutter.cmi: \
+clutter/Grammar_types_clutter.cmi \
+clutter/Clock_constraint_clutter.cmi
+
+clutter/Grammar_types_clutter.cmo clutter/Grammar_types_clutter.cmi: \
+grammar-noweb/Grammar_types.cmi
+
+clutter/Clock_constraint_clutter.cmo clutter/Clock_constraint_clutter.cmi: \
+grammar-noweb/Grammar_types.cmi \
+clutter/Grammar_types_clutter.cmi \
+utilities/UDBM_utilities.cmi \
+clutter/UDBM_utilities_clutter.cmi \
+utilities/Clock_constraint_utilities.cmi
 relations/Relations.cmi: \
 relations/STAB.cmi \
 relations/TADB.cmi \

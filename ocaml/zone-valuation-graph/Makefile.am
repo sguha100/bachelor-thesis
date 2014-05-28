@@ -44,10 +44,16 @@ utilities/UDBM_utilities.cmi \
 %D%/Graph_functions2.cmi %D%/Graph_functions2.cmo: \
 utilities/NRQueue.cmi \
 c/Zone_stubs_test.cmi \
-utilities/Clock_constraint_utilities.cmi
+utilities/Clock_constraint_utilities.cmi \
+c/Zone_stubs_test.cmi
 
-%D%/ZVG_modules.cmi: \
-fernandez-ocaml-noweb/Fernandez_modules.cmi
+%D%/ZVG_modules.cmo %D%/ZVG_modules.cmi: \
+fernandez-ocaml-noweb/Fernandez_modules.cmi \
+grammar-noweb/Grammar_types.cmi \
+utilities/UDBM_utilities.cmi \
+utilities/Clock_constraint_utilities.cmi \
+%D%/Graph_functions2.cmi \
+utilities/Parse_timed_automaton.cmi
 
 %C%_compare_automata_SOURCES = %D%/compare_automata.ml
 
