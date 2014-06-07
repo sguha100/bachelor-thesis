@@ -6,17 +6,6 @@ grammar-noweb/Grammar_types.ml.nw \
 utilities/UDBM_utilities.ml.nw \
 c/Zone_stubs.mli.nw \
 utilities/Clock_constraint_utilities.ml.nw \
-clutter/Unit_constraint_intersection.ml \
-clutter/Grammar_types_clutter.ml \
-clutter/UDBM_utilities_clutter.ml \
-clutter/Clock_constraint_clutter.ml \
-clutter/Test_base_clutter.ml \
-clutter/Unit_constraint_intersection.ml \
-clutter/Unit_constraint_intersection_test.ml \
-clutter/Clock_constraint_clutter_test.ml \
-clutter/ZVG_tree.ml.nw \
-clutter/Graph_functions3.ml \
-clutter/Graph_functions3_test.ml \
 utilities/NRQueue.ml.nw \
 utilities/PCQueue_test.ml \
 fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
@@ -36,15 +25,6 @@ utilities/NRQueue.cmo \
 utilities/Clock_constraint_utilities.cmo \
 test/Test_base.cmo \
 zone-valuation-graph/Graph_functions2.cmo \
-clutter/Unit_constraint_intersection.cmo \
-clutter/Test_base_clutter.cmo \
-clutter/Unit_constraint_intersection_test.cmo \
-clutter/UDBM_utilities_clutter.cmo \
-clutter/Clock_constraint_clutter.cmo \
-clutter/Clock_constraint_clutter_test.cmo \
-clutter/ZVG_tree.cmo \
-clutter/Graph_functions3.cmo \
-clutter/Graph_functions3_test.cmo \
 c/Zone_stubs_test.cmo \
 utilities/PCQueue_test.cmo \
 grammar-noweb/Timed_automaton_lexer.cmo \
@@ -57,10 +37,6 @@ c/zone_stubs.o
 	$(OCAMLLINK)
 
 %D%/test.cmo: \
-clutter/Graph_functions3.cmi \
-clutter/Graph_functions3_test.cmi \
-clutter/Unit_constraint_intersection_test.cmi \
-clutter/Clock_constraint_clutter_test.cmi \
 utilities/PCQueue_test.cmi
 
 %D%/Test_base.cmo %D%/Test_base.cmi: \

@@ -75,13 +75,12 @@ CXXCOMP = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 %.o: %.c
 	$(OCAMLCXXCOMP)
 
-include $(srcdir)/zone-valuation-graph/Makefile.am
-include $(srcdir)/test/Makefile.am
-include $(srcdir)/utilities/Makefile.am
-include $(srcdir)/grammar-noweb/Makefile.am
-include $(srcdir)/clutter/Makefile.am
-include $(srcdir)/relations/Makefile.am
-include $(srcdir)/c/Makefile.am
+include $(top_srcdir)/%D%/zone-valuation-graph/Makefile.am
+include $(top_srcdir)/%D%/test/Makefile.am
+include $(top_srcdir)/%D%/utilities/Makefile.am
+include $(top_srcdir)/%D%/grammar-noweb/Makefile.am
+include $(top_srcdir)/%D%/relations/Makefile.am
+include $(top_srcdir)/%D%/c/Makefile.am
 
 EXTRA_DIST =
 

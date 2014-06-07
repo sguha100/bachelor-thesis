@@ -1,12 +1,8 @@
 open Grammar_types
 open Clock_constraint_utilities.Test
-open Graph_functions3_test
-open Unit_constraint_intersection_test
 open Zone_stubs
 open Zone_stubs_test
 open UDBM_utilities.Test
-open Test_base_clutter
-open Clock_constraint_clutter_test
 open PCQueue_test
 open Graph_functions2.Test
 open Grammar_types.Test
@@ -75,62 +71,11 @@ let test107 () =
     ) ^ "]"
 
 let execute =
-  print_string test2;
-  print_newline ();
-  print_string test3;
-  print_newline ();
-  print_string test4;
-  print_newline ();
-  print_string test5;
-  print_newline ();
-  print_string test6;
-  print_newline ();
-  print_string "test6 should be 3.\n";
-  print_string test8;
-  print_newline ();
-  print_string test9;
-  print_newline ();
-  print_string test10;
-  print_newline ();
-  print_string test11;
-  print_newline ();
-  print_string test12;
-  print_newline ();
-  print_string test13;
-  print_newline ();
   print_string test17;
   print_newline ();
   print_string test18;
   print_newline ();
   print_string test19;
-  print_newline ();
-  print_string test20;
-  print_newline ();
-  print_string test21;
-  print_newline ();
-  print_string test24;
-  print_newline (); 
-  print_string test26;
-  print_newline ();
-  print_string test27;
-  print_newline ();
-  print_string test31;
-  print_newline ();
-  print_string test32;
-  print_newline ();
-  print_string test33;
-  print_newline ();
-  print_string test34;
-  print_newline ();
-  print_string test35;
-  print_newline ();
-  print_string test36;
-  print_newline ();
-  print_string test37;
-  print_newline ();
-  print_string test38;
-  print_newline ();
-  print_string test39;
   print_newline ();
   print_string test41;
   print_newline ();

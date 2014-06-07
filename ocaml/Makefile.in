@@ -79,11 +79,12 @@ POST_UNINSTALL = :
 bin_PROGRAMS = zone-valuation-graph/calc$(EXEEXT) \
 	zone-valuation-graph/compare_automata$(EXEEXT) \
 	test/test$(EXEEXT)
-DIST_COMMON = $(srcdir)/zone-valuation-graph/Makefile.am \
-	$(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am \
-	$(srcdir)/grammar-noweb/Makefile.am \
-	$(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am \
-	$(srcdir)/c/Makefile.am $(srcdir)/Makefile.in \
+DIST_COMMON = $(top_srcdir)/zone-valuation-graph/Makefile.am \
+	$(top_srcdir)/test/Makefile.am \
+	$(top_srcdir)/utilities/Makefile.am \
+	$(top_srcdir)/grammar-noweb/Makefile.am \
+	$(top_srcdir)/relations/Makefile.am \
+	$(top_srcdir)/c/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) compile depcomp install-sh missing
 subdir = .
@@ -375,17 +376,6 @@ test/Test_base.ml \
 utilities/UDBM_utilities.ml.nw \
 c/Zone_stubs.mli.nw \
 utilities/Clock_constraint_utilities.ml.nw \
-clutter/Unit_constraint_intersection.ml \
-clutter/Grammar_types_clutter.ml \
-clutter/UDBM_utilities_clutter.ml \
-clutter/Clock_constraint_clutter.ml \
-clutter/Test_base_clutter.ml \
-clutter/Unit_constraint_intersection.ml \
-clutter/Unit_constraint_intersection_test.ml \
-clutter/Clock_constraint_clutter_test.ml \
-clutter/ZVG_tree.ml.nw \
-clutter/Graph_functions3.ml \
-clutter/Graph_functions3_test.ml \
 utilities/NRQueue.ml.nw \
 utilities/PCQueue_test.ml \
 fernandez-ocaml-noweb/Fernandez_modules.ml.nw \
@@ -405,7 +395,7 @@ all: all-am
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(srcdir)/c/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/zone-valuation-graph/Makefile.am $(top_srcdir)/test/Makefile.am $(top_srcdir)/utilities/Makefile.am $(top_srcdir)/grammar-noweb/Makefile.am $(top_srcdir)/relations/Makefile.am $(top_srcdir)/c/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -428,7 +418,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/zone-valuation-graph/Makefile.am $(srcdir)/test/Makefile.am $(srcdir)/utilities/Makefile.am $(srcdir)/grammar-noweb/Makefile.am $(srcdir)/clutter/Makefile.am $(srcdir)/relations/Makefile.am $(srcdir)/c/Makefile.am:
+$(top_srcdir)/zone-valuation-graph/Makefile.am $(top_srcdir)/test/Makefile.am $(top_srcdir)/utilities/Makefile.am $(top_srcdir)/grammar-noweb/Makefile.am $(top_srcdir)/relations/Makefile.am $(top_srcdir)/c/Makefile.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -942,15 +932,6 @@ utilities/NRQueue.cmo \
 utilities/Clock_constraint_utilities.cmo \
 test/Test_base.cmo \
 zone-valuation-graph/Graph_functions2.cmo \
-clutter/Unit_constraint_intersection.cmo \
-clutter/Test_base_clutter.cmo \
-clutter/Unit_constraint_intersection_test.cmo \
-clutter/UDBM_utilities_clutter.cmo \
-clutter/Clock_constraint_clutter.cmo \
-clutter/Clock_constraint_clutter_test.cmo \
-clutter/ZVG_tree.cmo \
-clutter/Graph_functions3.cmo \
-clutter/Graph_functions3_test.cmo \
 c/Zone_stubs_test.cmo \
 utilities/PCQueue_test.cmo \
 grammar-noweb/Timed_automaton_lexer.cmo \
@@ -963,10 +944,6 @@ c/zone_stubs.o
 	$(OCAMLLINK)
 
 test/test.cmo: \
-clutter/Graph_functions3.cmi \
-clutter/Graph_functions3_test.cmi \
-clutter/Unit_constraint_intersection_test.cmi \
-clutter/Clock_constraint_clutter_test.cmi \
 utilities/PCQueue_test.cmi
 
 test/Test_base.cmo test/Test_base.cmi: \
@@ -1004,27 +981,6 @@ grammar-noweb/Grammar_types.cmi
 
 grammar-noweb/Timed_automaton_parser.cmo: \
 grammar-noweb/Timed_automaton_parser.cmi
-clutter/Graph_functions3.cmi clutter/Graph_functions3.cmo: \
-clutter/Grammar_types_clutter.cmi \
-clutter/Unit_constraint_intersection.cmi \
-clutter/UDBM_utilities_clutter.cmi \
-clutter/Clock_constraint_clutter.cmi \
-clutter/ZVG_tree.cmi \
-clutter/Test_base_clutter.cmi
-
-clutter/Test_base_clutter.cmo clutter/Test_base_clutter.cmi: \
-clutter/Grammar_types_clutter.cmi \
-clutter/Clock_constraint_clutter.cmi
-
-clutter/Grammar_types_clutter.cmo clutter/Grammar_types_clutter.cmi: \
-grammar-noweb/Grammar_types.cmi
-
-clutter/Clock_constraint_clutter.cmo clutter/Clock_constraint_clutter.cmi: \
-grammar-noweb/Grammar_types.cmi \
-clutter/Grammar_types_clutter.cmi \
-utilities/UDBM_utilities.cmi \
-clutter/UDBM_utilities_clutter.cmi \
-utilities/Clock_constraint_utilities.cmi
 relations/Relations.cmo relations/Relations.cmi: \
 relations/STAB.cmi \
 relations/TADB.cmi \
