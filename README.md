@@ -34,6 +34,8 @@ $ LIBS="-lstdc++" ./configure
   You might have to use the LDFLAGS and CPPFLAGS variables to specify
   the locations of your UPPAAL library and headers, for instance:
 $ LDFLAGS="-L$HOME/uppaal/lib" CPPFLAGS="-I$HOME/uppaal/include" LIBS="-lstdc++" ./configure
+  or:
+$ LDFLAGS="-L/usr/local/uppaal/lib" CPPFLAGS="-I/usr/local/uppaal/include" LIBS="-lstdc++" ./configure
   After this, you can run
 $ make
 $ make install
