@@ -45,7 +45,7 @@ $ make install
 
 - This generates 4 files in /tmp.
 -- /tmp/lts.txt
--- /tmp/lts.dot
--- /tmp/lts_quotient.dot
--- /tmp/quotient_lts.dot
-  Of these, the last 3 can be processed with graphviz to get png images.
+-- /tmp/lts.dot (DOT representation of the zone graph.)
+-- /tmp/lts_quotient.dot (DOT representation of the zone graph with subgraphs showing equivalence classes under LTS bisimilarity.)
+-- /tmp/quotient_lts.dot (DOT representation of the bisimilarity quotient of the zone graph.)
+  Of these, the last 3 can be processed with the dot tool (from graphviz) to get images in PNG/SVG/other file formats supported by graphviz.
