@@ -618,7 +618,10 @@ let rec empty_queue ta (queue, zone_list_array) =
     automaton.
 <<Graph_functions2.ml>>=
 let generate_zone_valuation_graph ta =
+  (*The +1 stands for the clock x0 which is always zero. *)
   let dim = 1 + (TA.get_numclocks ta) in
+  (*The queue variable is for the BFS of the timed automaton which we
+    do in forward analysis.*)
   let queue = PCQueue.create () in
   let clock_name_map = TA.get_clock_name_map ta in
   let () =
@@ -635,6 +638,8 @@ let generate_zone_valuation_graph ta =
     with
       (_, zone_list_array) -> zone_list_array
   in
+  (*defining an imperative function for backward propagation so that
+    we can call it later. *)
   let rec
       backward_propagate () =
     let
