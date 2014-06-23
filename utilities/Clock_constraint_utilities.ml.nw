@@ -75,49 +75,57 @@ for use in abstractions.
 <<Clock_constraint_utilities.ml>>=
 let maximum_constant ta =
   let
-      f clock_constraint =
-    List.fold_left
-      (function max ->
-        function
-        | True
-        | False -> max
-        | Lt (_, n)
-        | Le (_, n)
-        | Eq (_, n)
-        | Ge (_, n)
-        | Gt (_, n) -> if max > n then max else n
+      max = (Array.make (1 + TA.get_numclocks ta) 0)
+  in
+  let
+      f clock_constraint max =
+    List.iter
+      (function
+      | True
+      | False -> ()
+      | Lt (cn, n)
+      | Le (cn, n)
+      | Eq (cn, n)
+      | Ge (cn, n)
+      | Gt (cn, n) ->
+	try
+	  let
+	      index = String_map.find cn (TA.get_clock_name_map ta)
+	  in
+	  if
+	    (max.(index) < n)
+	  then
+	    max.(index) <- n
+	  else
+	    ()
+	with
+	| Not_found -> ()
       )
-      0
       clock_constraint
   in
-  Location_graph.fold_vertex
-    (function location -> function max ->
-      Location_graph.fold_succ_e
-        (function departure -> function max -> 
-          if
-            (max > f (Location_graph.E.label departure).condition)
-          then
-            max
-          else
-            (f (Location_graph.E.label departure).condition) 
+  let
+      () = 
+  Location_graph.iter_vertex
+    (function location ->
+      let
+	  () =
+	(f
+	   (Location_invariant_map.find location
+              (TA.get_location_invariant_map ta))
+	)
+      in
+      Location_graph.iter_succ_e
+        (function departure ->
+	  f
+	    (Location_graph.E.label departure).condition 
         )
         (TA.get_location_graph ta)
         location
-        (if
-            (max >
-               f (Location_invariant_map.find location
-                    (TA.get_location_invariant_map ta))
-            )
-         then
-            max
-         else
-            f (Location_invariant_map.find location
-                    (TA.get_location_invariant_map ta))
-        )
     )
     (TA.get_location_graph ta)
-    0
-  
+  in
+  max
+
 @ 
 \end{itemize}
 
