@@ -543,6 +543,24 @@ strictness, bound)} constraint list (not minimal, used for abstraction.).
     CAMLreturn(current);
   }
 
+@ 
+\item Non-in-place wrapper over dbm\_extrapolateMaxBounds.
+<<zone_stubs.c>>=
+  CAMLprim value zone_dbm_extrapolateMaxBounds (value dbm, value max_value) {
+    CAMLparam2(dbm, max_value);
+    dbm_struct_t s_dup;
+    s_dup.dim = dbm_struct_t_val(dbm).dim;
+    s_dup.dbm = (raw_t *) malloc(s_dup.dim*s_dup.dim*sizeof(raw_t));
+    dbm_copy(s_dup.dbm, dbm_struct_t_val(dbm).dbm, s_dup.dim);
+    int32_t *max = (int32_t *) malloc(s_dup.dim*sizeof(int32_t));
+    unsigned int i1;
+    for (i1 = 0; i1 < s_dup.dim; ++i1)
+      max[i1] = Int_val(Field(max_value, i1));
+    dbm_extrapolateMaxBounds(s_dup.dbm, s_dup.dim, max);
+    free(max);
+    CAMLreturn (alloc_dbm_struct_t(s_dup));
+  }
+
 #ifdef __cplusplus
 }
 #endif

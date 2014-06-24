@@ -73,12 +73,12 @@ let clock_constraint_after_clock_resets
 \item This function finds the maximum constant in the timed automaton
 for use in abstractions.
 <<Clock_constraint_utilities.ml>>=
-let maximum_constant ta =
+let maximum_constant (ta:TA.t): (int array) =
   let
       max = (Array.make (1 + TA.get_numclocks ta) 0)
   in
   let
-      f clock_constraint max =
+      f (clock_constraint:clock_constraint): unit =
     List.iter
       (function
       | True

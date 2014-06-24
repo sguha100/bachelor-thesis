@@ -154,69 +154,82 @@ let useful_predecessor_zones
 \item This function implements the maximum constant abstraction (over
   all clocks) on a given difference bound matrix.
 <<Graph_functions2.ml>>=
+(* let maximum_constant_abstract_dbm ta dbm_without_abstraction = *)
+(*   let *)
+(*       abstraction = ref false *)
+(*   in *)
+(*   let *)
+(*       maxcon = maximum_constant ta *)
+(*   in *)
+(*   let *)
+(*       dim = 1 + (TA.get_numclocks ta) *)
+(*   in *)
+(*   let *)
+(*       constraint_list_without_abstraction = *)
+(*     (\* dbm_toConstraintList dbm_without_abstraction *\) *)
+(*     dbm_toLargerConstraintList dbm_without_abstraction *)
+(*   in *)
+(*   let *)
+(*       constraint_list_with_abstraction = *)
+(*     List.concat  *)
+(*       (List.map *)
+(*          (function (i, j, strictness, bound) -> *)
+(*            if *)
+(*              (bound > maxcon) *)
+(*            then *)
+(*              (abstraction := true; *)
+(*               flush stdout; *)
+(*               []) *)
+(*            else *)
+(*              if *)
+(*                (bound < (-maxcon)) *)
+(*              then *)
+(*                (abstraction := true; *)
+(*                 flush stdout; *)
+(*                 [(i, j, true, -maxcon)]) *)
+(*              else *)
+(*                [(i, j, strictness, bound)] *)
+(*          ) *)
+(*          constraint_list_without_abstraction *)
+(*       ) *)
+(*   in *)
+(*   let *)
+(*       dbm_with_abstraction = *)
+(*     match *)
+(*       constraint_list_to_dbm_option *)
+(*         dim *)
+(*         constraint_list_with_abstraction *)
+(*     with *)
+(*     | Some dbm -> dbm *)
+(*     | None -> *)
+(*       raise *)
+(*         (Invalid_argument *)
+(*            ("Abstraction failed, Constraint_list_without_abstraction = " *)
+(*             ^ (constraint_list_to_string *)
+(*                  (TA.get_clock_name_array ta) *)
+(*                  constraint_list_without_abstraction *)
+(*             ) ^ ", constraint_list_with_abstraction = " ^ *)
+(*               (constraint_list_to_string *)
+(*                  (TA.get_clock_name_array ta) *)
+(*                  constraint_list_with_abstraction *)
+(*               ) *)
+(*            ) *)
+(*         ) *)
+(*   in *)
+(*   (dbm_with_abstraction, !abstraction) *)
+
 let maximum_constant_abstract_dbm ta dbm_without_abstraction =
-  let
-      abstraction = ref false
-  in
   let
       maxcon = maximum_constant ta
   in
   let
-      dim = 1 + (TA.get_numclocks ta)
-  in
-  let
-      constraint_list_without_abstraction =
-    (* dbm_toConstraintList dbm_without_abstraction *)
-    dbm_toLargerConstraintList dbm_without_abstraction
-  in
-  let
-      constraint_list_with_abstraction =
-    List.concat 
-      (List.map
-         (function (i, j, strictness, bound) ->
-           if
-             (bound > maxcon)
-           then
-             (abstraction := true;
-              flush stdout;
-              [])
-           else
-             if
-               (bound < (-maxcon))
-             then
-               (abstraction := true;
-                flush stdout;
-                [(i, j, true, -maxcon)])
-             else
-               [(i, j, strictness, bound)]
-         )
-         constraint_list_without_abstraction
-      )
-  in
-  let
       dbm_with_abstraction =
-    match
-      constraint_list_to_dbm_option
-        dim
-        constraint_list_with_abstraction
-    with
-    | Some dbm -> dbm
-    | None ->
-      raise
-        (Invalid_argument
-           ("Abstraction failed, Constraint_list_without_abstraction = "
-            ^ (constraint_list_to_string
-                 (TA.get_clock_name_array ta)
-                 constraint_list_without_abstraction
-            ) ^ ", constraint_list_with_abstraction = " ^
-              (constraint_list_to_string
-                 (TA.get_clock_name_array ta)
-                 constraint_list_with_abstraction
-              )
-           )
-        )
+    dbm_extrapolateMaxBounds
+      dbm_without_abstraction
+      maxcon
   in
-  (dbm_with_abstraction, !abstraction)
+  (dbm_with_abstraction,
+   (dbm_with_abstraction = dbm_without_abstraction))
 
 @ 
 \item This function applies the abstraction to a list of zones.

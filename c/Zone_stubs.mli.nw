@@ -47,3 +47,6 @@ external dbm_toConstraintList:
 external dbm_toLargerConstraintList:
   dbm_struct_t -> ((int * int * bool * int) list) =
   "zone_dbm_toLargerConstraintList"
+external dbm_extrapolateMaxBounds:
+  dbm_struct_t -> int array -> dbm_struct_t =
+  "zone_dbm_extrapolateMaxBounds"
