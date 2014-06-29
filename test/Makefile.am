@@ -36,8 +36,16 @@ zone-valuation-graph/ZVG_modules.cmo \
 c/zone_stubs.o
 	$(OCAMLLINK)
 
-%D%/test.cmo: \
-utilities/PCQueue_test.cmi
+%D%/test.cmo %D%/test.cmi: \
+grammar-noweb/Grammar_types.cmi \
+utilities/Clock_constraint_utilities.cmi \
+c/Zone_stubs.cmi \
+c/Zone_stubs_test.cmi \
+utilities/UDBM_utilities.cmi \
+utilities/PCQueue_test.cmi \
+zone-valuation-graph/Graph_functions2.cmi \
+utilities/Parse_timed_automaton.cmi \
+zone-valuation-graph/ZVG_modules.cmi
 
 %D%/Test_base.cmo %D%/Test_base.cmi: \
 grammar-noweb/Grammar_types.cmi
