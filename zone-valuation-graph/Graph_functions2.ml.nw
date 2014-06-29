@@ -557,16 +557,21 @@ let rec empty_queue ta (queue, zone_list_array) =
        maximum_constant_abstract_zone_list ta changed_zone_list2
      in
      let
+         changed_zone_list4 =
+       self_split ta e.child changed_zone_list3
+     in
+     let
          () =
        let
            () = 
-         Printf.printf "changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
+         Printf.printf "changed_zone_list3 length = %s, changed_zone_list2 length = %s, changed_zone_list1 length = %s, earlier %s \n"
+           (string_of_int (List.length changed_zone_list3))
            (string_of_int (List.length changed_zone_list2))
            (string_of_int (List.length changed_zone_list1))
            (string_of_int (List.length zone_list_array.(e.child.location_index)))
        in
        if
-         ((List.length changed_zone_list3)
+         ((List.length changed_zone_list4)
           >
             (List.length zone_list_array.(e.child.location_index))
           || e.parent = None
@@ -577,7 +582,7 @@ let rec empty_queue ta (queue, zone_list_array) =
          (
            let
                () = 
-             zone_list_array.(e.child.location_index) <- changed_zone_list3
+             zone_list_array.(e.child.location_index) <- changed_zone_list4
            in
            Location_graph.iter_succ_e
              (function departure ->
