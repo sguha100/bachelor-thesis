@@ -229,7 +229,7 @@ let maximum_constant_abstract_dbm ta dbm_without_abstraction =
       maxcon
   in
   (dbm_with_abstraction,
-   (dbm_with_abstraction = dbm_without_abstraction))
+   (dbm_with_abstraction != dbm_without_abstraction))
 
 @ 
 \item This function applies the abstraction to a list of zones.
