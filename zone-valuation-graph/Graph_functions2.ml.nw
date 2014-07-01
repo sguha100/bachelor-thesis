@@ -42,30 +42,30 @@ let split_zone_list_on_constraint_list
   bound matrices for the resulting zones to be stable with respect to
   each of these difference bound matrices.
 <<Graph_functions2.ml>>=
-  let split_zone_list_on_dbm_list
-      dim
-      location
-      zone_list
-      dbm_list =
-    let
-        ()
-        =
-      Printf.printf "%s\n" "split_zone_list_on_dbm_list called!";
-    in
-    let
-    result = 
-        List.map
-          (function dbm ->
-            {zone_location2 = location; zone_constraint2 = dbm}
-          )
-          (List.fold_left
-             (split_dbm_list_on_dbm dim)
-             (List.map
-                (function zone -> zone.zone_constraint2)
-                zone_list
-             )
-             dbm_list
-          )
+let split_zone_list_on_dbm_list
+    (dim:int)
+    (location:Grammar_types.location_label)
+    (zone_list:Grammar_types.zone_using_dbm list)
+    (dbm_list:Zone_stubs.dbm_struct_t list) =
+  let
+      ()
+      =
+    Printf.printf "%s\n" "split_zone_list_on_dbm_list called!";
+  in
+  let
+      result = 
+    List.map
+      (function dbm ->
+        {zone_location2 = location; zone_constraint2 = dbm}
+      )
+      (List.fold_left
+         (split_dbm_list_on_dbm dim)
+         (List.map
+            (function zone -> zone.zone_constraint2)
+            zone_list
+         )
+         dbm_list
+      )
   in
   let
       () =
@@ -99,7 +99,7 @@ let split_zone_list_on_constraint_list
       ()
   in
   result
-    
+
 @ 
 \item This function creates the initial zone list array, which assigns
   one zone with the future of the zero valuation to the initial

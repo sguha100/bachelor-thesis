@@ -135,7 +135,9 @@ let clock_constraint_haveIntersection clock_names c1 c2 =
 \item This function turns a list of \texttt{i, j, strictness, bound}
 constraints into a string.
 <<UDBM_utilities.ml>>=
-let constraint_list_to_string clock_names constraint_list =
+let constraint_list_to_string
+    (clock_names:string array)
+    (constraint_list:(int * int * bool * int) list) =
   let
       clock_names = Array.of_list ("0"::(Array.to_list clock_names))
   in
