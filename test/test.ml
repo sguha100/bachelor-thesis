@@ -19,6 +19,7 @@ let test107 () =
           (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
           (split_zone_list_on_dbm_list
              3
+	     [|"X"; "Y"|]
              {Grammar_types.location_index = 1}
              (List.map
                 (function constraint_list ->

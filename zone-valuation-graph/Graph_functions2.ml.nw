@@ -44,6 +44,7 @@ let split_zone_list_on_constraint_list
 <<Graph_functions2.ml>>=
 let split_zone_list_on_dbm_list
     (dim:int)
+    (clock_name_array:string array)
     (location:Grammar_types.location_label)
     (zone_list:Grammar_types.zone_using_dbm list)
     (dbm_list:Zone_stubs.dbm_struct_t list) =
@@ -77,21 +78,27 @@ let split_zone_list_on_dbm_list
         (String.concat
            "; "
            (List.map
-              (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
+              (function zone ->
+		dbm_to_string
+		  clock_name_array
+		  zone.zone_constraint2)
               zone_list
            )
         )
         (String.concat
            "; "
            (List.map
-              (dbm_to_string [|"X"; "Y"|])
+              (dbm_to_string clock_name_array)
               dbm_list
            )
         )
         (String.concat
            "; "
            (List.map
-              (function zone -> dbm_to_string [|"X"; "Y"|] zone.zone_constraint2)
+              (function zone ->
+		dbm_to_string
+		  clock_name_array
+		  zone.zone_constraint2)
               result
            )
         )
@@ -239,6 +246,9 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
       dim = 1 + (TA.get_numclocks ta)
   in
   let
+      clock_name_array = (TA.get_clock_name_array ta)
+  in
+  let
       (abstracted_zones, unabstracted_zones) =
     List.fold_left
       (function (abstracted_zones, unabstracted_zones) ->
@@ -299,6 +309,7 @@ let rec maximum_constant_abstract_zone_list ta zone_list =
                                        ^ " maximum_constant_abstract_zone_list!"));
                 split_zone_list_on_dbm_list
                   dim
+		  clock_name_array
                   abstracted_zone.zone_location2
                   [abstracted_zone]
                   (List.map
@@ -397,6 +408,9 @@ let new_successor_zones
     successor
     successor_zone_list =
   let dim = 1 + (TA.get_numclocks ta) in
+  let
+      clock_name_array = (TA.get_clock_name_array ta)
+  in
   List.fold_left
     (function successor_zone_list -> function z1 ->
       (List.filter
@@ -415,6 +429,7 @@ let new_successor_zones
                                        ^ " new_successor_zones!"));
           split_zone_list_on_dbm_list
             dim
+	    clock_name_array
             successor
             [z1]
             (List.map
@@ -429,6 +444,7 @@ let new_successor_zones
                                        ^ " new_successor_zones!"));
          split_zone_list_on_dbm_list
            dim
+	   clock_name_array
            successor
            successor_zone_list
            [z1.zone_constraint2]
@@ -638,6 +654,9 @@ let rec empty_queue ta (queue, zone_list_array) =
 let generate_zone_valuation_graph ta =
   (*The +1 stands for the clock x0 which is always zero. *)
   let dim = 1 + (TA.get_numclocks ta) in
+  let
+      clock_name_array = (TA.get_clock_name_array ta)
+  in
   (*The queue variable is for the BFS of the timed automaton which we
     do in forward analysis.*)
   let queue = PCQueue.create () in
@@ -694,6 +713,7 @@ let generate_zone_valuation_graph ta =
                                        ^ " backward_propagate!"));
                 split_zone_list_on_dbm_list
                   dim
+		  clock_name_array
                   l1
                   splittable
                   (List.map
@@ -744,6 +764,7 @@ let generate_zone_valuation_graph ta =
                                        ^ " delay_split!"));
                        split_zone_list_on_dbm_list
                          dim
+			 clock_name_array
                          l1
                          zone_list_array.(l1.location_index)
                          (List.map
