@@ -214,4 +214,6 @@ let execute =
   print_newline ();
   print_string (test107 ());
   print_newline ();
+  print_string (test151 ());
+  print_newline ();
   exit 0

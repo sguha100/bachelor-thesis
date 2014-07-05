@@ -236,3 +236,22 @@ let test92 =
     "test92 passed"
   else
     "test92 failed"
+
+let dbm19 =
+  dbm_constrain_using_tuple
+    (dbm_constrain_using_tuple
+       (dbm_constrain_using_tuple
+	  (dbm_init 3)
+	  (1, 2, false, 0)
+       )
+       (2, 1, false, 0)
+    )
+    (1, 0, true, 1)
+
+let test151 () =
+  if
+    (dbm_isZeroIncluded dbm19)
+  then
+    "test151 passed"
+  else
+    "test151 failed"
