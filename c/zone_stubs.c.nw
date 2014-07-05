@@ -419,9 +419,8 @@ strictness, bound)} constraint.
     dbm_struct_t s = dbm_struct_t_val(dbm);
     int32_t *pt = (int32_t *)malloc(s.dim*sizeof(int32_t));
     int ii;
-    for (ii = 0; ii++; ii < s.dim) {
+    for (ii = 0; ii < s.dim; ++ii)
       pt[ii] = 0;
-    }
     BOOL temp1 = dbm_isPointIncluded(pt, s.dbm, s.dim);
     free(pt);
     switch (temp1) {
