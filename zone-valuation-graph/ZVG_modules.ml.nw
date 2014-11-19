@@ -57,12 +57,17 @@ struct
       with
       | Delay -> "d"
       | Action a -> string_of_int a
+
   let nodes =
-    function l ->
-      Zone_graph.fold_vertex
-        (function vertex -> function partial_list -> vertex::partial_list)
-        l.zone_graph
-        []
+    let (l1, l2) = 
+      function l ->
+        Zone_graph.fold_vertex
+          (function vertex -> function (l1, l2) -> (l1, vertex::l2))
+          l.zone_graph
+          ([], [])
+    in
+    l1 @ l2
+
   let actions =
     function l ->
       Delay::
