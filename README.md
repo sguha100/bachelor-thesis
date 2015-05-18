@@ -38,7 +38,7 @@ $ LDFLAGS="-L$HOME/uppaal/lib" CPPFLAGS="-I$HOME/uppaal/include" LIBS="-lstdc++"
 $ LDFLAGS="-L/usr/local/uppaal/lib" CPPFLAGS="-I/usr/local/uppaal/include" LIBS="-lstdc++" ./configure
   After this, you can run
 $ make
-$ make install
+$ make install (make install needs to be a the root user and hence issue $ su if not already running as root.)
   Note that VPATH builds are not supported for now.
 
 - Now, try running an example. Here, we select static_guard_analysis_example1.txt. Run 'calc < grammar-noweb/examples/static_guard_analysis_example1.txt'.

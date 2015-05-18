@@ -59,14 +59,14 @@ struct
       | Action a -> string_of_int a
 
   let nodes =
-    let (l1, l2) = 
-      function l ->
+    function l ->
+      (let (l1, l2) = 
         Zone_graph.fold_vertex
           (function vertex -> function (l1, l2) -> (l1, vertex::l2))
           l.zone_graph
           ([], [])
     in
-    l1 @ l2
+    l1 @ l2)
 
   let actions =
     function l ->
