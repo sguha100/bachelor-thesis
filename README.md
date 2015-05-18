@@ -1,4 +1,4 @@
-bachelor-thesis
+reltool
 ===============
 
 Pre-installation steps:
@@ -18,16 +18,16 @@ Installation steps:
 
 - You can download the latest development sources by cloning the git
   repository.
-$ git clone https://github.com/airbornemihir/bachelor-thesis.git
+$ git clone https://github.com/sguha100/reltool.git
   Alternatively, you can download a zip file
-  (https://github.com/airbornemihir/bachelor-thesis/archive/master.zip)
+  (https://github.com/sguha100/reltool/archive/master.zip)
   or a tarball
-  (https://github.com/airbornemihir/bachelor-thesis/archive/master.tar.gz)
+  (https://github.com/sguha100/reltool/archive/master.tar.gz)
   of the latest development sources if you do not wish to use git or
   clone the entire repository.
   Alternatively, you can download a tarball/zip archive from the
   releases page
-  (https://github.com/airbornemihir/bachelor-thesis/releases) if you
+  (https://github.com/sguha100/reltool/releases) if you
   do not wish to use development sources.
 - run
 $ LIBS="-lstdc++" ./configure
