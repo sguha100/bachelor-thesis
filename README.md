@@ -3,7 +3,7 @@ reltool
 
 Pre-installation steps:
 
-- Get G++, Make, Automke, Ocaml (including Findlib), Git, Noweb and Ocamlgraph.
+- Get G++, Make, Automake, Ocaml (including Findlib), Git, Noweb and Ocamlgraph.
 
 - Get the UPPAAL DBM library, from
   https://github.com/airbornemihir/uppaal-dbm. v2.0.8-reltool2 is
