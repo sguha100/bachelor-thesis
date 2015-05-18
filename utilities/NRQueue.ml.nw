@@ -1,0 +1,101 @@
+\subsection{NRQueue.ml}
+This provides the non-redundant queue (duplicate entries disallowed)
+which we use for the forward analysis.
+
+@ 
+\begin{itemize}
+\item This is the signature for a queue element.
+<<NRQueue.ml>>=
+module type OrderedType = Set.OrderedType
+
+@ 
+\item This is a functor for non-redundant queues.
+<<NRQueue.ml>>=
+module NRQueue =
+  functor (Queue_element: OrderedType) ->
+    struct
+      module OTSet = Set.Make(Queue_element)
+      type t = {queue: Queue_element.t Queue.t;  mutable set:OTSet.t }
+      exception Empty
+      let create () = {queue = Queue.create (); set = OTSet.empty }
+      let add x q =
+        let
+            old_cardinal = OTSet.cardinal q.set
+        in
+        let
+            () = q.set <- (OTSet.add x q.set)
+        in
+        if
+          (OTSet.cardinal q.set) > old_cardinal
+        then
+          (Queue.add x q.queue)
+        else
+          ()
+      let push = add
+      let take q =
+        try
+          let
+              first_element = Queue.take q.queue
+          in
+          let
+              () = q.set <- (OTSet.remove first_element q.set)
+          in
+          first_element
+        with
+        | Queue.Empty -> raise Empty
+      let pop = take
+      let peek q =
+        try
+          Queue.peek q.queue
+        with
+        | Queue.Empty -> raise Empty
+      let top = peek
+      let clear q =
+        let
+            () = q.set <- OTSet.empty
+        in
+        Queue.clear q.queue
+      let copy q =
+        {queue = Queue.copy q.queue; set = q.set}
+      let is_empty q =
+        Queue.is_empty q.queue
+      let length q =
+        Queue.length q.queue
+      let iter f q =
+        Queue.iter f q.queue
+      let fold f accu q =
+        Queue.fold f accu q.queue
+      let transfer q1 q2 =
+        let
+            () = iter (fun x -> add x q2) q1
+        in
+        clear q1
+    end
+
+@ 
+\item This is the type of element we use in the queue for our zone graph building algorithm.
+<<NRQueue.ml>>=
+(* module PCQueueElement = *)
+(*   struct *)
+(*     type t = {parent: int option; edge: Grammar_types.transition option; child: int} *)
+(*     let compare e1 e2 = Pervasives.compare e1.child e2.child *)
+(*   end *)
+
+module PCQueueElement =
+  struct
+    type t = {parent: Grammar_types.location_label option;
+              edge:  Grammar_types.transition option;
+              child: Grammar_types.location_label}
+    let compare e1 e2 = Pervasives.compare e1.child e2.child
+  end
+
+
+@ 
+\item This is the type of queue we use for our zone graph building algorithm.
+<<NRQueue.ml>>=
+module PCQueue = NRQueue(PCQueueElement)
+
+(* module Alt_PCQueue = NRQueue(Alt_PCQueueElement) *)
+
+@ 
+\end{itemize}

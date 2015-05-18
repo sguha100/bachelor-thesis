@@ -1,0 +1,470 @@
+\subsection{ZVG\_modules.ml}
+This file provides a few wrapper modules for functions concerning the
+generation of minimal zone graphs.
+
+<<ZVG_modules.ml>>=
+open Grammar_types
+open UDBM_utilities
+open Clock_constraint_utilities
+open Graph_functions2
+open Fernandez_modules
+open Zone_stubs
+
+open Graph
+
+type action_label = Delay | Action of int
+
+module Zone_graph =
+  Persistent.Digraph.ConcreteBidirectionalLabeled
+    (struct
+      type t = zone_using_dbm
+      let compare = Pervasives.compare
+      let hash = Hashtbl.hash
+      let equal = Pervasives.(=)
+     end)
+    (struct
+      type t = action_label
+      let compare = Pervasives.compare
+      let default = Delay
+     end)
+
+@ 
+\begin{itemize}
+\item This module implements the LTS data type for a zone graph.
+<<ZVG_modules.ml>>=
+module ZVGLT2 =
+struct
+  type node_ref_t = zone_using_dbm
+  type action_t = action_label
+  type lts_t = {zone_graph: Zone_graph.t;
+                action_count: int;
+                clock_names: string array
+               }
+  let node_equality =
+    function l -> function zone1 -> function zone2 ->
+      zone1 = zone2
+  let node_name =
+    function l -> function zone ->
+      ((string_of_int zone.zone_location2.location_index) ^ " " ^
+          (dbm_to_string
+             l.clock_names
+             zone.zone_constraint2)
+      )
+  let expand_action =
+    function l -> function a ->
+      match
+        a
+      with
+      | Delay -> "d"
+      | Action a -> string_of_int a
+
+  let nodes =
+    let (l1, l2) = 
+      function l ->
+        Zone_graph.fold_vertex
+          (function vertex -> function (l1, l2) -> (l1, vertex::l2))
+          l.zone_graph
+          ([], [])
+    in
+    l1 @ l2
+
+  let actions =
+    function l ->
+      Delay::
+        (Array.to_list
+           (Array.init
+           (*The extra action is -1, for time transitions.*)
+              l.action_count
+              (function a-> Action a)
+           )
+        )
+  let in_adjacency = function l -> function zone ->
+    (function a ->
+      List.map
+        Zone_graph.E.src
+        (List.filter
+           (function e ->
+             Zone_graph.E.label e = a
+           )
+           (Zone_graph.pred_e l.zone_graph zone)
+        )
+    )
+end
+
+@ 
+\item This module gets all the Fernandez functor functions for zone
+  graphs.
+<<ZVG_modules.ml>>=
+module ZVGLTS2 = LTS (ZVGLT2)
+
+@ 
+\item This module gets the Quotient data type for zone graphs.
+<<ZVG_modules.ml>>=
+module ZVGQuotient2 = ZVGLTS2.Quotient_LTS
+
+@ 
+\item This module gets nothing useful except the representation of
+  Quotient graphs as DOT graphs.
+<<ZVG_modules.ml>>=
+module ZVGQuotientLTS2 = LTS (ZVGQuotient2)
+
+@ 
+\item This function generates the LTS form of the minimal zone graph.
+<<ZVG_modules.ml>>=
+let lts_of_zone_valuation_graph ta =
+  let
+      zone_graph =
+    Array.fold_left
+      (function partial_graph1 -> function list_for_location ->
+        List.fold_left
+          (function partial_graph2 -> function (zone, transitions_with_targets) ->
+            List.fold_left
+              (function partial_graph3 ->
+                function (transition, target_list) ->
+                  List.fold_left
+                    (function partial_graph4 ->
+                      function target ->
+                        Zone_graph.add_edge_e
+                          partial_graph4
+                          (Zone_graph.E.create
+                             zone
+                             (if transition.action2 < 0
+                              then
+                                 Delay
+                              else
+                                 Action transition.action2
+                             )
+                             target
+                          )
+                    )
+                    partial_graph3
+                    target_list
+              )
+              (Zone_graph.add_vertex partial_graph2 zone)
+              transitions_with_targets
+          )
+          partial_graph1
+          list_for_location
+      )
+      Zone_graph.empty
+      (generate_zone_valuation_graph ta)
+  in
+  {ZVGLT2.action_count = (TA.get_numactions ta);
+   ZVGLT2.zone_graph = zone_graph;
+   ZVGLT2.clock_names = (TA.get_clock_name_array ta)
+  }
+
+type half_key = ZVGQuotient2.node_ref_t
+
+@ 
+\item This function generates the LTS form of the minimal zone graph.
+<<ZVG_modules.ml>>=
+module type DP_TABLE_TYPE =
+sig
+  type table 
+  val empty_table: unit -> table
+  val lookup:
+    table ->
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
+    (half_key * half_key) ->
+    (*Whether it was found or not.*)
+    bool 
+  val remove:
+    table ->
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
+    (half_key * half_key) ->
+    (*Whether we needed to remove it or not.*)
+    bool 
+  val insert:
+    table ->
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
+    (half_key * half_key) ->
+    (*Whether we needed to remove something before inserting it.*)
+    bool 
+end
+  
+@ 
+\item This is the signature for the kinds of signatures we accept.
+<<ZVG_modules.ml>>=
+module type TA_RELATION_TYPE =
+sig
+  val nodes_to_other_nodes:
+    ZVGQuotient2.lts_t ->
+    ZVGQuotient2.lts_t ->
+    half_key ->
+    half_key ->
+    (((half_key * (half_key list)) list) *
+        (((half_key list) * half_key) list)
+    )
+end
+
+@ 
+\item This generates the out adjacency we use for STAB.
+<<ZVG_modules.ml>>=
+let out_adjacency l z a
+    =
+  List.filter
+    (function zz ->
+      List.exists
+        (ZVGQuotient2.node_equality l z)
+        (ZVGQuotient2.in_adjacency l zz a)
+    )
+    (ZVGQuotient2.nodes l)
+
+@ 
+\item This generates the out adjacency we use for TADB.
+<<ZVG_modules.ml>>=
+let out_adjacency_with_delay_earlier l z a
+    =
+  let rec f ol =
+    let ext =
+      List.filter
+        (function z ->
+          not
+            (List.exists
+               (ZVGQuotient2.node_equality l z)
+               ol
+            )
+        )
+        (List.concat
+           (List.map
+              (function z -> out_adjacency l z Delay)
+              ol
+           )
+        )
+    in
+    match ext with
+    | [] -> ol
+    | _ -> f (ext@ol)
+  in
+  List.concat
+    (List.map
+       (function z -> out_adjacency l z a)
+       (f [z])
+    )
+
+@ 
+\item This generates the out adjacency we use for TAOB.
+<<ZVG_modules.ml>>=
+let out_adjacency_with_delay_earlier_and_later l z a =
+  let rec f ol =
+    let ext =
+      List.filter
+        (function z ->
+          not
+            (List.exists
+               (ZVGQuotient2.node_equality l z)
+               ol
+            )
+        )
+        (List.concat
+           (List.map
+              (function z -> out_adjacency l z Delay)
+              ol
+           )
+        )
+    in
+    match ext with
+    | [] -> ol
+    | _ -> f (ext@ol)
+  in
+  f (out_adjacency_with_delay_earlier l z a)
+
+@ 
+\end{itemize}
+
+<<ZVG_modules.ml>>=
+module Test = struct
+  open Parse_timed_automaton
+  open ZVGLT2
+
+  module TA = Timed_automaton
+
+  module Vertex_set = Set.Make
+    (struct
+      type t = zone_using_dbm
+      let compare = Pervasives.compare
+     end)
+
+  module Edge_set = Set.Make
+    (struct
+      type t = zone_using_dbm * action_label * zone_using_dbm
+      let compare = Pervasives.compare
+     end)
+
+  let verify_zone_graph timed_automaton_string vertex_list edge_list =
+    let result =
+      TA.make_t
+        (parse_timed_automaton_from_string
+           timed_automaton_string
+        )
+    in
+    let
+        vertex_set =
+      List.fold_right
+        (function (zone_location, zone_constraint) ->
+          Vertex_set.add
+            {zone_location2 = {location_index = zone_location};
+             zone_constraint2 =
+                match
+                  clock_constraint_to_dbm_option
+                    (TA.get_clock_name_map result)
+                    zone_constraint
+                with
+                | Some dbm -> dbm
+            })
+        vertex_list
+        Vertex_set.empty
+    in
+    let
+        edge_set =
+      List.fold_right
+        (function ((zone_location1, zone_constraint1),
+                   action,
+                   (zone_location2, zone_constraint2)) ->
+          Edge_set.add
+            (Zone_graph.E.create
+               {zone_location2 = {location_index = zone_location1};
+                zone_constraint2 =
+                   match
+                     clock_constraint_to_dbm_option
+                       (TA.get_clock_name_map result)
+                       zone_constraint1
+                   with
+                   | Some dbm -> dbm
+               }
+               action
+               {zone_location2 = {location_index = zone_location2};
+                zone_constraint2 =
+                   match
+                     clock_constraint_to_dbm_option
+                       (TA.get_clock_name_map result)
+                       zone_constraint2
+                   with
+                   | Some dbm -> dbm
+               }
+            )
+        )
+        edge_list
+        Edge_set.empty
+    in
+    let l = lts_of_zone_valuation_graph result in
+    (Zone_graph.nb_vertex l.zone_graph
+     =
+        Vertex_set.cardinal vertex_set) &&
+      (Zone_graph.fold_vertex
+         (function zone ->
+           Pervasives.(&&)
+             (Vertex_set.mem
+                zone
+                vertex_set)
+         )
+         l.zone_graph
+         true
+      ) &&
+      (Zone_graph.nb_edges l.zone_graph = Edge_set.cardinal edge_set)
+    &&
+      (Zone_graph.fold_edges_e
+         (function edge ->
+           Pervasives.(&&)
+             (Edge_set.mem edge edge_set)
+         )
+         l.zone_graph
+         true
+      )
+      
+  let test105 () = 
+    Printf.printf "%s\n" "statements in test105 executing here!";
+    let
+        timed_automaton_string =
+      ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init" ^ 
+          " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
+       ^ " ACT 0; RESET {}; goto 1\n\nlocation: 1\ninvar:" ^ 
+         " TRUE\ntrans:\nX\ >= 4 and X <= 6 => ACT 0; RESET {}; goto" ^ 
+         " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+    in
+    let
+        vertex_list =
+      [(2, [Ge ("X", 4)]);
+       (1, [Lt ("X", 4); Ge ("X", 2)]);
+       (1, [Le ("X", 6); Ge ("X", 4)]);
+       (1, [Gt ("X", 6)]);
+       (0, [Lt ("X", 2)]);
+       (0, [Le ("X", 3); Ge ("X", 2)]);
+       (0, [Gt ("X", 3)])]
+    in
+    let
+        edge_list =
+      [((2, [Ge ("X", 4)]), Delay, (2, [Ge ("X", 4)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Action 0, (2, [Ge ("X", 4)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Lt ("X", 4); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 4); Ge ("X", 2)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Le ("X", 6); Ge ("X", 4)]));
+       ((1, [Lt ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 6)]));
+       ((1, [Le ("X", 6); Ge ("X", 4)]), Delay, (1, [Gt ("X", 6)]));
+       ((1, [Gt ("X", 6)]), Delay, (1, [Gt ("X", 6)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]))]
+    in
+    if
+      verify_zone_graph timed_automaton_string vertex_list edge_list
+    then
+      "test105 passed"
+    else
+      "test105 failed"
+      
+  let test106 () = 
+    let
+        timed_automaton_string =
+      ("#locations 3\n#trans 2\n#clocks 1\n#actions 1\n#init"
+       ^ " 0\nX\n\nlocation: 0\ninvar: TRUE\ntrans:\nX >= 2 and X <= 3 =>"
+       ^ " ACT 0; RESET {X}; goto 1\n\nlocation: 1\ninvar:"
+       ^ " TRUE\ntrans:\nX >= 2 and X <= 4 => ACT 0; RESET {}; goto"
+       ^ " 2\n\nlocation: 2\ninvar: TRUE\ntrans:\n")
+    in
+    let
+        vertex_list =
+      [(2, [Ge ("X", 2)]);
+       (1, [Lt ("X", 2)]);
+       (1, [Le ("X", 4); Ge ("X", 2)]);
+       (1, [Gt ("X", 4)]);
+       (0, [Lt ("X", 2)]);
+       (0, [Le ("X", 3); Ge ("X", 2)]);
+       (0, [Gt ("X", 3)])
+      ]
+    in
+    let
+        edge_list =
+      [((2, [Ge ("X", 2)]), Delay, (2, [Ge ("X", 2)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Action 0, (2, [Ge ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Lt ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Action 0, (1, [Lt ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Le ("X", 4); Ge ("X", 2)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Delay, (1, [Le ("X", 4); Ge ("X", 2)]));
+       ((1, [Lt ("X", 2)]), Delay, (1, [Gt ("X", 4)]));
+       ((1, [Le ("X", 4); Ge ("X", 2)]), Delay, (1, [Gt ("X", 4)]));
+       ((1, [Gt ("X", 4)]), Delay, (1, [Gt ("X", 4)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Lt ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Le ("X", 3); Ge ("X", 2)]));
+       ((0, [Lt ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Le ("X", 3); Ge ("X", 2)]), Delay, (0, [Gt ("X", 3)]));
+       ((0, [Gt ("X", 3)]), Delay, (0, [Gt ("X", 3)]));
+      ]
+    in
+    if
+      verify_zone_graph timed_automaton_string vertex_list edge_list
+    then
+      "test106 passed"
+    else
+      "test106 failed"
+
+end

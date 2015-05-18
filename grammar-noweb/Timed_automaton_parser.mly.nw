@@ -1,0 +1,146 @@
+\subsection{Timed\_automaton\_parser.mly}
+This file provides the parser for timed automata.
+
+<<Timed_automaton_parser.mly>>=
+/* File Timed_automaton_parser.mly */
+%token <int> INT
+%token <string> IDENT
+%token LPAREN RPAREN
+%token NUMLOCATIONS
+%token NUMTRANS
+%token NUMCLOCKS
+%token NUMACTIONS
+%token NUMINIT
+%token LOCATION
+%token PROP
+%token INVAR
+%token TRANS
+%token GOTO
+%token RARROW
+%token COLON
+%token SEMI
+%token LBRACE
+%token RBRACE
+%token LE
+%token LT
+%token GE
+%token GT
+%token EQ
+%token TRUE
+%token FALSE
+%token AND
+%token ACT
+%token RESET
+%token EOF
+%left AND
+
+%{
+  open Grammar_types
+  let build_graph_and_map locations =
+    List.fold_left
+      (function (g1, m) ->
+        function (source_label, clock_constraint, transitions) ->
+          (List.fold_left
+             (function g2 -> function (transition_label, destination_label) ->
+               Location_graph.add_edge_e
+                 g2
+                 (Location_graph.E.create
+                    source_label
+                    transition_label
+                    destination_label
+                 )
+             )
+             g1
+             transitions
+              ,
+           Location_invariant_map.add
+             source_label
+             clock_constraint
+             m)
+      )
+      (Location_graph.empty, Location_invariant_map.empty)
+      locations
+%}
+
+%start main             /* the entry point */
+
+%type <Grammar_types.timed_automaton_from_parser> main
+%type <String_set.t> clock_name_set
+%type <Grammar_types.location_label * Grammar_types.clock_constraint * ((Grammar_types.transition_label * Grammar_types.location_label) list)> location
+%type <(Grammar_types.location_label * Grammar_types.clock_constraint * ((Grammar_types.transition_label * Grammar_types.location_label) list)) list> locationlist
+%type <Grammar_types.clock_constraint> clock_constraint
+%type <Grammar_types.unit_clock_constraint> unit_clock_constraint
+%type <Grammar_types.transition_label * Grammar_types.location_label> transition
+%type <(Grammar_types.transition_label * Grammar_types.location_label) list> transitionlist
+
+%%
+main:
+NUMLOCATIONS INT NUMTRANS INT NUMCLOCKS INT NUMACTIONS INT NUMINIT
+INT clock_name_set locationlist EOF
+{ let
+    (graph, map) = build_graph_and_map $12
+  in
+  {numlocations=$2;
+   numtrans=$4;
+   numclocks=$6;
+   numactions=$8;
+   numinit={location_index = $10};
+   clock_name_set = $11;
+   location_graph = graph;
+   location_invariant_map = map} }
+;
+
+clock_name_set:
+
+{ String_set.empty }
+| IDENT clock_name_set
+{ String_set.add $1 $2 }
+;
+
+location:
+LOCATION COLON INT INVAR COLON clock_constraint TRANS COLON transitionlist
+{ ({location_index=$3}, $6, $9) }
+;
+
+locationlist:
+{ [] }
+| location locationlist
+{ $1::$2 }
+;
+
+unit_clock_constraint:
+TRUE
+{ True }
+|	FALSE
+{ False }
+|	IDENT LT INT
+{ Lt($1, $3) }
+|	IDENT LE INT
+{ Le($1, $3) }
+|	IDENT EQ INT
+{ Eq($1, $3) }
+|	IDENT GE INT
+{ Ge($1, $3) }
+|	IDENT GT INT
+{ Gt($1, $3) }
+;
+
+clock_constraint:
+unit_clock_constraint
+{ [$1] }
+|   unit_clock_constraint AND clock_constraint
+{ $1::$3 }
+;
+
+transition:
+clock_constraint RARROW ACT INT SEMI RESET LBRACE clock_name_set RBRACE SEMI GOTO INT
+{ ({condition=$1;
+    action=$4;
+    clock_resets=$8},
+   {location_index=$12}) }
+;
+
+transitionlist:
+{[]}
+| transition transitionlist                                    {$1::$2}
+;

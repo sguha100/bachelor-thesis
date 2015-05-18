@@ -1,0 +1,45 @@
+#automata 2
+channels: a b
+actions: c
+
+Automaton: 0
+#locations 3
+#trans 2
+#clocks 1
+#init 0
+clocks: X
+
+location: 0
+invar: TRUE
+trans:
+X >= 5 and X <= 8 => ACT c; RESET {X}; goto 1
+
+location: 1
+invar: TRUE
+trans:
+X >= 10 and X <= 10 => ACT a!; RESET {}; goto 2
+
+location: 2
+invar: TRUE
+trans:
+
+Automaton: 1
+#locations 3
+#trans 2
+#clocks 1
+#init 0
+clocks: Y
+
+location: 0
+invar: TRUE
+trans:
+Y >= 5 and Y <= 8 => ACT c; RESET {Y}; goto 1
+
+location: 1
+invar: TRUE
+trans:
+Y >= 10 and Y <= 10 => ACT a?; RESET {}; goto 2
+
+location: 2
+invar: TRUE
+trans:

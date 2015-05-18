@@ -1,0 +1,148 @@
+\subsection{Clock\_constraint\_utilities.ml}
+This file provides some important operations on clock constraints (the
+older kind.)
+
+<<Clock_constraint_utilities.ml>>=
+open Grammar_types
+open UDBM_utilities
+
+module TA = Timed_automaton
+
+@ 
+\begin{itemize}
+\item This function turns a clock constraint (in the old
+  representation) into a string.
+<<Clock_constraint_utilities.ml>>=
+let string_of_clock_constraint clock_constraint =
+  (String.concat
+     " AND "
+     (List.map
+        (function
+        | True -> "TRUE"
+        | False -> "FALSE"
+        | Lt (cn, n) -> cn ^ " < " ^ (string_of_int n)
+        | Le (cn, n) -> cn ^ " <= " ^ (string_of_int n)
+        | Eq (cn, n) -> cn ^ " = " ^ (string_of_int n)
+        | Ge (cn, n) -> cn ^ " >= " ^ (string_of_int n)
+        | Gt (cn, n) -> cn ^ " > " ^ (string_of_int n)
+        )
+        clock_constraint
+     )
+  )
+    
+@ 
+\item This function kind of implements the pre-reset operation, with
+the rider that the zero-ness of the clocks in question is not checked.
+<<Clock_constraint_utilities.ml>>=
+let clock_constraint_without_reset_clocks
+    clock_constraint
+    clock_resets =
+  String_set.fold
+    (function clock_name -> function clock_constraint ->
+      List.filter
+        (function
+        | True
+        | False -> true
+        | Lt (cn, _)
+        | Le (cn, _)
+        | Eq (cn, _)
+        | Ge (cn, _)
+        | Gt (cn, _) -> cn <> clock_name
+        )
+        clock_constraint
+    )
+    clock_resets
+    clock_constraint
+
+@ 
+\item This function  implements the post-reset operation.
+<<Clock_constraint_utilities.ml>>=
+let clock_constraint_after_clock_resets
+    clock_constraint
+    clock_resets =
+  (List.map
+     (function clock_reset -> Eq (clock_reset, 0))
+     (String_set.elements clock_resets)
+  )
+  @
+    (clock_constraint_without_reset_clocks
+       clock_constraint
+       clock_resets)
+
+@ 
+\item This function finds the maximum constant in the timed automaton
+for use in abstractions.
+<<Clock_constraint_utilities.ml>>=
+let maximum_constant (ta:TA.t): (int array) =
+  let
+      max = (Array.make (1 + TA.get_numclocks ta) 0)
+  in
+  let
+      f (clock_constraint:clock_constraint): unit =
+    List.iter
+      (function
+      | True
+      | False -> ()
+      | Lt (cn, n)
+      | Le (cn, n)
+      | Eq (cn, n)
+      | Ge (cn, n)
+      | Gt (cn, n) ->
+	try
+	  let
+	      index = String_map.find cn (TA.get_clock_name_map ta)
+	  in
+	  if
+	    (max.(index) < n)
+	  then
+	    max.(index) <- n
+	  else
+	    ()
+	with
+	| Not_found -> ()
+      )
+      clock_constraint
+  in
+  let
+      () = 
+  Location_graph.iter_vertex
+    (function location ->
+      let
+	  () =
+	(f
+	   (Location_invariant_map.find location
+              (TA.get_location_invariant_map ta))
+	)
+      in
+      Location_graph.iter_succ_e
+        (function departure ->
+	  f
+	    (Location_graph.E.label departure).condition 
+        )
+        (TA.get_location_graph ta)
+        location
+    )
+    (TA.get_location_graph ta)
+  in
+  max
+
+@ 
+\end{itemize}
+
+<<Clock_constraint_utilities.ml>>=
+module Test = 
+struct
+  let test19 =
+    if
+      [Eq ("X1", 0); Eq ("X3", 0); Gt ("X2", 3); Lt
+        ("X2", 5)]
+      =
+      (clock_constraint_after_clock_resets
+         [Ge ("X1", 5); Gt ("X2", 3); Le ("X1", 7); Lt ("X3", 5); Lt
+           ("X2", 5)]
+         (List.fold_right String_set.add ["X1"; "X3"] String_set.empty))
+    then
+      "test19 passed"
+    else
+      "test19 failed"
+end
