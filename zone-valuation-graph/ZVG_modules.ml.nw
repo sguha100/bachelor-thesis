@@ -33,12 +33,13 @@ module Zone_graph =
 \item This module implements the LTS data type for a zone graph.
 <<ZVG_modules.ml>>=
 module ZVGLT2 =
-struct
+(struct
   type node_ref_t = zone_using_dbm
   type action_t = action_label
   type lts_t = {zone_graph: Zone_graph.t;
                 action_count: int;
-                clock_names: string array
+                clock_names: string array;
+                ta_numinit: location_label;
                }
   let node_equality =
     function l -> function zone1 -> function zone2 ->
@@ -62,7 +63,15 @@ struct
     function l ->
       (let (l1, l2) = 
         Zone_graph.fold_vertex
-          (function vertex -> function (l1, l2) -> (l1, vertex::l2))
+          (function vertex -> function (l1, l2) ->
+            if
+              (vertex.zone_location2 = l.ta_numinit)
+              &&
+                (dbm_isZeroIncluded vertex.zone_constraint2)
+            then
+              (vertex::l1, l2)
+            else
+              (l1, vertex::l2))
           l.zone_graph
           ([], [])
     in
@@ -89,7 +98,7 @@ struct
            (Zone_graph.pred_e l.zone_graph zone)
         )
     )
-end
+ end)
 
 @ 
 \item This module gets all the Fernandez functor functions for zone
@@ -151,7 +160,8 @@ let lts_of_zone_valuation_graph ta =
   in
   {ZVGLT2.action_count = (TA.get_numactions ta);
    ZVGLT2.zone_graph = zone_graph;
-   ZVGLT2.clock_names = (TA.get_clock_name_array ta)
+   ZVGLT2.clock_names = (TA.get_clock_name_array ta);
+   ZVGLT2.ta_numinit = (TA.get_numinit ta)
   }
 
 type half_key = ZVGQuotient2.node_ref_t
